@@ -2921,6 +2921,13 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
                       {order.graphicsData?.paperWidth}
                     </span>
                   </div>
+                  
+                  <div className="flex justify-between">
+                    <span>Kağıt Türü:</span>
+                    <span className="font-semibold text-gray-800 text-[9px]">
+                      {order.rawMaterial || '-'}
+                    </span>
+                  </div>
 
                   {/* CRITICAL: Warehouse Meterage (with Waste) */}
                   <div className="pt-2 mt-2 border-t-2 border-green-300 bg-green-50 -mx-3 px-3 py-2 rounded">
