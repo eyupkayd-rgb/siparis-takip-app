@@ -4262,6 +4262,7 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
 function ArchiveDashboard({ orders, isSuperAdmin }) {
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'completed', 'incomplete'
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Calculate fire percentage and success
   const calculateFireAnalysis = (order) => {
