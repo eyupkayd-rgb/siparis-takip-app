@@ -3766,6 +3766,7 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
   const [selectedStation, setSelectedStation] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [stationData, setStationData] = useState({
     startTime: '',
     endTime: '',
