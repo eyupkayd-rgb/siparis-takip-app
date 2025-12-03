@@ -41,21 +41,14 @@ try {
 
 // ==========================================================================================
 
-// Firebase Başlatma
+// Firebase Başlatma (İyileştirilmiş)
 let app, auth, db;
 try {
-  if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "BURAYA_FIREBASE_API_KEY_GELECEK") {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } else if (typeof __firebase_config !== 'undefined') {
-      // Fallback for preview environment if the above check fails but __firebase_config exists
-      app = initializeApp(JSON.parse(__firebase_config));
-      auth = getAuth(app);
-      db = getFirestore(app);
-  }
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
 } catch (error) {
-  console.error("Firebase başlatılamadı. Lütfen config ayarlarını kontrol edin.", error);
+  console.error("Firebase initialization error:", error);
 }
 
 // --- GEMINI API FONKSİYONU ---
