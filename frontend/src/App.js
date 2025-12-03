@@ -404,3 +404,547 @@ function AttachmentManager({ order, onAttachmentsChange, readOnly = false, compa
   );
 }
 
+// ============================================================================
+// 🧮 BUSINESS LOGIC (ERP Architecture)
+// ============================================================================
+
+const generateProductionJobs = (complexData) => {
+  if (!complexData || !complexData.variants || complexData.variants.length === 0) return [];
+  let jobs = [];
+  
+  complexData.variants.forEach((variant, idx) => {
+    jobs.push({
+      id: `job_${Date.now()}_${idx}_f`,
+      name: `${variant.name} - ÖN`,
+      quantity: variant.quantity,
+      type: 'Front',
+      variantName: variant.name,
+      status: 'pending_mounting'
+    });
+
+    if (complexData.isSet && !complexData.commonBack) {
+      jobs.push({
+        id: `job_${Date.now()}_${idx}_b`,
+        name: `${variant.name} - ARKA`,
+        quantity: variant.quantity,
+        type: 'Back',
+        variantName: variant.name,
+        status: 'pending_mounting'
+      });
+    }
+  });
+
+  if (complexData.isSet && complexData.commonBack) {
+    const totalQty = complexData.variants.reduce((sum, v) => sum + parseInt(v.quantity || 0), 0);
+    jobs.push({
+      id: `job_${Date.now()}_common_b`,
+      name: `ORTAK ARKA ETİKET`,
+      quantity: totalQty,
+      type: 'Back_Common',
+      variantName: 'All',
+      status: 'pending_mounting'
+    });
+  }
+  return jobs;
+};
+
+const calculatePlateMeterage = (plate) => {
+  if (!plate.zStep || !plate.items.length) return 0;
+  let maxMeterage = 0;
+  
+  plate.items.forEach(item => {
+    const jobQty = parseInt(item.job.quantity);
+    const lanes = parseInt(item.lanes);
+    if (lanes > 0) {
+      const requiredMeters = (jobQty / lanes) * (parseFloat(plate.zStep) / 1000);
+      if (requiredMeters > maxMeterage) maxMeterage = requiredMeters;
+    }
+  });
+  return Math.ceil(maxMeterage);
+};
+
+// ============================================================================
+// 📊 STATUS BADGE COMPONENT
+// ============================================================================
+
+function StatusBadge({ status }) {
+  const statusMap = {
+    graphics_pending: { text: "Grafik Bekliyor", color: "bg-blue-500", icon: Palette },
+    warehouse_raw_pending: { text: "Hammadde Onayı", color: "bg-indigo-500", icon: Archive },
+    warehouse_processing: { text: "Depo İşlemde", color: "bg-purple-500", icon: Package },
+    planning_pending: { text: "Planlama Bekliyor", color: "bg-orange-500", icon: Calendar },
+    planned: { text: "Planlandı", color: "bg-green-500", icon: CheckCircle },
+    production_started: { text: "Üretimde", color: "bg-teal-500", icon: Printer },
+    shipping_ready: { text: "Sevk Bekliyor", color: "bg-yellow-500", icon: Truck },
+    completed: { text: "Tamamlandı", color: "bg-gray-800", icon: Check }
+  };
+  
+  const s = statusMap[status] || { text: status, color: "bg-gray-400", icon: AlertCircle };
+  const Icon = s.icon;
+  
+  return (
+    <span className={`${s.color} text-white px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-sm`}>
+      <Icon size={14} />
+      {s.text}
+    </span>
+  );
+}
+
+// ============================================================================
+// 📦 MARKETING DASHBOARD (FULL FEATURED)
+// ============================================================================
+
+function MarketingDashboard({ orders, isSuperAdmin }) {
+  const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  
+  const [formData, setFormData] = useState({
+    orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
+    rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+    customerDeadline: '', attachments: [],
+    isComplex: false, isSet: false, commonBack: false, variants: []
+  });
+
+  const handleVariantChange = (index, field, value) => {
+    const newVariants = [...formData.variants];
+    newVariants[index][field] = value;
+    setFormData({ ...formData, variants: newVariants });
+  };
+
+  const addVariant = () => {
+    setFormData({ 
+      ...formData, 
+      variants: [...formData.variants, { name: '', quantity: '' }] 
+    });
+  };
+
+  const removeVariant = (index) => {
+    const newVariants = formData.variants.filter((_, i) => i !== index);
+    setFormData({ ...formData, variants: newVariants });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    
+    try {
+      const ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+      
+      const finalQuantity = formData.isComplex 
+        ? formData.variants.reduce((sum, v) => sum + parseInt(v.quantity || 0), 0) + ' Adet (Toplam)' 
+        : `${formData.qAmount} ${formData.qUnit}`;
+      
+      const generatedJobs = formData.isComplex ? generateProductionJobs(formData) : [];
+
+      const payload = { 
+        ...formData, 
+        quantity: finalQuantity, 
+        generatedJobs: generatedJobs,
+        revisionAlert: editingId ? "Pazarlama tarafından güncellendi" : null 
+      };
+      
+      if (editingId) {
+        await updateDoc(
+          doc(db, 'artifacts', appId, 'public', 'data', 'orders', editingId), 
+          payload
+        );
+      } else {
+        await addDoc(ordersCollection, { 
+          ...payload, 
+          status: 'graphics_pending', 
+          graphicsData: null, 
+          warehouseData: null, 
+          planningData: null, 
+          productionData: null, 
+          createdAt: new Date().toISOString() 
+        });
+      }
+      
+      setShowForm(false);
+      setEditingId(null);
+      setFormData({
+        orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
+        rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+        customerDeadline: '', attachments: [],
+        isComplex: false, isSet: false, commonBack: false, variants: []
+      });
+    } catch (error) {
+      console.error("Order save error:", error);
+      alert("Hata: " + error.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleEdit = (order) => {
+    setEditingId(order.id);
+    const [amount, unit] = (order.quantity || "0 Adet").split(" ");
+    setFormData({
+      orderNo: order.orderNo || '', 
+      customer: order.customer || '', 
+      product: order.product || '',
+      category: order.category || 'Etiket', 
+      type: order.type || 'Yeni', 
+      rawMaterial: order.rawMaterial || '',
+      qAmount: amount, 
+      qUnit: unit || 'Adet', 
+      sheetStatus: order.sheetStatus || '', 
+      customerDeadline: order.customerDeadline || '',
+      attachments: order.attachments || [],
+      isComplex: order.isComplex || false,
+      isSet: order.isSet || false,
+      commonBack: order.commonBack || false,
+      variants: order.variants || []
+    });
+    setShowForm(true);
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm("DİKKAT: Bu siparişi kalıcı olarak silmek üzeresiniz.")) {
+      try {
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId));
+      } catch (error) {
+        alert("Silme işlemi başarısız oldu.");
+      }
+    }
+  };
+
+  const rawMaterials = [
+    "PP OPAK SARI PERGAMİN", "PP OPAK BEYAZ PERGAMİN", "PP OPAK PET",
+    "KUŞE SARI PERGAMİN", "KUŞE BEYAZ PERGAMİN", "KUŞE PET", "KUŞE MAT",
+    "PP METALİZE GOLD", "PP METALİZE SİLVER",
+    "KUŞE METALİZE GOLD", "KUŞE METALİZE SİLVER",
+    "PP ŞEFFAF", "PP ULTRA CLEAR", "PE OPAK",
+    "LAMİNE TERMAL", "ECO TERMAL",
+    "PET-G 40 MİC.", "PET-G 45 MİC.", "PET-G 50 MİC.",
+    "PVC 40 MİC.", "PVC 45 MİC.", "PVC 50 MİC."
+  ];
+
+  return (
+    <div className="space-y-6 animate-in fade-in">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Sipariş Yönetimi
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Yeni sipariş oluşturun veya mevcutları düzenleyin
+          </p>
+        </div>
+        
+        <button
+          onClick={() => {
+            setShowForm(!showForm);
+            setEditingId(null);
+            setFormData({
+              orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
+              rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+              customerDeadline: '', attachments: [],
+              isComplex: false, isSet: false, commonBack: false, variants: []
+            });
+          }}
+          className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl"
+        >
+          {showForm ? (
+            <>
+              <X size={18} />
+              Listeye Dön
+            </>
+          ) : (
+            <>
+              <Plus size={18} />
+              Yeni Sipariş Gir
+            </>
+          )}
+        </button>
+      </div>
+
+      {showForm ? (
+        <div className="bg-white p-8 rounded-2xl shadow-xl border-2 border-gray-100 animate-slide-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+              <Package size={24} className="text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800">
+              {editingId ? 'Siparişi Düzenle' : 'Yeni Sipariş Oluştur'}
+            </h3>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Category Selection */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-5 rounded-xl border-2 border-blue-100">
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-sm font-bold text-blue-900">
+                  📦 Sipariş Kategorisi & Tipi
+                </label>
+                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm">
+                  <span className="text-xs font-bold text-purple-700">
+                    Gelişmiş Sipariş (Varyant/Takım)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, isComplex: !formData.isComplex})}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      formData.isComplex ? 'bg-purple-600' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                      formData.isComplex ? 'translate-x-6' : ''
+                    }`} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-3 rounded-lg border-2 border-transparent hover:border-blue-300 transition-all">
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Etiket"
+                    checked={formData.category === 'Etiket'}
+                    onChange={() => setFormData({...formData, category: 'Etiket', sheetStatus: ''})}
+                    className="w-5 h-5 text-blue-600"
+                  />
+                  <span className="font-bold text-gray-700">📄 Etiket Siparişi</span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-3 rounded-lg border-2 border-transparent hover:border-blue-300 transition-all">
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Ambalaj"
+                    checked={formData.category === 'Ambalaj'}
+                    onChange={() => setFormData({...formData, category: 'Ambalaj'})}
+                    className="w-5 h-5 text-blue-600"
+                  />
+                  <span className="font-bold text-gray-700">📦 Ambalaj Siparişi</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Basic Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Sipariş No</label>
+                <input
+                  required
+                  placeholder="Örn: SIP-2024-001"
+                  className="input-field"
+                  value={formData.orderNo}
+                  onChange={e => setFormData({...formData, orderNo: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="label">Firma Adı</label>
+                <input
+                  required
+                  placeholder="Müşteri firma adı"
+                  className="input-field"
+                  value={formData.customer}
+                  onChange={e => setFormData({...formData, customer: e.target.value})}
+                />
+              </div>
+            </div>
+
+            {/* Complex Order (Variants) */}
+            {formData.isComplex ? (
+              <div className="bg-purple-50 p-5 rounded-xl border-2 border-purple-200 space-y-4">
+                <div className="flex gap-4 items-center">
+                  <h4 className="font-bold text-purple-800 flex items-center gap-2">
+                    <Split size={18} />
+                    Varyant / Çeşit Yönetimi
+                  </h4>
+                  <label className="flex items-center gap-2 text-xs cursor-pointer bg-white px-3 py-2 rounded-lg border border-purple-200">
+                    <input
+                      type="checkbox"
+                      checked={formData.isSet}
+                      onChange={e => setFormData({...formData, isSet: e.target.checked})}
+                    />
+                    <span className="font-bold">Takım (Ön+Arka)</span>
+                  </label>
+                  {formData.isSet && (
+                    <label className="flex items-center gap-2 text-xs cursor-pointer bg-white px-3 py-2 rounded-lg border border-purple-200">
+                      <input
+                        type="checkbox"
+                        checked={formData.commonBack}
+                        onChange={e => setFormData({...formData, commonBack: e.target.checked})}
+                      />
+                      <span className="font-bold">Ortak Arka Etiket</span>
+                    </label>
+                  )}
+                </div>
+                
+                {formData.variants.map((variant, index) => (
+                  <div key={index} className="flex gap-2 items-center bg-white p-3 rounded-lg border border-purple-200">
+                    <span className="text-sm font-bold text-purple-600 w-8">
+                      {index + 1}.
+                    </span>
+                    <input
+                      required
+                      placeholder="Varyant Adı (Örn: Elma, Portakal)"
+                      className="input-field flex-1"
+                      value={variant.name}
+                      onChange={e => handleVariantChange(index, 'name', e.target.value)}
+                    />
+                    <input
+                      required
+                      type="number"
+                      placeholder="Adet"
+                      className="input-field w-32"
+                      value={variant.quantity}
+                      onChange={e => handleVariantChange(index, 'quantity', e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="text-sm font-bold text-purple-600 hover:text-purple-800 flex items-center gap-2 bg-white px-4 py-2 rounded-lg border-2 border-dashed border-purple-300 hover:border-purple-400 transition-all"
+                >
+                  <Plus size={16} />
+                  Varyant Ekle
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Ürün Adı</label>
+                  <input
+                    required
+                    placeholder="Ürün ismi"
+                    className="input-field"
+                    value={formData.product}
+                    onChange={e => setFormData({...formData, product: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Miktar</label>
+                  <div className="flex gap-2">
+                    <input
+                      required
+                      type="number"
+                      placeholder="Miktar"
+                      className="input-field flex-1"
+                      value={formData.qAmount}
+                      onChange={e => setFormData({...formData, qAmount: e.target.value})}
+                    />
+                    <select
+                      className="input-field w-28 bg-gray-50"
+                      value={formData.qUnit}
+                      onChange={e => setFormData({...formData, qUnit: e.target.value})}
+                    >
+                      <option>Adet</option>
+                      <option>Kg</option>
+                      <option>Metre</option>
+                      <option>Top</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Rest of the fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Sipariş Türü</label>
+                <select
+                  className="input-field"
+                  value={formData.type}
+                  onChange={e => setFormData({...formData, type: e.target.value})}
+                >
+                  <option>Yeni</option>
+                  <option>Tekrar</option>
+                  <option>Numune</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="label">Hammadde</label>
+                <select
+                  className="input-field"
+                  value={formData.rawMaterial}
+                  onChange={e => setFormData({...formData, rawMaterial: e.target.value})}
+                >
+                  <option value="" disabled>Hammadde Seçin</option>
+                  {rawMaterials.map(mat => (
+                    <option key={mat} value={mat}>{mat}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {formData.category === 'Ambalaj' && (
+                <div className="animate-in fade-in">
+                  <label className="label">Tabaka Durumu</label>
+                  <select
+                    className="input-field border-blue-300 bg-blue-50"
+                    value={formData.sheetStatus}
+                    onChange={e => setFormData({...formData, sheetStatus: e.target.value})}
+                  >
+                    <option value="">Seçiniz</option>
+                    <option>Var</option>
+                    <option>Yok</option>
+                  </select>
+                </div>
+              )}
+              
+              <div>
+                <label className="label">Müşteri Termin Tarihi</label>
+                <input
+                  required
+                  type="date"
+                  className="input-field"
+                  value={formData.customerDeadline}
+                  onChange={e => setFormData({...formData, customerDeadline: e.target.value})}
+                />
+              </div>
+            </div>
+
+            {/* Attachments */}
+            <AttachmentManager
+              order={editingId ? { id: editingId, attachments: formData.attachments } : null}
+              onAttachmentsChange={(newAtt) => setFormData({...formData, attachments: newAtt})}
+            />
+
+            {/* Submit Button */}
+            <button
+              disabled={isSaving}
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="animate-spin" size={24} />
+                  Kaydediliyor...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={24} />
+                  {editingId ? 'Değişiklikleri Kaydet' : 'Kaydet ve Grafiğe Gönder'}
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      ) : (
+        <OrderListTable
+          orders={orders}
+          onEdit={handleEdit}
+          onDelete={handleDeleteOrder}
+          isSuperAdmin={isSuperAdmin}
+        />
+      )}
+    </div>
+  );
+}
+
