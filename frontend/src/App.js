@@ -1413,8 +1413,18 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
   });
   const [plateData, setPlateData] = useState([]);
 
-  const pendingOrders = orders.filter(o => o.status === 'graphics_pending');
-  const allOrders = orders;
+  // Filter orders by search query
+  const filterOrders = (orderList) => {
+    if (!searchQuery) return orderList;
+    return orderList.filter(order => 
+      order.orderNo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.product?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const pendingOrders = filterOrders(orders.filter(o => o.status === 'graphics_pending'));
+  const allOrders = filterOrders(orders);
   const activeOrder = selectedOrder ? (orders.find(o => o.id === selectedOrder.id) || selectedOrder) : null;
 
   useEffect(() => {
