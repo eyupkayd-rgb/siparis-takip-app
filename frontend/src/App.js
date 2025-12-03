@@ -931,6 +931,18 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
               </div>
             </div>
 
+            {/* Notes Field */}
+            <div>
+              <label className="label">Notlar (Opsiyonel)</label>
+              <textarea
+                className="input-field"
+                rows="3"
+                placeholder="Önemli detaylar, özel talepler veya notlar..."
+                value={formData.notes}
+                onChange={e => setFormData({...formData, notes: e.target.value})}
+              />
+            </div>
+
             {/* Attachments */}
             <AttachmentManager
               order={editingId ? { id: editingId, attachments: formData.attachments } : null}
