@@ -2117,6 +2117,7 @@ function WarehouseDashboard({ orders, isSuperAdmin }) {
   const [listMode, setListMode] = useState('pending');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [wData, setWData] = useState({
     materialStatus: '',
     slittingDate: '',
