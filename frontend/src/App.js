@@ -3854,7 +3854,8 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
         inputMeterage: '',
         outputMeterage: '',
         outputQuantity: '',
-        notes: ''
+        notes: '',
+        isStarted: false
       });
     } catch (error) {
       console.error("Station save error:", error);
