@@ -4028,30 +4028,43 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
                   </div>
                 </div>
 
+                {/* Start/End Buttons */}
+                {!stationData.isStarted ? (
+                  <button
+                    type="button"
+                    onClick={handleStartWork}
+                    className="w-full py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                  >
+                    <Play size={24} />
+                    İşe Başla
+                  </button>
+                ) : (
+                  <div className="bg-green-50 p-4 rounded-xl border-2 border-green-200">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-bold text-green-800">✅ İş başlatıldı</span>
+                      <span className="text-lg font-bold text-green-700">{stationData.startTime}</span>
+                    </div>
+                    {!stationData.endTime && (
+                      <button
+                        type="button"
+                        onClick={handleEndWork}
+                        className="w-full py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
+                      >
+                        <StopCircle size={20} />
+                        İşi Bitir
+                      </button>
+                    )}
+                    {stationData.endTime && (
+                      <div className="text-center py-2 bg-red-100 rounded-lg border border-red-300">
+                        <span className="text-sm font-bold text-red-800">Bitiş: {stationData.endTime}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Station Form */}
                 <form onSubmit={handleSaveStation} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="label">Başlama Saati</label>
-                      <input
-                        required
-                        type="time"
-                        className="input-field"
-                        value={stationData.startTime}
-                        onChange={e => setStationData({ ...stationData, startTime: e.target.value })}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="label">Bitiş Saati</label>
-                      <input
-                        required
-                        type="time"
-                        className="input-field"
-                        value={stationData.endTime}
-                        onChange={e => setStationData({ ...stationData, endTime: e.target.value })}
-                      />
-                    </div>
 
                     <div>
                       <label className="label">Giren Metraj (mt)</label>
