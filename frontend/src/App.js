@@ -1103,3 +1103,286 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
   );
 }
 
+// ============================================================================
+// 🏠 MAIN APP COMPONENT
+// ============================================================================
+
+export default function OrderApp() {
+  const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [activeDepartment, setActiveDepartment] = useState(null);
+
+  const isSuperAdmin = user && ADMIN_EMAILS.includes(user.email);
+
+  // Auth initialization
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
+          await signInWithCustomToken(auth, window.__initial_auth_token);
+        } else {
+          try {
+            await signInAnonymously(auth);
+          } catch (anonError) {
+            console.warn("Anonymous auth failed:", anonError);
+            setUser({ uid: 'test-user', isAnonymous: true });
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Auth error:", error);
+        setUser({ uid: 'test-user', isAnonymous: true });
+        setLoading(false);
+      }
+    };
+    
+    initAuth();
+    
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        // TEST MODE: Everyone gets admin role
+        setUserRole('admin');
+        setLoading(false);
+      } else {
+        setUserRole(null);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch orders
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+    const unsubscribe = onSnapshot(
+      ordersCollection,
+      (snapshot) => {
+        const fetchedOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedOrders.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setOrders(fetchedOrders);
+      },
+      (error) => {
+        console.error("Orders fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUserRole(null);
+    setActiveDepartment(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-blue-600 mx-auto mb-4" size={64} />
+          <p className="text-gray-600 text-lg font-medium">Sistem yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-blue-900 p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock className="text-blue-600" size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">Personel Girişi</h2>
+            <p className="text-gray-500 text-sm mt-1">Bulut Üretim Takip Sistemi</p>
+          </div>
+          <div className="text-center text-gray-500">
+            <p>Sistem yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Department Selection Menu
+  if (!activeDepartment) {
+    const departments = [
+      { id: 'marketing', name: 'Pazarlama', desc: 'Sipariş Girişi', icon: User, color: 'from-blue-500 to-blue-600' },
+      { id: 'graphics', name: 'Grafik', desc: 'Teknik Detaylar', icon: Palette, color: 'from-orange-500 to-orange-600' },
+      { id: 'warehouse', name: 'Depo', desc: 'Hammadde & Sevkiyat', icon: Archive, color: 'from-indigo-500 to-indigo-600' },
+      { id: 'planning', name: 'Planlama', desc: 'Üretim Takvimi', icon: Calendar, color: 'from-green-500 to-green-600' },
+      { id: 'archive', name: 'Arşiv', desc: 'Geçmiş ve Raporlar', icon: FileText, color: 'from-purple-500 to-purple-600' }
+    ];
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl">
+          {/* Header */}
+          <div className="text-center mb-12 animate-in fade-in">
+            <div className="bg-white/10 backdrop-blur-lg w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <Package size={40} className="text-white" />
+            </div>
+            <h1 className="text-5xl font-bold text-white mb-3">
+              Bulut Takip Sistemi
+            </h1>
+            <p className="text-blue-100 text-lg">
+              Lütfen departmanınızı seçiniz
+            </p>
+          </div>
+
+          {/* Department Cards */}
+          <div className="grid gap-4 animate-in fade-in duration-500">
+            {departments.map((dept, index) => {
+              const Icon = dept.icon;
+              return (
+                <button
+                  key={dept.id}
+                  onClick={() => setActiveDepartment(dept.id)}
+                  className="group bg-white/10 backdrop-blur-lg hover:bg-white/20 p-6 rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl text-left"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`bg-gradient-to-br ${dept.color} p-4 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon size={28} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-1">
+                        {dept.name}
+                      </h3>
+                      <p className="text-blue-100 text-sm">
+                        {dept.desc}
+                      </p>
+                    </div>
+                    <ChevronRight className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" size={24} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleLogout}
+              className="text-white/80 hover:text-white text-sm font-medium flex items-center gap-2 mx-auto transition-colors"
+            >
+              <LogOut size={16} />
+              Çıkış Yap
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Dashboard
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
+      {/* Header */}
+      <header className="bg-white shadow-md border-b-2 border-gray-200 px-6 py-4 sticky top-0 z-50">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setActiveDepartment(null)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Ana Menüye Dön"
+            >
+              <ChevronLeft size={24} className="text-gray-600" />
+            </button>
+            
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white p-2 rounded-xl shadow-lg">
+                <Package size={24} />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">
+                  Üretim Takip v7.0 (Modern)
+                </h1>
+                <p className="text-xs text-gray-500">
+                  {activeDepartment === 'marketing' && 'Pazarlama Departmanı'}
+                  {activeDepartment === 'graphics' && 'Grafik Departmanı'}
+                  {activeDepartment === 'warehouse' && 'Depo Departmanı'}
+                  {activeDepartment === 'planning' && 'Planlama Departmanı'}
+                  {activeDepartment === 'archive' && 'Arşiv Departmanı'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full">
+              <User size={16} className="text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">
+                {user.isAnonymous ? 'Test User' : user.email}
+              </span>
+            </div>
+            
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Şifre Değiştir"
+            >
+              <Key size={20} />
+            </button>
+            
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+            >
+              <LogOut size={18} />
+              <span className="hidden sm:inline">Çıkış</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-[1800px] mx-auto p-6">
+        {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
+        
+        {activeDepartment === 'marketing' && (
+          <MarketingDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
+        )}
+        
+        {activeDepartment === 'graphics' && (
+          <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
+            <Palette size={64} className="mx-auto mb-4 text-orange-500 opacity-50" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Grafik Modülü</h2>
+            <p className="text-gray-600">Yakında eklenecek...</p>
+          </div>
+        )}
+        
+        {activeDepartment === 'warehouse' && (
+          <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
+            <Archive size={64} className="mx-auto mb-4 text-indigo-500 opacity-50" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Depo Modülü</h2>
+            <p className="text-gray-600">Yakında eklenecek...</p>
+          </div>
+        )}
+        
+        {activeDepartment === 'planning' && (
+          <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
+            <Calendar size={64} className="mx-auto mb-4 text-green-500 opacity-50" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Planlama Modülü</h2>
+            <p className="text-gray-600">Yakında eklenecek...</p>
+          </div>
+        )}
+        
+        {activeDepartment === 'archive' && (
+          <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
+            <FileText size={64} className="mx-auto mb-4 text-purple-500 opacity-50" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Arşiv Modülü</h2>
+            <p className="text-gray-600">Yakında eklenecek...</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
