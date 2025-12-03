@@ -2128,7 +2128,17 @@ function WarehouseDashboard({ orders, isSuperAdmin }) {
 
   const activeOrder = selectedOrder ? (orders.find(o => o.id === selectedOrder.id) || selectedOrder) : null;
 
-  const rawPending = orders.filter(o => 
+  // Filter by search
+  const filterOrders = (orderList) => {
+    if (!searchQuery) return orderList;
+    return orderList.filter(order => 
+      order.orderNo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.product?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const rawPending = filterOrders(orders.filter(o => 
     o.status === 'warehouse_raw_pending' || 
     o.status === 'warehouse_processing' || 
     ((o.status === 'planning_pending' || o.status === 'planned') && 
