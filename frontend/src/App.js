@@ -1407,7 +1407,8 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
     machine: '', color: '', printType: '', zet: '', meterage: '', 
     lamination: '', plateStatus: '', dieStatus: '', paperWidth: '', 
     step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
-    layeringStatus: '' // Tabakalama durumu (Ambalaj için)
+    layeringStatus: '', // Tabakalama durumu (Ambalaj için)
+    notes: '' // Grafik notları
   });
   const [plateData, setPlateData] = useState([]);
 
