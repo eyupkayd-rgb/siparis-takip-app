@@ -1360,11 +1360,7 @@ export default function OrderApp() {
         )}
         
         {activeDepartment === 'warehouse' && (
-          <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
-            <Archive size={64} className="mx-auto mb-4 text-indigo-500 opacity-50" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Depo Modülü</h2>
-            <p className="text-gray-600">Yakında eklenecek...</p>
-          </div>
+          <WarehouseDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
         )}
         
         {activeDepartment === 'planning' && (
