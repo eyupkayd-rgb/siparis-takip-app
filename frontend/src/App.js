@@ -3740,8 +3740,8 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
   // Filter orders for selected station
   const getOrdersForStation = (stationId) => {
     return orders.filter(order => {
-      if (order.status !== 'planned' && order.status !== 'production_started' && 
-          order.status !== 'shipping_ready' && order.status !== 'completed') {
+      // Only show planned and production_started orders
+      if (order.status !== 'planned' && order.status !== 'production_started') {
         return false;
       }
       
