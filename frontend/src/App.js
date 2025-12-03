@@ -2027,6 +2027,18 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
               </div>
 
               {/* Attachments */}
+              {/* Notes Field */}
+              <div>
+                <label className="label">Grafik Notları (Opsiyonel)</label>
+                <textarea
+                  className="input-field"
+                  rows="3"
+                  placeholder="Önemli teknik detaylar, uyarılar veya notlar..."
+                  value={gData.notes}
+                  onChange={e => setGData({ ...gData, notes: e.target.value })}
+                />
+              </div>
+
               <div className="pt-4 border-t border-gray-200">
                 <AttachmentManager order={activeOrder} />
               </div>
