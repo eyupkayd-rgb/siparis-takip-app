@@ -2927,7 +2927,7 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   return (
     <div className="space-y-8 animate-in fade-in">
       {/* Header */}
-      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4 mb-4">
         <div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
             Üretim Planlama
@@ -3932,7 +3932,7 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
   return (
     <div className="space-y-8 animate-in fade-in">
       {/* Header */}
-      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4 mb-4">
         <div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
             Üretim Takibi
@@ -4322,7 +4322,7 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
   return (
     <div className="space-y-8 animate-in fade-in">
       {/* Header */}
-      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4 mb-4">
         <div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Arşiv & Raporlama
