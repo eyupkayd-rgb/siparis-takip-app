@@ -5,6 +5,13 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
     "./public/index.html"
   ],
+  safelist: [
+    // Dynamic color classes için safelist (Üretim takip sistemi)
+    { pattern: /bg-(blue|green|orange|red|indigo|purple|teal|yellow|slate)-(50|100|200|300|400|500|600|700|800)/ },
+    { pattern: /text-(blue|green|orange|red|indigo|purple|teal|yellow|slate)-(50|100|200|300|400|500|600|700|800)/ },
+    { pattern: /border-(blue|green|orange|red|indigo|purple|teal|yellow|slate)-(50|100|200|300|400|500|600|700|800)/ },
+    { pattern: /ring-(blue|green|orange|red|indigo|purple|teal|yellow|slate)-(50|100|200|300|400|500|600|700|800)/ },
+  ],
   theme: {
   	extend: {
   		borderRadius: {
