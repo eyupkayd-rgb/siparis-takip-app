@@ -3930,7 +3930,7 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
               {filteredOrders.map(order => (
                 <div
                   key={order.id}
-                  onClick={() => handleStartStation(order)}
+                  onClick={() => handleSelectOrder(order)}
                   className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     selectedOrder?.id === order.id
                       ? 'bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-500 shadow-xl ring-2 ring-teal-300'
