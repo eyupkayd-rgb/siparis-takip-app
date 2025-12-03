@@ -2773,14 +2773,25 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiAdvice, setAiAdvice] = useState("");
   const [leftPanelTab, setLeftPanelTab] = useState('pending'); // 'pending' or 'planned'
+  const [searchQuery, setSearchQuery] = useState('');
 
   const selectedOrder = orders.find(o => o.id === selectedId);
   const isEditing = selectedOrder?.status === 'planned' || 
                     selectedOrder?.status === 'shipping_ready' || 
                     selectedOrder?.status === 'completed';
 
-  const readyForPlanning = orders.filter(o => o.status === 'planning_pending');
-  const plannedOrders = orders.filter(o => 
+  // Filter by search
+  const filterOrders = (orderList) => {
+    if (!searchQuery) return orderList;
+    return orderList.filter(order => 
+      order.orderNo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.product?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const readyForPlanning = filterOrders(orders.filter(o => o.status === 'planning_pending'));
+  const plannedOrders = filterOrders(orders.filter(o => 
     o.status === 'planned' || 
     o.status === 'production_started' || 
     o.status === 'shipping_ready' || 
