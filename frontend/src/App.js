@@ -1406,7 +1406,8 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
         setGData({
           machine: '', color: '', printType: '', zet: '', meterage: '',
           lamination: '', plateStatus: '', dieStatus: '', paperWidth: '',
-          step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: ''
+          step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
+          layeringStatus: ''
         });
       }
       if (selectedOrder.plates) {
