@@ -2796,7 +2796,7 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
     o.status === 'production_started' || 
     o.status === 'shipping_ready' || 
     o.status === 'completed'
-  );
+  ));
   const daysPlans = plannedOrders.filter(o => o.planningData?.startDate === viewDate);
 
   const handlePlan = async (e) => {
