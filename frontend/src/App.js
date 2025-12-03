@@ -1627,3 +1627,290 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
         </div>
       </div>
 
+      {/* Right Panel - Technical Details Form */}
+      <div className="lg:col-span-2">
+        {selectedOrder ? (
+          <div className="bg-white p-8 rounded-2xl shadow-xl border-2 border-gray-100 animate-slide-in">
+            {/* Order Header */}
+            <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg mb-6 -mx-8 -mt-8">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">{selectedOrder.orderNo}</h2>
+                  <p className="text-orange-100">{selectedOrder.customer} - {selectedOrder.product}</p>
+                  <div className="mt-3 flex gap-2">
+                    <span className="bg-white/20 px-3 py-1 rounded-lg text-sm font-bold">
+                      {selectedOrder.quantity}
+                    </span>
+                    <span className="bg-white/20 px-3 py-1 rounded-lg text-sm font-bold">
+                      {selectedOrder.category || 'Etiket'}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-orange-100 uppercase tracking-wider mb-1">Termin</div>
+                  <div className="text-xl font-bold">{selectedOrder.customerDeadline}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Complex Order - Job List */}
+            {selectedOrder.isComplex && (
+              <div className="mb-6 p-5 bg-purple-50 border-2 border-purple-200 rounded-xl">
+                <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                  <Component size={18} />
+                  Üretim İş Listesi (Patlatılmış)
+                </h4>
+                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar">
+                  {selectedOrder.generatedJobs?.map(job => (
+                    <div
+                      key={job.id}
+                      className="bg-white p-2.5 rounded-lg border-2 border-purple-200 text-xs flex justify-between items-center hover:border-purple-400 transition-all"
+                    >
+                      <span className="font-bold text-purple-900">{job.name}</span>
+                      <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                        {job.quantity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Plate Planning (Complex Orders) */}
+            {selectedOrder.isComplex && (
+              <div className="mb-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-slate-700 flex items-center gap-2 text-lg">
+                    <Cylinder size={20} className="text-slate-600" />
+                    Klişe ve Bobin Planlama
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={addPlate}
+                    className="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors border-2 border-slate-300"
+                  >
+                    <Plus size={16} />
+                    Klişe Ekle
+                  </button>
+                </div>
+
+                {plateData.map((plate, pIdx) => (
+                  <div
+                    key={plate.id}
+                    className="bg-slate-50 border-2 border-slate-300 rounded-xl p-4 hover:border-slate-400 transition-all"
+                  >
+                    <div className="flex gap-4 mb-3 items-end">
+                      <div className="flex-1">
+                        <label className="text-[11px] font-bold text-slate-600 mb-1 block uppercase">
+                          Klişe Adı
+                        </label>
+                        <input
+                          className="input-field h-10 text-sm"
+                          value={plate.name}
+                          onChange={(e) => updatePlate(pIdx, 'name', e.target.value)}
+                        />
+                      </div>
+                      <div className="w-28">
+                        <label className="text-[11px] font-bold text-slate-600 mb-1 block uppercase">
+                          Z-Step (mm)
+                        </label>
+                        <input
+                          type="number"
+                          className="input-field h-10 text-sm"
+                          value={plate.zStep}
+                          onChange={(e) => updatePlate(pIdx, 'zStep', e.target.value)}
+                          placeholder="340"
+                        />
+                      </div>
+                      <div className="w-36 text-right">
+                        <span className="text-[11px] font-bold text-slate-500 block uppercase mb-1">
+                          Tahmini Bobin
+                        </span>
+                        <span className="text-lg font-bold text-blue-600">
+                          {plate.calculatedMeterage || 0} mt
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border-2 border-slate-200 rounded-lg p-3 min-h-[80px]">
+                      <div className="text-[11px] text-slate-500 mb-2 font-bold uppercase">
+                        Bu klişeye yerleştirilen işler:
+                      </div>
+                      {plate.items.map((item, iIdx) => (
+                        <div
+                          key={iIdx}
+                          className="flex justify-between items-center text-xs border-b border-dashed border-slate-200 last:border-0 py-2"
+                        >
+                          <span className="font-medium">
+                            {item.job.name} ({item.job.quantity})
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500">Kaçlı:</span>
+                            <input
+                              type="number"
+                              className="w-14 border-2 border-gray-300 rounded px-2 py-1 font-bold"
+                              value={item.lanes}
+                              onChange={(e) => updateItemLanes(pIdx, iIdx, e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <div className="mt-3">
+                        <select
+                          className="text-xs w-full border-2 border-dashed border-purple-300 rounded-lg p-2 bg-purple-50 hover:bg-purple-100 transition-colors font-bold text-purple-700"
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              addItemToPlate(pIdx, JSON.parse(e.target.value));
+                              e.target.value = "";
+                            }
+                          }}
+                        >
+                          <option value="">+ İşi Klişeye Ekle...</option>
+                          {selectedOrder.generatedJobs?.map(job => (
+                            <option key={job.id} value={JSON.stringify(job)}>
+                              {job.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Technical Details Form */}
+            <form onSubmit={handleSave} className="space-y-6 border-t-2 border-dashed border-gray-200 pt-6">
+              <h4 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                <Settings size={22} className="text-orange-500" />
+                Teknik Detaylar
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Machine */}
+                <div>
+                  <label className="label">Makina</label>
+                  <select
+                    required
+                    className="input-field"
+                    value={gData.machine}
+                    onChange={e => setGData({ ...gData, machine: e.target.value })}
+                  >
+                    <option value="">Seçiniz</option>
+                    <option>BOBST M1 VİSİON</option>
+                    <option>HİBRİT FLEXO</option>
+                    <option>MÜHÜRLEME</option>
+                  </select>
+                </div>
+
+                {/* Colors */}
+                <div>
+                  <label className="label">Renkler</label>
+                  <input
+                    required
+                    className="input-field"
+                    placeholder="Örn: 4+0, CMYK"
+                    value={gData.color}
+                    onChange={e => setGData({ ...gData, color: e.target.value })}
+                  />
+                </div>
+
+                {/* Print Type */}
+                <div>
+                  <label className="label">Baskı Türü</label>
+                  <select
+                    required
+                    className="input-field"
+                    value={gData.printType}
+                    onChange={e => setGData({ ...gData, printType: e.target.value })}
+                  >
+                    <option value="">Seçiniz</option>
+                    <option>ALT BASKI</option>
+                    <option>ÜST BASKI</option>
+                    <option>BUGLET</option>
+                    <option>CUPON</option>
+                  </select>
+                </div>
+
+                {/* ZET - HER DURUMDA GÖRÜNÜR (ÖNEMLİ DEĞİŞİKLİK!) */}
+                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
+                  <label className="label text-yellow-800 font-bold flex items-center gap-2">
+                    <Ruler size={16} />
+                    Zet Bilgisi
+                  </label>
+                  <input
+                    required
+                    className="input-field border-yellow-300 bg-white"
+                    placeholder="Örn: 8 Zet"
+                    value={gData.zet}
+                    onChange={e => setGData({ ...gData, zet: e.target.value })}
+                  />
+                  <p className="text-[10px] text-yellow-700 mt-1 italic">
+                    {selectedOrder.isComplex 
+                      ? '* Varyant siparişlerde her varyant için ortak zet' 
+                      : '* Normal sipariş için zet bilgisi'}
+                  </p>
+                </div>
+
+                {/* Paper Width - Important for Warehouse */}
+                <div className="md:col-span-2 border-2 border-orange-200 rounded-lg p-3 bg-orange-50">
+                  <label className="label font-bold text-orange-800">
+                    Kağıt Eni (Depo İçin Önemli)
+                  </label>
+                  <input
+                    required
+                    className="input-field border-orange-300 bg-white"
+                    placeholder="Örn: 30 CM"
+                    value={gData.paperWidth}
+                    onChange={e => setGData({ ...gData, paperWidth: e.target.value })}
+                  />
+                </div>
+
+                {/* Combine Info (Normal Orders) */}
+                {!selectedOrder.isComplex && (
+                  <div>
+                    <label className="label">Kombine (Kaçlı?)</label>
+                    <input
+                      required
+                      type="number"
+                      min="1"
+                      className="input-field"
+                      placeholder="Örn: 2"
+                      value={gData.combinedInfo}
+                      onChange={e => setGData({ ...gData, combinedInfo: e.target.value })}
+                    />
+                  </div>
+                )}
+
+                {/* Step & Meterage for Non-Ambalaj & Non-Complex */}
+                {!isAmbalaj && !selectedOrder.isComplex && (
+                  <>
+                    <div>
+                      <label className="label">Adımlama (mm)</label>
+                      <input
+                        required
+                        type="number"
+                        className="input-field"
+                        placeholder="Örn: 150"
+                        value={gData.step}
+                        onChange={e => setGData({ ...gData, step: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="label flex items-center gap-1">
+                        <Calculator size={14} />
+                        Metraj (Otomatik)
+                      </label>
+                      <input
+                        required
+                        className="input-field bg-gray-100 font-bold text-indigo-700"
+                        value={gData.meterage}
+                        onChange={e => setGData({ ...gData, meterage: e.target.value })}
+                      />
+                      <p className="text-[10px] text-gray-500 mt-1">
+                        Formül: (Adet × Adımlama) / Kombine
+                      </p>
+                    </div>
+                  </>
+                )}
+
