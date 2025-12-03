@@ -1390,3 +1390,240 @@ export default function OrderApp() {
     </div>
   );
 }
+// ============================================================================
+// 🎨 GRAPHICS DASHBOARD (FULL FEATURED)
+// ============================================================================
+
+function GraphicsDashboard({ orders, isSuperAdmin }) {
+  const [activeTab, setActiveTab] = useState('pending');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [gData, setGData] = useState({
+    machine: '', color: '', printType: '', zet: '', meterage: '', 
+    lamination: '', plateStatus: '', dieStatus: '', paperWidth: '', 
+    step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: ''
+  });
+  const [plateData, setPlateData] = useState([]);
+
+  const pendingOrders = orders.filter(o => o.status === 'graphics_pending');
+  const allOrders = orders;
+  const activeOrder = selectedOrder ? (orders.find(o => o.id === selectedOrder.id) || selectedOrder) : null;
+
+  useEffect(() => {
+    if (selectedOrder) {
+      if (selectedOrder.graphicsData) {
+        setGData(selectedOrder.graphicsData);
+      } else {
+        setGData({
+          machine: '', color: '', printType: '', zet: '', meterage: '',
+          lamination: '', plateStatus: '', dieStatus: '', paperWidth: '',
+          step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: ''
+        });
+      }
+      if (selectedOrder.plates) {
+        setPlateData(selectedOrder.plates);
+      } else {
+        setPlateData([]);
+      }
+    }
+  }, [selectedOrder]);
+
+  const addPlate = () => {
+    setPlateData([...plateData, { 
+      id: Date.now(), 
+      name: `Klişe ${plateData.length + 1}`, 
+      zStep: '', 
+      items: [] 
+    }]);
+  };
+
+  const updatePlate = (idx, field, value) => {
+    const newPlates = [...plateData];
+    newPlates[idx][field] = value;
+    newPlates[idx].calculatedMeterage = calculatePlateMeterage(newPlates[idx]);
+    setPlateData(newPlates);
+  };
+
+  const addItemToPlate = (plateIdx, job) => {
+    const newPlates = [...plateData];
+    if (!newPlates[plateIdx].items.some(i => i.job.id === job.id)) {
+      newPlates[plateIdx].items.push({ job: job, lanes: 1 });
+      newPlates[plateIdx].calculatedMeterage = calculatePlateMeterage(newPlates[plateIdx]);
+      setPlateData(newPlates);
+    }
+  };
+
+  const updateItemLanes = (plateIdx, itemIdx, lanes) => {
+    const newPlates = [...plateData];
+    newPlates[plateIdx].items[itemIdx].lanes = lanes;
+    newPlates[plateIdx].calculatedMeterage = calculatePlateMeterage(newPlates[plateIdx]);
+    setPlateData(newPlates);
+  };
+
+  // Auto-calculate meterage for non-complex orders
+  useEffect(() => {
+    if (selectedOrder && !selectedOrder.isComplex && gData.step && gData.combinedInfo) {
+      const qty = parseInt(selectedOrder.quantity) || 0;
+      const step = parseFloat(gData.step) || 0;
+      const combined = parseFloat(gData.combinedInfo) || 1;
+      if (combined > 0 && step > 0 && qty > 0) {
+        setGData(prev => ({
+          ...prev,
+          meterage: ((qty * step) / combined / 1000).toFixed(2) + ' mt'
+        }));
+      }
+    }
+  }, [gData.step, gData.combinedInfo, selectedOrder?.quantity, selectedOrder?.isComplex]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    try {
+      let finalMeterage = gData.meterage;
+      if (plateData.length > 0) {
+        const totalPlateMeterage = plateData.reduce((sum, p) => sum + (p.calculatedMeterage || 0), 0);
+        finalMeterage = totalPlateMeterage + ' mt (Toplam)';
+      }
+
+      const updatePayload = {
+        graphicsData: { ...gData, meterage: finalMeterage },
+        plates: plateData,
+        ...(selectedOrder.status === 'graphics_pending' 
+          ? { status: 'warehouse_raw_pending' } 
+          : { revisionAlert: "Grafik tarafından güncellendi" })
+      };
+
+      await updateDoc(
+        doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedOrder.id),
+        updatePayload
+      );
+      setSelectedOrder(null);
+    } catch (error) {
+      console.error("Graphics save error:", error);
+      alert("Kayıt hatası: " + error.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm("DİKKAT: Bu siparişi kalıcı olarak silmek üzeresiniz.")) {
+      try {
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId));
+        if (selectedOrder?.id === orderId) setSelectedOrder(null);
+      } catch (error) {
+        alert("Silme hatası.");
+      }
+    }
+  };
+
+  const isAmbalaj = selectedOrder?.category === 'Ambalaj';
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in">
+      {/* Left Sidebar - Order List */}
+      <div className="lg:col-span-1 space-y-4">
+        <div className="flex bg-white rounded-xl p-1 border-2 border-gray-200 mb-4 shadow-sm">
+          <button
+            onClick={() => setActiveTab('pending')}
+            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
+              activeTab === 'pending'
+                ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            Bekleyenler
+          </button>
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
+              activeTab === 'all'
+                ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-lg'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            Tüm İşler
+          </button>
+        </div>
+
+        <h3 className="font-bold text-lg text-gray-700 flex items-center gap-2">
+          <Palette size={20} className="text-orange-500" />
+          {activeTab === 'pending' ? 'Grafik Bekleyenler' : 'Tüm Siparişler'}
+          <span className="ml-auto text-sm bg-gray-100 px-3 py-1 rounded-full">
+            {(activeTab === 'pending' ? pendingOrders : allOrders).length}
+          </span>
+        </h3>
+
+        <div className="space-y-3 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+          {(activeTab === 'pending' ? pendingOrders : allOrders).map(order => (
+            <div
+              key={order.id}
+              onClick={() => setSelectedOrder(order)}
+              className={`p-4 rounded-xl border-2 cursor-pointer transition-all relative group ${
+                selectedOrder?.id === order.id
+                  ? 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-400 shadow-lg ring-2 ring-orange-300'
+                  : 'bg-white border-gray-200 hover:border-orange-300 hover:shadow-md'
+              }`}
+            >
+              {isSuperAdmin && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteOrder(order.id);
+                  }}
+                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Sil"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-bold text-gray-800">{order.orderNo}</span>
+                <div className="flex gap-1">
+                  {order.attachments?.length > 0 && (
+                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Paperclip size={10} />
+                      {order.attachments.length}
+                    </span>
+                  )}
+                  {order.isComplex && (
+                    <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">
+                      Varyant
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-600 mb-1">{order.customer}</div>
+              <div className="text-xs text-gray-500 mb-2 flex justify-between">
+                <span>{order.product}</span>
+                {order.category === 'Ambalaj' && (
+                  <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[10px] font-bold">
+                    Ambalaj
+                  </span>
+                )}
+              </div>
+
+              <div className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold">
+                ⏰ Termin: {order.customerDeadline}
+              </div>
+
+              {order.revisionAlert && (
+                <div className="mt-2 flex items-center gap-1 text-xs text-orange-600 bg-orange-50 p-1.5 rounded border border-orange-200 font-bold">
+                  <AlertCircle size={12} />
+                  {order.revisionAlert}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {(activeTab === 'pending' ? pendingOrders : allOrders).length === 0 && (
+            <div className="text-center py-12 text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-300">
+              <Palette size={48} className="mx-auto mb-3 opacity-20" />
+              <p className="text-sm">Kayıt yok</p>
+            </div>
+          )}
+        </div>
+      </div>
+
