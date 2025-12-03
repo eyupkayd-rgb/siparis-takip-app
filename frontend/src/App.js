@@ -1389,7 +1389,8 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
   const [gData, setGData] = useState({
     machine: '', color: '', printType: '', zet: '', meterage: '', 
     lamination: '', plateStatus: '', dieStatus: '', paperWidth: '', 
-    step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: ''
+    step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
+    layeringStatus: '' // Tabakalama durumu (Ambalaj için)
   });
   const [plateData, setPlateData] = useState([]);
 
