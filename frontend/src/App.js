@@ -1369,7 +1369,7 @@ export default function OrderApp() {
         )}
         
         {activeDepartment === 'production' && (
-          <ProductionDashboard orders={orders} isSuperAdmin={isSuperAdmin} currentUser={currentUser} />
+          <ProductionDashboard orders={orders} isSuperAdmin={isSuperAdmin} currentUser={user} />
         )}
         
         {activeDepartment === 'archive' && (
