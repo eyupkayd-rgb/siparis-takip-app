@@ -2674,6 +2674,7 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   const [viewDate, setViewDate] = useState(new Date().toISOString().split('T')[0]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiAdvice, setAiAdvice] = useState("");
+  const [leftPanelTab, setLeftPanelTab] = useState('pending'); // 'pending' or 'planned'
 
   const selectedOrder = orders.find(o => o.id === selectedId);
   const isEditing = selectedOrder?.status === 'planned' || 
