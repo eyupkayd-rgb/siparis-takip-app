@@ -3695,7 +3695,8 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
     inputMeterage: '',
     outputMeterage: '',
     outputQuantity: '', // Adet veya KG (son istasyon için)
-    notes: ''
+    notes: '',
+    isStarted: false // İş başlatıldı mı
   });
 
   // Station definitions
