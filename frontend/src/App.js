@@ -2103,6 +2103,7 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
           </div>
         )}
       </div>
+      </div>
     </div>
   );
 }
