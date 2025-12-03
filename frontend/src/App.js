@@ -1937,6 +1937,19 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
                         onChange={e => setGData({ ...gData, perforation: e.target.value })}
                       />
                     </div>
+                    <div>
+                      <label className="label">Tabakalama Durumu</label>
+                      <select
+                        required
+                        className="input-field"
+                        value={gData.layeringStatus}
+                        onChange={e => setGData({ ...gData, layeringStatus: e.target.value })}
+                      >
+                        <option value="">Seçiniz</option>
+                        <option value="Var">Tabakalama Var</option>
+                        <option value="Yok">Tabakalama Yok</option>
+                      </select>
+                    </div>
                   </>
                 )}
 
