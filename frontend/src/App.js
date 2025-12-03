@@ -2938,6 +2938,20 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-100">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Sipariş No, Ürün Adı veya Firma Adına Göre Ara..."
+            className="input-field pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Sidebar - Tabs for Pending & Planned */}
         <div className="lg:col-span-4">
