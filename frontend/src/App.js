@@ -11,7 +11,7 @@ import { getFirestore, collection, doc, setDoc, getDoc, addDoc, updateDoc, onSna
 // BURAYA KENDİ E-POSTA ADRESİNİZİ YAZIN (Süper Admin - Silme Yetkisi Olanlar)
 const ADMIN_EMAILS = ["eyupkayd@gmail.com", "ukaydi.27@gmail.com", "rec.row27@gmail.com", "esenyakuppp@gmail.com"];
 
-// Google AI Studio API Anahtarı (Environment Variable - Güvenlik İyileştirmesi!)
+// Google AI Studio API Anahtarı (Opsiyonel) - Environment Variable'dan al
 const apiKey = process.env.REACT_APP_GEMINI_API_KEY || ""; 
 
 // Firebase Ayarları
@@ -28,7 +28,7 @@ const myLocalFirebaseConfig = {
 let firebaseConfig = myLocalFirebaseConfig;
 let appId = "siparis-takip-app";
 
-// Önizleme ortamı kontrolü - İyileştirilmiş
+// Önizleme ortamı kontrolü
 try {
   if (typeof window !== 'undefined') {
     if (typeof window.__firebase_config !== 'undefined') {
@@ -38,11 +38,26 @@ try {
       appId = window.__app_id;
     }
   }
-} catch (error) { 
-  console.warn("Firebase config initialization warning:", error); 
-}
+} catch (error) { console.warn("Config parse error:", error); }
 
 // Firebase Başlatma
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// --- GEMINI API ---
+async function callGemini(prompt) {
+  if (!apiKey) {
+    console.warn("Gemini API key not set");
+    return "API anahtarı yapılandırılmamış. .env.local dosyasına REACT_APP_GEMINI_API_KEY ekleyin.";
+  }
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }
+    );
+    if (!response.ok) throw new Error("API Hatası");
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
+  } catch (error) { return "Yapay zeka bağlantı hatası."; }
+}
