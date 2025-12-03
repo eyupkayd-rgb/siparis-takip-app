@@ -2830,16 +2830,45 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Sidebar - Ready for Planning */}
+        {/* Left Sidebar - Tabs for Pending & Planned */}
         <div className="lg:col-span-4">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Clock className="text-red-500" size={24} />
-            Planlama Bekleyen
-            <span className="ml-auto text-sm bg-red-100 text-red-700 px-3 py-1 rounded-full">
-              {readyForPlanning.length}
-            </span>
-          </h3>
+          {/* Tab Buttons */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setLeftPanelTab('pending')}
+              className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                leftPanelTab === 'pending'
+                  ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <Clock size={18} />
+              Planlama Bekleyen
+              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                leftPanelTab === 'pending' ? 'bg-white text-red-600' : 'bg-gray-300 text-gray-700'
+              }`}>
+                {readyForPlanning.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setLeftPanelTab('planned')}
+              className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                leftPanelTab === 'planned'
+                  ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <CheckCircle size={18} />
+              Planlanan İşler
+              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                leftPanelTab === 'planned' ? 'bg-white text-green-600' : 'bg-gray-300 text-gray-700'
+              }`}>
+                {plannedOrders.length}
+              </span>
+            </button>
+          </div>
 
+          {/* Tab Content */}
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
             {readyForPlanning.length === 0 && (
               <div className="text-center py-8 text-gray-400 bg-white border-2 border-dashed rounded-xl">
