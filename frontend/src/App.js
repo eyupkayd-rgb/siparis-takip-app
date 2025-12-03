@@ -1368,6 +1368,10 @@ export default function OrderApp() {
           <PlanningDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
         )}
         
+        {activeDepartment === 'production' && (
+          <ProductionDashboard orders={orders} isSuperAdmin={isSuperAdmin} currentUser={currentUser} />
+        )}
+        
         {activeDepartment === 'archive' && (
           <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
             <FileText size={64} className="mx-auto mb-4 text-purple-500 opacity-50" />
