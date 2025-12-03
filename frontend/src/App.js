@@ -4091,3 +4091,304 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
     </div>
   );
 }
+
+// ============================================================================
+// 📦 ARCHIVE DASHBOARD (COMPLETE ORDER HISTORY WITH FIRE TRACKING)
+// ============================================================================
+
+function ArchiveDashboard({ orders, isSuperAdmin }) {
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'completed', 'incomplete'
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // Calculate fire percentage and success
+  const calculateFireAnalysis = (order) => {
+    // Get expected quantity from order
+    const expectedQty = parseInt(order.quantity) || 0;
+    
+    // Get actual output from final production station
+    let actualOutput = 0;
+    if (order.productionData && order.productionData.length > 0) {
+      const finalStation = order.productionData[order.productionData.length - 1];
+      if (finalStation.outputQuantity) {
+        // Parse output quantity (e.g., "1000 Adet" or "250 KG")
+        const match = finalStation.outputQuantity.match(/(\d+)/);
+        if (match) {
+          actualOutput = parseInt(match[1]);
+        }
+      }
+    }
+
+    // Calculate fire percentage
+    // If actualOutput > expectedQty: negative fire (extra production - good!)
+    // If actualOutput < expectedQty: positive fire (waste - bad!)
+    const firePercentage = expectedQty > 0 
+      ? ((expectedQty - actualOutput) / expectedQty) * 100 
+      : 0;
+
+    // Determine status
+    let status = 'normal';
+    let color = 'text-gray-700 bg-gray-100';
+    let icon = '⚪';
+    
+    if (actualOutput > expectedQty) {
+      status = 'excellent'; // Beklenenden fazla üretim
+      color = 'text-green-700 bg-green-100';
+      icon = '🟢';
+    } else if (actualOutput === expectedQty) {
+      status = 'normal'; // Tam istenilen miktar
+      color = 'text-yellow-700 bg-yellow-100';
+      icon = '🟡';
+    } else if (actualOutput < expectedQty && actualOutput > 0) {
+      status = 'problem'; // Fire var
+      color = 'text-red-700 bg-red-100';
+      icon = '🔴';
+    }
+
+    return {
+      expectedQty,
+      actualOutput,
+      firePercentage: firePercentage.toFixed(2),
+      status,
+      color,
+      icon
+    };
+  };
+
+  // Filter orders
+  const filteredOrders = orders.filter(order => {
+    if (filterStatus === 'completed') {
+      return order.status === 'shipping_ready' || order.status === 'completed';
+    }
+    if (filterStatus === 'incomplete') {
+      return order.status !== 'shipping_ready' && order.status !== 'completed';
+    }
+    return true; // 'all'
+  });
+
+  // Calculate station-wise fire
+  const calculateStationFire = (order) => {
+    if (!order.productionData || order.productionData.length === 0) {
+      return [];
+    }
+
+    return order.productionData.map((station, index) => {
+      const inputMt = parseFloat(station.inputMeterage) || 0;
+      const outputMt = parseFloat(station.outputMeterage) || 0;
+      const fireMt = inputMt - outputMt;
+      const firePercent = inputMt > 0 ? (fireMt / inputMt) * 100 : 0;
+
+      return {
+        stationName: station.stationName,
+        inputMt,
+        outputMt,
+        fireMt,
+        firePercent: firePercent.toFixed(2),
+        notes: station.notes,
+        startTime: station.startTime,
+        endTime: station.endTime,
+        completedAt: station.completedAt
+      };
+    });
+  };
+
+  // PDF Export function
+  const handleExportPDF = () => {
+    window.print();
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in">
+      {/* Header */}
+      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Arşiv & Raporlama
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Tüm siparişlerin detaylı geçmişi ve fire analizi
+          </p>
+        </div>
+        <button
+          onClick={handleExportPDF}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Download size={18} />
+          PDF İndir
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => setFilterStatus('all')}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+            filterStatus === 'all'
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Tümü ({orders.length})
+        </button>
+        <button
+          onClick={() => setFilterStatus('completed')}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+            filterStatus === 'completed'
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Tamamlananlar ({orders.filter(o => o.status === 'shipping_ready' || o.status === 'completed').length})
+        </button>
+        <button
+          onClick={() => setFilterStatus('incomplete')}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+            filterStatus === 'incomplete'
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Devam Edenler ({orders.filter(o => o.status !== 'shipping_ready' && o.status !== 'completed').length})
+        </button>
+      </div>
+
+      {/* Orders Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredOrders.map(order => {
+          const fireAnalysis = calculateFireAnalysis(order);
+          const stationFire = calculateStationFire(order);
+          const totalInputMt = stationFire.reduce((sum, s) => sum + s.inputMt, 0);
+          const totalOutputMt = stationFire.reduce((sum, s) => sum + s.outputMt, 0);
+          const totalFire = totalInputMt - totalOutputMt;
+          const totalFirePercent = totalInputMt > 0 ? (totalFire / totalInputMt) * 100 : 0;
+
+          return (
+            <div
+              key={order.id}
+              className="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all cursor-pointer print:break-inside-avoid"
+              onClick={() => setSelectedOrder(order)}
+            >
+              {/* Order Header */}
+              <div className="flex justify-between items-start mb-4 pb-3 border-b-2 border-gray-200">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">{order.orderNo}</h3>
+                  <p className="text-sm text-gray-600">{order.customer}</p>
+                </div>
+                <span className={`text-xs px-3 py-1 rounded-full font-bold ${fireAnalysis.color}`}>
+                  {fireAnalysis.icon} {fireAnalysis.status === 'excellent' ? 'Başarılı' : fireAnalysis.status === 'normal' ? 'Normal' : 'Dikkat'}
+                </span>
+              </div>
+
+              {/* Product Info */}
+              <div className="mb-4 space-y-2">
+                <div className="text-sm">
+                  <span className="text-gray-500">Ürün:</span>
+                  <span className="font-semibold text-gray-800 ml-2">{order.product}</span>
+                </div>
+                <div className="text-sm">
+                  <span className="text-gray-500">Kategori:</span>
+                  <span className="font-semibold text-gray-800 ml-2">{order.category}</span>
+                </div>
+                <div className="text-sm">
+                  <span className="text-gray-500">Hammadde:</span>
+                  <span className="font-semibold text-gray-800 ml-2 text-xs">{order.rawMaterial}</span>
+                </div>
+              </div>
+
+              {/* Fire Analysis Box */}
+              <div className={`p-4 rounded-xl mb-4 ${fireAnalysis.color}`}>
+                <div className="text-xs font-bold uppercase mb-2">Fire Analizi</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <div className="text-xs opacity-80">Beklenen:</div>
+                    <div className="font-bold text-lg">{fireAnalysis.expectedQty}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs opacity-80">Çıkan:</div>
+                    <div className="font-bold text-lg">{fireAnalysis.actualOutput || '-'}</div>
+                  </div>
+                </div>
+                {fireAnalysis.actualOutput > 0 && (
+                  <div className="mt-2 pt-2 border-t border-current opacity-70">
+                    <div className="text-xs">
+                      {fireAnalysis.actualOutput > fireAnalysis.expectedQty ? (
+                        <span>✅ {Math.abs(fireAnalysis.firePercentage)}% fazla üretim</span>
+                      ) : fireAnalysis.actualOutput < fireAnalysis.expectedQty ? (
+                        <span>⚠️ {fireAnalysis.firePercentage}% fire</span>
+                      ) : (
+                        <span>✔️ Tam hedef</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Station Fire Table */}
+              {stationFire.length > 0 && (
+                <div className="mb-4">
+                  <div className="text-xs font-bold text-gray-700 mb-2">İstasyon Bazlı Fire</div>
+                  <div className="space-y-1">
+                    {stationFire.map((station, idx) => (
+                      <div key={idx} className="bg-gray-50 p-2 rounded text-xs">
+                        <div className="font-semibold text-gray-800">{station.stationName}</div>
+                        <div className="flex justify-between text-gray-600 mt-1">
+                          <span>Giren: {station.inputMt} mt</span>
+                          <span>Çıkan: {station.outputMt} mt</span>
+                          <span className={`font-bold ${parseFloat(station.firePercent) > 10 ? 'text-red-600' : 'text-green-600'}`}>
+                            Fire: {station.firePercent}%
+                          </span>
+                        </div>
+                        {station.notes && (
+                          <div className="text-gray-500 italic mt-1">Not: {station.notes}</div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {/* Total Fire */}
+                    <div className="bg-purple-100 p-2 rounded font-bold text-xs border-2 border-purple-300">
+                      <div className="flex justify-between">
+                        <span>Toplam Fire:</span>
+                        <span className="text-purple-700">{totalFire.toFixed(2)} mt ({totalFirePercent.toFixed(2)}%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Timeline Summary */}
+              <div className="text-xs text-gray-500 space-y-1">
+                <div>📅 Termin: {order.customerDeadline}</div>
+                {order.planningData?.startDate && (
+                  <div>🕐 Planlanan: {order.planningData.startDate} {order.planningData.startHour}</div>
+                )}
+                <div className="flex items-center gap-2 mt-2">
+                  <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                    order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    order.status === 'shipping_ready' ? 'bg-blue-100 text-blue-800' :
+                    order.status === 'production_started' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {order.status === 'completed' ? '✅ Tamamlandı' :
+                     order.status === 'shipping_ready' ? '📦 Sevkiyat Hazır' :
+                     order.status === 'production_started' ? '⚙️ Üretimde' :
+                     order.status === 'planned' ? '📅 Planlandı' :
+                     order.status === 'planning_pending' ? '⏳ Planlama Bekliyor' :
+                     order.status === 'warehouse_pending' ? '📦 Depo Bekliyor' :
+                     '🎨 Grafik Bekliyor'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {filteredOrders.length === 0 && (
+        <div className="text-center py-16 text-gray-400">
+          <History size={64} className="mx-auto mb-4 opacity-20" />
+          <p className="text-lg">Bu filtrede sipariş bulunamadı.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
