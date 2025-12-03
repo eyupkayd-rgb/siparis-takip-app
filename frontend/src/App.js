@@ -1222,6 +1222,7 @@ export default function OrderApp() {
       { id: 'graphics', name: 'Grafik', desc: 'Teknik Detaylar', icon: Palette, color: 'from-orange-500 to-orange-600' },
       { id: 'warehouse', name: 'Depo', desc: 'Hammadde & Sevkiyat', icon: Archive, color: 'from-indigo-500 to-indigo-600' },
       { id: 'planning', name: 'Planlama', desc: 'Üretim Takvimi', icon: Calendar, color: 'from-green-500 to-green-600' },
+      { id: 'production', name: 'Üretim', desc: 'İstasyon Takibi', icon: Printer, color: 'from-teal-500 to-teal-600' },
       { id: 'archive', name: 'Arşiv', desc: 'Geçmiş ve Raporlar', icon: FileText, color: 'from-purple-500 to-purple-600' }
     ];
 
