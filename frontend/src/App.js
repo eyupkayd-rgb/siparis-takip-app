@@ -2987,3 +2987,231 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
           </div>
         </div>
 
+        {/* Right Panel - Planning Form & Calendar */}
+        <div className="lg:col-span-8 space-y-6">
+          {selectedId ? (
+            <div className={`p-8 rounded-2xl shadow-xl border-2 animate-slide-in ${
+              isEditing 
+                ? 'border-blue-200 bg-blue-50' 
+                : 'border-green-200 bg-white'
+            }`}>
+              {/* Planning Form Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className={`text-2xl font-bold ${
+                    isEditing ? 'text-blue-700' : 'text-green-700'
+                  }`}>
+                    {isEditing ? 'Planı Düzenle / Güncelle' : 'Seçili İş İçin Vardiya Ata'}
+                  </h3>
+                  {isEditing && (
+                    <div className="text-sm text-blue-600 mt-1">
+                      Şu an <strong>{selectedOrder.orderNo}</strong> siparişini düzenliyorsunuz.
+                    </div>
+                  )}
+                </div>
+                {selectedId && (
+                  <button
+                    onClick={handleCancelEdit}
+                    className="text-gray-500 hover:text-red-600 text-sm flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-red-50 transition-all"
+                  >
+                    <X size={16} />
+                    İptal
+                  </button>
+                )}
+              </div>
+
+              {/* Selected Order Full Details */}
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl mb-6 border-2 border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Order Info */}
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">
+                      Sipariş Bilgileri
+                    </h4>
+                    <div className="space-y-1 text-sm">
+                      <div className="font-bold text-lg text-gray-800">
+                        {selectedOrder.orderNo}
+                      </div>
+                      <div className="text-gray-700">{selectedOrder.customer}</div>
+                      <div className="text-gray-600">{selectedOrder.product}</div>
+                      <div className="font-bold text-gray-800">{selectedOrder.quantity}</div>
+                    </div>
+                  </div>
+
+                  {/* Technical Details */}
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">
+                      Teknik Özellikler
+                    </h4>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Makina:</span>
+                        <span className="font-bold text-gray-800">
+                          {selectedOrder.graphicsData?.machine}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Baskı:</span>
+                        <span className="font-bold text-gray-800">
+                          {selectedOrder.graphicsData?.printType}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Renk:</span>
+                        <span className="font-bold text-gray-800">
+                          {selectedOrder.graphicsData?.color}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">ZET:</span>
+                        <span className="font-bold text-gray-800">
+                          {selectedOrder.graphicsData?.zet}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Kağıt Eni:</span>
+                        <span className="font-bold text-gray-800">
+                          {selectedOrder.graphicsData?.paperWidth}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Critical Info */}
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">
+                      Kritik Bilgiler
+                    </h4>
+                    
+                    {/* Deadline - HIGHLIGHTED */}
+                    <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-3 rounded-lg shadow-md mb-3">
+                      <div className="text-[10px] font-bold uppercase tracking-wider opacity-90">
+                        Müşteri Termin
+                      </div>
+                      <div className="text-xl font-bold">
+                        {selectedOrder.customerDeadline}
+                      </div>
+                    </div>
+
+                    {/* Warehouse Meterage - HIGHLIGHTED */}
+                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-3 rounded-lg shadow-md">
+                      <div className="text-[10px] font-bold uppercase tracking-wider opacity-90">
+                        Depo Metraj (Fire Dahil)
+                      </div>
+                      <div className="text-xl font-bold">
+                        {selectedOrder.warehouseData?.issuedMeterage 
+                          ? `${selectedOrder.warehouseData.issuedMeterage} mt`
+                          : selectedOrder.graphicsData?.meterage || '-'}
+                      </div>
+                      {selectedOrder.warehouseData?.wastageRate > 0 && (
+                        <div className="text-xs opacity-90 mt-1">
+                          Fire Oranı: %{selectedOrder.warehouseData.wastageRate}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Planning Form */}
+              <form onSubmit={handlePlan} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Date */}
+                  <div>
+                    <label className="label">Tarih</label>
+                    <input
+                      required
+                      type="date"
+                      className="input-field"
+                      value={pData.startDate}
+                      onChange={e => setPData({ ...pData, startDate: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Start Hour */}
+                  <div>
+                    <label className="label">Başlangıç Saati</label>
+                    <select
+                      className="input-field"
+                      value={pData.startHour}
+                      onChange={e => setPData({ ...pData, startHour: e.target.value })}
+                    >
+                      {[...shift1Hours, ...shift2Hours].filter(h => h !== "12:00").map(h => (
+                        <option key={h} value={h}>{h}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Duration with AI */}
+                  <div className="relative">
+                    <label className="label flex items-center gap-1">
+                      Süre (Saat)
+                      <button
+                        type="button"
+                        onClick={handleAiEstimate}
+                        disabled={isAiLoading}
+                        className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded hover:bg-purple-200 flex items-center gap-1 ml-2 border border-purple-300 transition-colors"
+                      >
+                        {isAiLoading ? (
+                          <Loader2 size={10} className="animate-spin" />
+                        ) : (
+                          <Sparkles size={10} />
+                        )}
+                        AI Tahmin
+                      </button>
+                    </label>
+                    <input
+                      required
+                      type="number"
+                      min="1"
+                      max="16"
+                      className="input-field"
+                      value={pData.duration}
+                      onChange={e => setPData({ 
+                        ...pData, 
+                        duration: e.target.value === '' ? '' : parseInt(e.target.value) 
+                      })}
+                    />
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  disabled={isSaving}
+                  className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3 ${
+                    isEditing
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'
+                      : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white'
+                  }`}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="animate-spin" size={24} />
+                      Kaydediliyor...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={24} />
+                      {isEditing ? 'Planı Güncelle' : 'Planı Kaydet'}
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* AI Advice */}
+              {aiAdvice && (
+                <div className="mt-4 p-4 bg-purple-50 border-2 border-purple-200 rounded-xl text-sm text-purple-800 flex items-start gap-2 animate-in fade-in">
+                  <Sparkles size={16} className="mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-bold">Yapay Zeka Analizi:</span> {aiAdvice}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl h-full flex flex-col items-center justify-center text-gray-400 p-12">
+              <Calendar size={64} className="mb-4 opacity-20" />
+              <p className="text-lg font-medium">Planlama yapmak veya düzenlemek için bir iş seçin</p>
+            </div>
+          )}
+
