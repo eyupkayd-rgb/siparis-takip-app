@@ -4320,13 +4320,24 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
 
   // Filter orders
   const filteredOrders = orders.filter(order => {
+    // Status filter
+    let statusMatch = true;
     if (filterStatus === 'completed') {
-      return order.status === 'shipping_ready' || order.status === 'completed';
+      statusMatch = order.status === 'shipping_ready' || order.status === 'completed';
+    } else if (filterStatus === 'incomplete') {
+      statusMatch = order.status !== 'shipping_ready' && order.status !== 'completed';
     }
-    if (filterStatus === 'incomplete') {
-      return order.status !== 'shipping_ready' && order.status !== 'completed';
+
+    // Search filter
+    let searchMatch = true;
+    if (searchQuery) {
+      searchMatch = 
+        order.orderNo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.product?.toLowerCase().includes(searchQuery.toLowerCase());
     }
-    return true; // 'all'
+
+    return statusMatch && searchMatch;
   });
 
   // Calculate station-wise fire
