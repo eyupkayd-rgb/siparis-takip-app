@@ -1540,10 +1540,25 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
   const isAmbalaj = selectedOrder?.category === 'Ambalaj';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in">
-      {/* Left Sidebar - Order List */}
-      <div className="lg:col-span-1 space-y-4">
-        <div className="flex bg-white rounded-xl p-1 border-2 border-gray-200 mb-4 shadow-sm">
+    <div className="space-y-6 animate-in fade-in">
+      {/* Search Bar */}
+      <div className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-100">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Sipariş No, Ürün Adı veya Firma Adına Göre Ara..."
+            className="input-field pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Sidebar - Order List */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="flex bg-white rounded-xl p-1 border-2 border-gray-200 mb-4 shadow-sm">
           <button
             onClick={() => setActiveTab('pending')}
             className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${
