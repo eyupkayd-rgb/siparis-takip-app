@@ -3077,6 +3077,12 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
                           {selectedOrder.graphicsData?.paperWidth}
                         </span>
                       </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Kağıt Türü:</span>
+                        <span className="font-bold text-gray-800 text-[10px]">
+                          {selectedOrder.rawMaterial || '-'}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
