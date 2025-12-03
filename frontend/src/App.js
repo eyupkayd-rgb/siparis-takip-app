@@ -2666,3 +2666,324 @@ function WarehouseDashboard({ orders, isSuperAdmin }) {
   );
 }
 
+// ============================================================================
+// 📅 PLANNING DASHBOARD (FULL FEATURED)
+// ============================================================================
+
+function PlanningDashboard({ orders, isSuperAdmin }) {
+  const [pData, setPData] = useState({ startDate: '', startHour: '08:00', duration: 2 });
+  const [selectedId, setSelectedId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [viewMode, setViewMode] = useState('daily');
+  const [viewDate, setViewDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiAdvice, setAiAdvice] = useState("");
+
+  const selectedOrder = orders.find(o => o.id === selectedId);
+  const isEditing = selectedOrder?.status === 'planned' || 
+                    selectedOrder?.status === 'shipping_ready' || 
+                    selectedOrder?.status === 'completed';
+
+  const readyForPlanning = orders.filter(o => o.status === 'planning_pending');
+  const plannedOrders = orders.filter(o => 
+    o.status === 'planned' || 
+    o.status === 'production_started' || 
+    o.status === 'shipping_ready' || 
+    o.status === 'completed'
+  );
+  const daysPlans = plannedOrders.filter(o => o.planningData?.startDate === viewDate);
+
+  const handlePlan = async (e) => {
+    e.preventDefault();
+    if (!pData.startDate) return alert("Tarih seçin!");
+    setIsSaving(true);
+
+    try {
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedId);
+      await updateDoc(docRef, {
+        status: 'planned',
+        planningData: {
+          startDate: pData.startDate,
+          startHour: pData.startHour,
+          duration: pData.duration,
+          productionDate: pData.startDate
+        }
+      });
+      setSelectedId(null);
+      setPData({ startDate: '', startHour: '08:00', duration: 2 });
+      setAiAdvice("");
+    } catch (error) {
+      console.error("Planning save error:", error);
+      alert("Hata: " + error.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleEditPlan = (order) => {
+    setSelectedId(order.id);
+    setAiAdvice("");
+    if (order.planningData) {
+      setPData({
+        startDate: order.planningData.startDate,
+        startHour: order.planningData.startHour,
+        duration: order.planningData.duration
+      });
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setSelectedId(null);
+    setPData({ startDate: '', startHour: '08:00', duration: 2 });
+    setAiAdvice("");
+  };
+
+  const handleAiEstimate = async () => {
+    if (!selectedOrder) return;
+    setIsAiLoading(true);
+    
+    const prompt = `Sen bir etiket ve matbaa üretim planlama uzmanısın. 
+    Ürün: ${selectedOrder.product}, 
+    Miktar: ${selectedOrder.quantity}, 
+    Makina: ${selectedOrder.graphicsData?.machine || 'Belirtilmemiş'}, 
+    Baskı: ${selectedOrder.graphicsData?.printType || '-'}, 
+    Zet: ${selectedOrder.graphicsData?.zet || 'Standart'}, 
+    Metraj: ${selectedOrder.warehouseData?.issuedMeterage || selectedOrder.graphicsData?.meterage || '-'}.
+    
+    Tahmini üretim süresini (Hazırlık + Üretim) saat cinsinden hesapla. 
+    Yanıt Formatı (JSON): { "duration": 4, "reason": "Hazırlık 2 saat + baskı 2 saat." }`;
+
+    const responseText = await callGemini(prompt);
+    
+    try {
+      const jsonStr = responseText.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(jsonStr);
+      if (result.duration) {
+        setPData(prev => ({ ...prev, duration: result.duration }));
+        setAiAdvice(result.reason);
+      }
+    } catch (e) {
+      setAiAdvice("Tahmin oluşturulamadı.");
+    }
+    setIsAiLoading(false);
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm("DİKKAT: Bu siparişi kalıcı olarak silmek üzeresiniz.")) {
+      try {
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId));
+        if (selectedId === orderId) setSelectedId(null);
+      } catch (error) {
+        alert("Silme hatası.");
+      }
+    }
+  };
+
+  const shift1Hours = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+  const shift2Hours = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00"];
+
+  const getWeekDates = (baseDate) => {
+    const current = new Date(baseDate);
+    const day = current.getDay();
+    const diff = current.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(current.setDate(diff));
+    const week = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      week.push(d.toISOString().split('T')[0]);
+    }
+    return week;
+  };
+
+  const weekDates = getWeekDates(viewDate);
+  const formatDateTR = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric', month: 'numeric' });
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in">
+      {/* Header */}
+      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+            Üretim Planlama
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Vardiya atamaları ve üretim takvimi
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Sidebar - Ready for Planning */}
+        <div className="lg:col-span-4">
+          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <Clock className="text-red-500" size={24} />
+            Planlama Bekleyen
+            <span className="ml-auto text-sm bg-red-100 text-red-700 px-3 py-1 rounded-full">
+              {readyForPlanning.length}
+            </span>
+          </h3>
+
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {readyForPlanning.length === 0 && (
+              <div className="text-center py-8 text-gray-400 bg-white border-2 border-dashed rounded-xl">
+                <Clock size={48} className="mx-auto mb-3 opacity-20" />
+                <p className="text-sm">Bekleyen iş yok.</p>
+              </div>
+            )}
+
+            {readyForPlanning.map(order => (
+              <div
+                key={order.id}
+                onClick={() => setSelectedId(order.id)}
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all relative group ${
+                  selectedId === order.id
+                    ? 'bg-gradient-to-r from-green-50 to-teal-50 border-green-500 shadow-xl ring-2 ring-green-300'
+                    : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-green-300 shadow-sm hover:shadow-md'
+                }`}
+              >
+                {isSuperAdmin && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteOrder(order.id);
+                    }}
+                    className="absolute top-2 right-2 text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+
+                {/* Order Header */}
+                <div className="flex justify-between items-start mb-3">
+                  <span className="font-bold text-gray-800 text-lg">{order.orderNo}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                    order.warehouseData?.materialStatus === 'Dilimleme Aşamasında'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-indigo-100 text-indigo-800'
+                  }`}>
+                    {order.warehouseData?.materialStatus}
+                  </span>
+                </div>
+
+                {/* Company & Product */}
+                <div className="mb-3 border-b border-gray-200 pb-2">
+                  <div className="text-sm font-semibold text-gray-700">{order.customer}</div>
+                  <div className="text-xs text-gray-600 flex items-center gap-2">
+                    {order.product}
+                    {order.category === 'Ambalaj' && (
+                      <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] font-bold">
+                        Ambalaj
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* CRITICAL: Customer Deadline - HIGHLIGHTED */}
+                <div className="mb-3 bg-gradient-to-r from-red-500 to-red-600 text-white p-3 rounded-lg shadow-md">
+                  <div className="text-[10px] font-bold uppercase tracking-wider opacity-90 mb-1">
+                    ⏰ Müşteri Termin Tarihi
+                  </div>
+                  <div className="text-xl font-bold">
+                    {order.customerDeadline}
+                  </div>
+                </div>
+
+                {/* Technical Details Summary */}
+                <div className="text-[10px] text-gray-500 space-y-1.5 bg-gray-50 p-3 rounded-lg">
+                  <div className="font-bold text-gray-700 mb-2 border-b border-gray-300 pb-1">
+                    📋 Teknik Detaylar
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span>Makina:</span>
+                    <span className="font-semibold text-gray-800">
+                      {order.graphicsData?.machine}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span>Baskı/Renk:</span>
+                    <span className="font-semibold text-gray-800">
+                      {order.graphicsData?.printType} / {order.graphicsData?.color}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span>ZET:</span>
+                    <span className="font-semibold text-gray-800">
+                      {order.graphicsData?.zet}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span>Kağıt Eni:</span>
+                    <span className="font-semibold text-gray-800">
+                      {order.graphicsData?.paperWidth}
+                    </span>
+                  </div>
+
+                  {/* CRITICAL: Warehouse Meterage (with Waste) */}
+                  <div className="pt-2 mt-2 border-t-2 border-green-300 bg-green-50 -mx-3 px-3 py-2 rounded">
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-green-800">Depo Metraj (Fire Dahil):</span>
+                      <span className="font-bold text-green-700 text-sm">
+                        {order.warehouseData?.issuedMeterage 
+                          ? `${order.warehouseData.issuedMeterage} mt`
+                          : order.graphicsData?.meterage || '-'}
+                      </span>
+                    </div>
+                    {order.warehouseData?.wastageRate > 0 && (
+                      <div className="text-[9px] text-green-600 mt-1">
+                        (Fire: %{order.warehouseData.wastageRate})
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Details */}
+                  {order.category === 'Ambalaj' ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span>LF/CL:</span>
+                        <span className="font-bold">
+                          {order.graphicsData?.lfSize} / {order.graphicsData?.clSize}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Perfore:</span>
+                        <span>{order.graphicsData?.perforation}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Klişe:</span>
+                        <span>{order.graphicsData?.plateStatus}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Laminasyon:</span>
+                        <span>{order.graphicsData?.lamination}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Bıçak:</span>
+                        <span>{order.graphicsData?.dieStatus}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Combine Badge */}
+                {order.graphicsData?.combinedInfo > 1 && (
+                  <div className="mt-3 flex items-center gap-1 text-orange-600 text-[10px] font-bold bg-orange-50 p-2 rounded-lg border border-orange-200 justify-center">
+                    <Layers size={12} />
+                    {order.graphicsData.combinedInfo} li Kombine
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
