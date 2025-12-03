@@ -51,12 +51,14 @@ try {
   console.error("Firebase initialization error:", error);
 }
 
-// --- GEMINI API FONKSİYONU ---
+// --- GEMINI API FONKSİYONU (İyileştirilmiş) ---
 async function callGemini(prompt) {
+  if (!apiKey) {
+    console.warn("Gemini API key not configured");
+    return "API anahtarı yapılandırılmamış. .env.local dosyasına REACT_APP_GEMINI_API_KEY ekleyin.";
+  }
+  
   try {
-    // API Key kontrolü (Önizleme ortamında apiKey değişkeni boş olsa bile sistem arka planda halleder, 
-    // ama lokalde hata vermemesi için kontrol ekleyebiliriz. Şimdilik basit bırakıyoruz.)
-    
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
       {
@@ -72,8 +74,8 @@ async function callGemini(prompt) {
     const data = await response.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
   } catch (error) {
-    console.error("Gemini Hatası:", error);
-    return "Yapay zeka bağlantısında hata oluştu veya API anahtarı eksik.";
+    console.error("Gemini API error:", error);
+    return "Yapay zeka bağlantısında hata oluştu.";
   }
 }
 
