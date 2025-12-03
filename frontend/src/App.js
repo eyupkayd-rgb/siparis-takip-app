@@ -3036,6 +3036,131 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
                 )}
               </div>
             ))}
+              </>
+            )}
+
+            {/* PLANNED TAB */}
+            {leftPanelTab === 'planned' && (
+              <>
+                {plannedOrders.length === 0 && (
+                  <div className="text-center py-8 text-gray-400 bg-white border-2 border-dashed rounded-xl">
+                    <CheckCircle size={48} className="mx-auto mb-3 opacity-20" />
+                    <p className="text-sm">Henüz planlanmış iş yok.</p>
+                  </div>
+                )}
+
+                {plannedOrders.map(order => {
+                  const statusInfo = getStatusInfo(order.status);
+                  return (
+                    <div
+                      key={order.id}
+                      onClick={() => handleEditPlan(order)}
+                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all relative group ${
+                        selectedId === order.id
+                          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-500 shadow-xl ring-2 ring-blue-300'
+                          : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
+                      }`}
+                    >
+                      {isSuperAdmin && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteOrder(order.id);
+                          }}
+                          className="absolute top-2 right-2 text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+
+                      {/* Order Header with Status */}
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="font-bold text-gray-800 text-lg">{order.orderNo}</span>
+                        <span className={`text-[10px] px-2 py-1 rounded font-bold ${statusInfo.color}`}>
+                          {statusInfo.icon} {statusInfo.label}
+                        </span>
+                      </div>
+
+                      {/* Company & Product */}
+                      <div className="mb-3 border-b border-gray-200 pb-2">
+                        <div className="text-sm font-semibold text-gray-700">{order.customer}</div>
+                        <div className="text-xs text-gray-600">{order.product}</div>
+                      </div>
+
+                      {/* Planning Info Box */}
+                      <div className="mb-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-lg shadow-md">
+                        <div className="text-[10px] font-bold uppercase tracking-wider opacity-90 mb-1">
+                          📅 Planlanan Tarih & Saat
+                        </div>
+                        <div className="text-lg font-bold">
+                          {order.planningData?.startDate} / {order.planningData?.startHour}
+                        </div>
+                        <div className="text-xs opacity-90 mt-1">
+                          Süre: {order.planningData?.duration} saat
+                        </div>
+                      </div>
+
+                      {/* Customer Deadline */}
+                      <div className="mb-3 bg-gradient-to-r from-red-500 to-red-600 text-white p-3 rounded-lg shadow-md">
+                        <div className="text-[10px] font-bold uppercase tracking-wider opacity-90 mb-1">
+                          ⏰ Müşteri Termin Tarihi
+                        </div>
+                        <div className="text-xl font-bold">
+                          {order.customerDeadline}
+                        </div>
+                      </div>
+
+                      {/* Technical Summary */}
+                      <div className="text-[10px] text-gray-500 space-y-1.5 bg-gray-50 p-3 rounded-lg">
+                        <div className="font-bold text-gray-700 mb-2 border-b border-gray-300 pb-1">
+                          📋 Teknik Özet
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span>Makina:</span>
+                          <span className="font-semibold text-gray-800">
+                            {order.graphicsData?.machine}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span>Baskı:</span>
+                          <span className="font-semibold text-gray-800">
+                            {order.graphicsData?.printType}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span>Kağıt Türü:</span>
+                          <span className="font-semibold text-gray-800 text-[9px]">
+                            {order.rawMaterial || '-'}
+                          </span>
+                        </div>
+
+                        {/* Warehouse Meterage */}
+                        <div className="pt-2 mt-2 border-t-2 border-green-300 bg-green-50 -mx-3 px-3 py-2 rounded">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-green-800">Depo Metraj:</span>
+                            <span className="font-bold text-green-700 text-sm">
+                              {order.warehouseData?.issuedMeterage 
+                                ? `${order.warehouseData.issuedMeterage} mt`
+                                : order.graphicsData?.meterage || '-'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Edit Button Hint */}
+                      <div className="mt-3 text-center">
+                        <span className="text-[10px] text-blue-600 font-bold">
+                          Tıklayarak düzenleyin 📝
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
 
