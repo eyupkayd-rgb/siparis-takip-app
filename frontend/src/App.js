@@ -1914,3 +1914,136 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
                   </>
                 )}
 
+                {/* Ambalaj Specific Fields */}
+                {isAmbalaj && (
+                  <>
+                    <div className="bg-purple-50 p-3 rounded-lg border-2 border-purple-200">
+                      <label className="label text-purple-800 font-bold">LF Ölçüsü</label>
+                      <input
+                        required
+                        className="input-field border-purple-300 bg-white"
+                        placeholder="Örn: 120 mm"
+                        value={gData.lfSize}
+                        onChange={e => setGData({ ...gData, lfSize: e.target.value })}
+                      />
+                    </div>
+                    <div className="bg-purple-50 p-3 rounded-lg border-2 border-purple-200">
+                      <label className="label text-purple-800 font-bold">CL Ölçüsü</label>
+                      <input
+                        required
+                        className="input-field border-purple-300 bg-white"
+                        placeholder="Örn: 90 mm"
+                        value={gData.clSize}
+                        onChange={e => setGData({ ...gData, clSize: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Perfore Bilgisi</label>
+                      <input
+                        required
+                        className="input-field"
+                        placeholder="Var/Yok veya Detay"
+                        value={gData.perforation}
+                        onChange={e => setGData({ ...gData, perforation: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Lamination & Die (Non-Ambalaj) */}
+                {!isAmbalaj && (
+                  <>
+                    <div>
+                      <label className="label">Laminasyon</label>
+                      <select
+                        required
+                        className="input-field"
+                        value={gData.lamination}
+                        onChange={e => setGData({ ...gData, lamination: e.target.value })}
+                      >
+                        <option value="">Seçiniz</option>
+                        <option>YOK</option>
+                        <option>Kısmi Lak</option>
+                        <option>Mat Selefon</option>
+                        <option>Parlak Selefon</option>
+                        <option>Mat Lak</option>
+                        <option>Parlak Lak</option>
+                        <option>Barkod Lak</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">Bıçak</label>
+                      <select
+                        required
+                        className="input-field"
+                        value={gData.dieStatus}
+                        onChange={e => setGData({ ...gData, dieStatus: e.target.value })}
+                      >
+                        <option value="">Seçiniz</option>
+                        <option>Mevcut</option>
+                        <option>Sipariş Edildi</option>
+                        <option>BIÇAK GEREKTİRMİYOR</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {/* Plate Status */}
+                <div>
+                  <label className="label">Klişe</label>
+                  <select
+                    required
+                    className="input-field"
+                    value={gData.plateStatus}
+                    onChange={e => setGData({ ...gData, plateStatus: e.target.value })}
+                  >
+                    <option value="">Seçiniz</option>
+                    <option>Mevcut</option>
+                    <option>Sipariş Edildi</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Attachments */}
+              <div className="pt-4 border-t border-gray-200">
+                <AttachmentManager order={activeOrder} />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                disabled={isSaving}
+                type="submit"
+                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="animate-spin" size={24} />
+                    Kaydediliyor...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={24} />
+                    {activeTab === 'all' ? 'Düzeltmeyi Kaydet' : 'Kaydet ve Depoya Gönder'}
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="bg-white p-16 rounded-2xl shadow-xl border-2 border-dashed border-gray-300 text-center">
+            <div className="bg-gradient-to-br from-orange-100 to-orange-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Palette size={48} className="text-orange-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              İşlem yapmak için sipariş seçin
+            </h3>
+            <p className="text-gray-500">
+              Soldan bir sipariş kartına tıklayarak teknik detayları girebilirsiniz
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
