@@ -3215,3 +3215,240 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
             </div>
           )}
 
+          {/* Calendar View */}
+          <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 overflow-hidden">
+            <div className="p-5 bg-gradient-to-r from-green-50 to-teal-50 border-b-2 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2 text-lg">
+                <Calendar size={24} className="text-green-600" />
+                Üretim Çizelgesi
+              </h3>
+
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-4">
+                <div className="flex bg-white rounded-lg border-2 border-gray-300 p-1">
+                  <button
+                    onClick={() => setViewMode('daily')}
+                    className={`px-4 py-2 rounded text-sm font-medium flex items-center gap-1 transition-all ${
+                      viewMode === 'daily'
+                        ? 'bg-green-100 text-green-700 shadow'
+                        : 'text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <List size={16} />
+                    Günlük
+                  </button>
+                  <button
+                    onClick={() => setViewMode('weekly')}
+                    className={`px-4 py-2 rounded text-sm font-medium flex items-center gap-1 transition-all ${
+                      viewMode === 'weekly'
+                        ? 'bg-green-100 text-green-700 shadow'
+                        : 'text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Grid size={16} />
+                    Haftalık
+                  </button>
+                </div>
+
+                {/* Date Navigation */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const d = new Date(viewDate);
+                      d.setDate(d.getDate() - (viewMode === 'weekly' ? 7 : 1));
+                      setViewDate(d.toISOString().split('T')[0]);
+                    }}
+                    className="p-2 hover:bg-white rounded-lg transition-colors"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <input
+                    type="date"
+                    className="border-2 border-gray-300 rounded-lg px-3 py-2 bg-white text-sm font-medium"
+                    value={viewDate}
+                    onChange={e => setViewDate(e.target.value)}
+                  />
+                  <button
+                    onClick={() => {
+                      const d = new Date(viewDate);
+                      d.setDate(d.getDate() + (viewMode === 'weekly' ? 7 : 1));
+                      setViewDate(d.toISOString().split('T')[0]);
+                    }}
+                    className="p-2 hover:bg-white rounded-lg transition-colors"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Daily View */}
+            {viewMode === 'daily' && (
+              <div className="p-6 overflow-x-auto">
+                {/* Shift 1 */}
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-sm font-bold">
+                      1. VARDİYA (08:00 - 17:00)
+                    </span>
+                  </div>
+                  <div className="flex border-2 border-gray-200 rounded-lg bg-gray-50 h-32 relative min-w-[800px]">
+                    {shift1Hours.map((hour, index) => (
+                      <div
+                        key={hour}
+                        className={`flex-1 border-r border-gray-200 relative ${
+                          hour === "12:00" ? "bg-gray-200" : ""
+                        }`}
+                      >
+                        <span className="absolute top-1 left-1 text-[10px] font-bold text-gray-500">
+                          {hour}
+                        </span>
+                        {hour === "12:00" && (
+                          <span className="absolute top-10 left-2 text-[10px] -rotate-45 text-gray-400 font-bold">
+                            MOLA
+                          </span>
+                        )}
+                        {daysPlans.map(plan => {
+                          if (plan.planningData.startHour === hour) {
+                            return (
+                              <div
+                                key={plan.id}
+                                className="absolute top-6 left-0 right-0 mx-1 bg-blue-500 text-white text-[10px] p-2 rounded-lg z-10 shadow-md overflow-hidden cursor-pointer hover:bg-blue-600 transition-colors"
+                                title={`${plan.orderNo} - ${plan.product}`}
+                                onClick={() => handleEditPlan(plan)}
+                                style={{ width: `calc(${plan.planningData.duration * 100}% - 8px)` }}
+                              >
+                                <div className="font-bold">{plan.orderNo}</div>
+                                <div className="text-[9px] opacity-90">{plan.product}</div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Shift 2 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-lg text-sm font-bold">
+                      2. VARDİYA (17:00 - 01:00)
+                    </span>
+                  </div>
+                  <div className="flex border-2 border-gray-200 rounded-lg bg-gray-50 h-32 relative min-w-[800px]">
+                    {shift2Hours.map(hour => (
+                      <div key={hour} className="flex-1 border-r border-gray-200 relative">
+                        <span className="absolute top-1 left-1 text-[10px] font-bold text-gray-500">
+                          {hour}
+                        </span>
+                        {daysPlans.map(plan => {
+                          if (plan.planningData.startHour === hour) {
+                            return (
+                              <div
+                                key={plan.id}
+                                className="absolute top-6 left-0 right-0 mx-1 bg-indigo-500 text-white text-[10px] p-2 rounded-lg z-10 shadow-md overflow-hidden cursor-pointer hover:bg-indigo-600 transition-colors"
+                                title={`${plan.orderNo} - ${plan.product}`}
+                                onClick={() => handleEditPlan(plan)}
+                                style={{ width: `calc(${plan.planningData.duration * 100}% - 8px)` }}
+                              >
+                                <div className="font-bold">{plan.orderNo}</div>
+                                <div className="text-[9px] opacity-90">{plan.product}</div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Weekly View */}
+            {viewMode === 'weekly' && (
+              <div className="p-6 overflow-x-auto">
+                <div className="grid grid-cols-7 min-w-[1000px] border-2 rounded-lg overflow-hidden">
+                  {weekDates.map(dateStr => {
+                    const daysOrders = plannedOrders.filter(
+                      o => o.planningData?.startDate === dateStr
+                    );
+                    const shift1 = daysOrders.filter(
+                      o => parseInt(o.planningData.startHour.split(':')[0]) < 17
+                    );
+                    const shift2 = daysOrders.filter(o => {
+                      const h = parseInt(o.planningData.startHour.split(':')[0]);
+                      return h >= 17 || h === 0;
+                    });
+                    const isSelectedDay = dateStr === viewDate;
+
+                    return (
+                      <div
+                        key={dateStr}
+                        className={`border-r last:border-r-0 flex flex-col ${
+                          isSelectedDay ? 'bg-green-50' : 'bg-white'
+                        }`}
+                      >
+                        <div
+                          onClick={() => {
+                            setViewDate(dateStr);
+                            setViewMode('daily');
+                          }}
+                          className={`p-3 text-center border-b font-bold text-sm cursor-pointer hover:bg-green-100 transition-colors ${
+                            isSelectedDay ? 'text-green-800 bg-green-100' : 'text-gray-700'
+                          }`}
+                        >
+                          {formatDateTR(dateStr)}
+                        </div>
+                        <div className="flex-1 p-2 space-y-2 min-h-[200px]">
+                          {/* Shift 1 */}
+                          <div className="bg-blue-50 rounded-lg p-2 border border-blue-100 min-h-[90px]">
+                            <div className="text-[10px] font-bold text-blue-800 mb-1 text-center">
+                              1. Vardiya
+                            </div>
+                            {shift1.map(o => (
+                              <div
+                                key={o.id}
+                                onClick={() => handleEditPlan(o)}
+                                className="bg-white border border-blue-200 rounded px-2 py-1 text-[10px] mb-1 truncate shadow-sm text-blue-900 cursor-pointer hover:bg-blue-100 transition-colors"
+                                title={`${o.orderNo} - ${o.customer}`}
+                              >
+                                <span className="font-bold">{o.orderNo}</span>
+                                <span className="opacity-75 ml-1">{o.product}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Shift 2 */}
+                          <div className="bg-indigo-50 rounded-lg p-2 border border-indigo-100 min-h-[90px]">
+                            <div className="text-[10px] font-bold text-indigo-800 mb-1 text-center">
+                              2. Vardiya
+                            </div>
+                            {shift2.map(o => (
+                              <div
+                                key={o.id}
+                                onClick={() => handleEditPlan(o)}
+                                className="bg-white border border-indigo-200 rounded px-2 py-1 text-[10px] mb-1 truncate shadow-sm text-indigo-900 cursor-pointer hover:bg-indigo-100 transition-colors"
+                                title={`${o.orderNo} - ${o.customer}`}
+                              >
+                                <span className="font-bold">{o.orderNo}</span>
+                                <span className="opacity-75 ml-1">{o.product}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
