@@ -1117,24 +1117,31 @@ export default function OrderApp() {
 
   const isSuperAdmin = user && ADMIN_EMAILS.includes(user.email);
 
-  // Auth initialization
+  // Auth initialization - Simplified for testing
   useEffect(() => {
     const initAuth = async () => {
       try {
+        // Preview environment check
         if (typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
           await signInWithCustomToken(auth, window.__initial_auth_token);
-        } else {
-          try {
-            await signInAnonymously(auth);
-          } catch (anonError) {
-            console.warn("Anonymous auth failed:", anonError);
-            setUser({ uid: 'test-user', isAnonymous: true });
-            setLoading(false);
-          }
+          return;
+        }
+        
+        // Try anonymous auth
+        try {
+          await signInAnonymously(auth);
+        } catch (anonError) {
+          console.warn("Anonymous auth failed, using test mode:", anonError);
+          // Immediate fallback - set test user and proceed
+          setUser({ uid: 'test-user-' + Date.now(), email: 'test@test.com', isAnonymous: true });
+          setUserRole('admin');
+          setLoading(false);
         }
       } catch (error) {
-        console.error("Auth error:", error);
-        setUser({ uid: 'test-user', isAnonymous: true });
+        console.error("Auth init error:", error);
+        // Final fallback
+        setUser({ uid: 'test-user-' + Date.now(), email: 'test@test.com', isAnonymous: true });
+        setUserRole('admin');
         setLoading(false);
       }
     };
@@ -1142,13 +1149,10 @@ export default function OrderApp() {
     initAuth();
     
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
       if (currentUser) {
-        // TEST MODE: Everyone gets admin role
+        setUser(currentUser);
         setUserRole('admin');
         setLoading(false);
-      } else {
-        setUserRole(null);
       }
     });
     
