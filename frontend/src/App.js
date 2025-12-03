@@ -498,12 +498,14 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [formData, setFormData] = useState({
     orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
     rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
     customerDeadline: '', attachments: [],
-    isComplex: false, isSet: false, commonBack: false, variants: []
+    isComplex: false, isSet: false, commonBack: false, variants: [],
+    notes: '' // Not alanı eklendi
   });
 
   const handleVariantChange = (index, field, value) => {
