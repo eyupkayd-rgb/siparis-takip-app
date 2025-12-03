@@ -645,7 +645,8 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
               orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
               rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
               customerDeadline: '', attachments: [],
-              isComplex: false, isSet: false, commonBack: false, variants: []
+              isComplex: false, isSet: false, commonBack: false, variants: [],
+              notes: ''
             });
           }}
           className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl"
