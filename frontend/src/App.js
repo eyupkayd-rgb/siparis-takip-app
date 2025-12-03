@@ -3709,6 +3709,12 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
 
     // Mevcut istasyondan sonraki istasyonu belirle
     const lastStation = order.productionData[order.productionData.length - 1];
+    
+    // Safety check
+    if (!lastStation || !lastStation.station) {
+      return null;
+    }
+    
     const category = order.category;
 
     if (category === 'Etiket') {
