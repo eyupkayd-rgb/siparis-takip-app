@@ -4107,7 +4107,7 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
     
     // Get actual output from final production station
     let actualOutput = 0;
-    if (order.productionData && order.productionData.length > 0) {
+    if (order.productionData && Array.isArray(order.productionData) && order.productionData.length > 0) {
       const finalStation = order.productionData[order.productionData.length - 1];
       if (finalStation.outputQuantity) {
         // Parse output quantity (e.g., "1000 Adet" or "250 KG")
