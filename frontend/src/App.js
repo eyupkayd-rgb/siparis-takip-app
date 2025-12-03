@@ -2143,10 +2143,10 @@ function WarehouseDashboard({ orders, isSuperAdmin }) {
     o.status === 'warehouse_processing' || 
     ((o.status === 'planning_pending' || o.status === 'planned') && 
       o.warehouseData?.materialStatus === 'Dilimleme Aşamasında')
-  );
+  ));
   
-  const shippingPending = orders.filter(o => o.status === 'shipping_ready');
-  const currentList = listMode === 'all' ? orders : (activeTab === 'raw' ? rawPending : shippingPending);
+  const shippingPending = filterOrders(orders.filter(o => o.status === 'shipping_ready'));
+  const currentList = listMode === 'all' ? filterOrders(orders) : (activeTab === 'raw' ? rawPending : shippingPending);
 
   useEffect(() => {
     if (selectedOrder && selectedOrder.warehouseData) {
