@@ -1425,7 +1425,8 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
           machine: '', color: '', printType: '', zet: '', meterage: '',
           lamination: '', plateStatus: '', dieStatus: '', paperWidth: '',
           step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
-          layeringStatus: ''
+          layeringStatus: '',
+          notes: ''
         });
       }
       if (selectedOrder.plates) {
