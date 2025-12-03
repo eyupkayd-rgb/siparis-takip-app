@@ -2362,3 +2362,311 @@ function WarehouseDashboard({ orders, isSuperAdmin }) {
           )}
         </div>
 
+        {/* Right Panel - Warehouse Operations */}
+        <div className="lg:col-span-2">
+          {selectedOrder ? (
+            <div className="bg-white p-8 rounded-2xl shadow-xl border-2 border-gray-100 animate-slide-in">
+              {/* Order Header */}
+              <div className={`${activeTab === 'raw' ? 'bg-gradient-to-r from-indigo-500 to-indigo-600' : 'bg-gradient-to-r from-green-500 to-green-600'} text-white p-6 rounded-xl shadow-lg mb-6 -mx-8 -mt-8`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-3xl font-bold mb-2">{selectedOrder.orderNo}</h2>
+                    <p className="text-white/90">{selectedOrder.customer} - {selectedOrder.product}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-white/70 uppercase tracking-wider mb-1">Termin</div>
+                    <div className="text-xl font-bold">{selectedOrder.customerDeadline}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Graphics Data Summary */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-5 rounded-xl mb-6 border-2 border-blue-100">
+                <h4 className="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                  <Settings size={16} />
+                  Grafikten Gelen Veriler
+                </h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Hammadde</div>
+                    <div className="font-bold text-gray-800 text-sm">
+                      {selectedOrder.rawMaterial}
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Kağıt Eni</div>
+                    <div className="font-bold text-indigo-700 text-lg">
+                      {selectedOrder.graphicsData?.paperWidth}
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Net Metraj</div>
+                    <div className="font-bold text-indigo-700 text-lg">
+                      {selectedOrder.graphicsData?.meterage}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Attachments */}
+              <div className="mb-6">
+                <AttachmentManager order={activeOrder} compact={true} />
+              </div>
+
+              {/* Forms */}
+              {activeTab === 'raw' ? (
+                <form onSubmit={handleRawMaterialSave} className="space-y-6">
+                  <h4 className="font-bold text-xl text-indigo-600 flex items-center gap-2 border-b-2 border-indigo-100 pb-3">
+                    <ClipboardCheck size={22} />
+                    Hammadde Hazırlık & Fire Planı
+                  </h4>
+
+                  {/* Material Status */}
+                  <div>
+                    <label className="label">Hammadde Durumu</label>
+                    <select
+                      required
+                      className="input-field"
+                      value={wData.materialStatus}
+                      onChange={e => setWData({ ...wData, materialStatus: e.target.value })}
+                    >
+                      <option value="">Seçiniz...</option>
+                      <option>Stokta Yok</option>
+                      <option>Hazır</option>
+                      <option>Tedarik Ediliyor</option>
+                      <option>Dilimleme Aşamasında</option>
+                    </select>
+                  </div>
+
+                  {/* 🔥 FIRE CALCULATION SECTION - HIGHLIGHT FEATURE */}
+                  <div className="bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 p-6 rounded-2xl border-3 border-orange-200 shadow-lg">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="bg-gradient-to-br from-orange-500 to-red-500 p-3 rounded-xl shadow-md">
+                        <Calculator size={24} className="text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-orange-900">
+                          Fire Hesaplama Sistemi
+                        </h4>
+                        <p className="text-xs text-orange-700">
+                          Üretime gönderilecek toplam metrajı hesaplayın
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Visual Flow Diagram */}
+                    <div className="grid grid-cols-5 gap-2 items-center mb-6">
+                      <div className="col-span-2 bg-white p-4 rounded-xl border-2 border-blue-300 text-center">
+                        <div className="text-[10px] text-blue-600 font-bold uppercase mb-1">
+                          Grafik Net Metraj
+                        </div>
+                        <div className="text-2xl font-bold text-blue-700">
+                          {selectedOrder.graphicsData?.meterage?.replace(' mt', '') || '0'} mt
+                        </div>
+                      </div>
+
+                      <div className="flex justify-center">
+                        <Plus size={20} className="text-orange-500 font-bold" />
+                      </div>
+
+                      <div className="col-span-2 bg-white p-4 rounded-xl border-2 border-green-300 text-center">
+                        <div className="text-[10px] text-green-600 font-bold uppercase mb-1">
+                          Depodan Çıkacak (Fire Dahil)
+                        </div>
+                        <div className="text-2xl font-bold text-green-700">
+                          {wData.issuedMeterage} mt
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Fire Rate Input */}
+                    <div className="bg-white p-5 rounded-xl border-2 border-orange-300">
+                      <label className="label text-orange-800 font-bold flex items-center gap-2 mb-3">
+                        <AlertTriangle size={18} />
+                        Fire Oranı Belirleyin (%)
+                      </label>
+
+                      <div className="flex gap-4 items-center">
+                        {/* Slider */}
+                        <input
+                          type="range"
+                          min="0"
+                          max="30"
+                          step="1"
+                          className="flex-1 h-3 bg-gradient-to-r from-green-200 via-yellow-200 to-red-200 rounded-full appearance-none cursor-pointer"
+                          value={wData.wastageRate}
+                          onChange={e => setWData({ ...wData, wastageRate: parseFloat(e.target.value) })}
+                          style={{
+                            background: `linear-gradient(to right, #86efac 0%, #fef08a ${(wData.wastageRate / 30) * 100}%, #fca5a5 100%)`
+                          }}
+                        />
+
+                        {/* Number Input */}
+                        <div className="relative w-24">
+                          <input
+                            type="number"
+                            min="0"
+                            max="30"
+                            step="0.5"
+                            className="input-field pr-8 text-center font-bold text-lg"
+                            value={wData.wastageRate}
+                            onChange={e => setWData({ ...wData, wastageRate: parseFloat(e.target.value) || 0 })}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-orange-600 font-bold">
+                            %
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Quick Select Buttons */}
+                      <div className="flex gap-2 mt-4">
+                        <span className="text-xs text-gray-600 font-bold">Hızlı Seçim:</span>
+                        {[5, 10, 15, 20].map(rate => (
+                          <button
+                            key={rate}
+                            type="button"
+                            onClick={() => setWData({ ...wData, wastageRate: rate })}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                              wData.wastageRate === rate
+                                ? 'bg-orange-500 text-white shadow-md'
+                                : 'bg-white border-2 border-orange-200 text-orange-600 hover:bg-orange-50'
+                            }`}
+                          >
+                            %{rate}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Calculation Breakdown */}
+                    <div className="mt-5 bg-white p-4 rounded-xl border-2 border-dashed border-orange-300">
+                      <div className="text-xs font-bold text-orange-800 mb-3 uppercase tracking-wide">
+                        📊 Hesaplama Detayı
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Net İhtiyaç:</span>
+                          <span className="font-bold">
+                            {selectedOrder.graphicsData?.meterage?.replace(' mt', '') || '0'} mt
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-orange-600">
+                          <span>Fire Payı ({wData.wastageRate}%):</span>
+                          <span className="font-bold">
+                            +{Math.ceil((parseFloat(selectedOrder.graphicsData?.meterage?.replace(/[^0-9.]/g, '')) || 0) * (wData.wastageRate / 100))} mt
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t-2 border-orange-200 text-lg font-bold text-green-700">
+                          <span>Üretime Verilecek:</span>
+                          <span>{wData.issuedMeterage} mt</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                      <p className="text-xs text-yellow-800 italic">
+                        💡 <strong>Not:</strong> Fire oranı, üretim sürecinde oluşabilecek kayıpları karşılamak için net metraj üzerine eklenir. Önerilen: %10-15
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Slitting Date (Conditional) */}
+                  {wData.materialStatus === 'Dilimleme Aşamasında' && (
+                    <div className="bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200 animate-in slide-in-from-top-2">
+                      <label className="label text-yellow-800 font-bold">
+                        Dilimleme Tarihi Belirtin
+                      </label>
+                      <input
+                        required
+                        type="date"
+                        className="input-field border-yellow-300 focus:ring-yellow-500"
+                        value={wData.slittingDate}
+                        onChange={e => setWData({ ...wData, slittingDate: e.target.value })}
+                      />
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <button
+                    disabled={isSaving}
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} />
+                        İşleniyor...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle size={24} />
+                        {listMode === 'all' ? 'Düzeltmeyi Kaydet' : 'Durumu Kaydet / Planlamaya İlet'}
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                // Shipping Form
+                <form onSubmit={handleShippingSave} className="space-y-6">
+                  <h4 className="font-bold text-xl text-green-600 flex items-center gap-2 border-b-2 border-green-100 pb-3">
+                    <Truck size={22} />
+                    Sevkiyat İşlemi
+                  </h4>
+
+                  <div>
+                    <label className="label">Sevkiyat Durumu</label>
+                    <select
+                      required
+                      className="input-field"
+                      value={wData.shippingStatus}
+                      onChange={e => setWData({ ...wData, shippingStatus: e.target.value })}
+                    >
+                      <option value="">Seçiniz...</option>
+                      <option>Sevk Bekliyor</option>
+                      <option>Sevk Edildi</option>
+                    </select>
+                  </div>
+
+                  <button
+                    disabled={isSaving}
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} />
+                        İşleniyor...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle size={24} />
+                        {listMode === 'all' ? 'Düzeltmeyi Kaydet' : 'Sevkiyat Durumunu Güncelle'}
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white p-16 rounded-2xl shadow-xl border-2 border-dashed border-gray-300 text-center">
+              <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                {activeTab === 'raw' ? (
+                  <Archive size={48} className="text-indigo-600" />
+                ) : (
+                  <Truck size={48} className="text-green-600" />
+                )}
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                İşlem yapmak için sipariş seçin
+              </h3>
+              <p className="text-gray-500">
+                Soldan bir sipariş kartına tıklayarak {activeTab === 'raw' ? 'hammadde' : 'sevkiyat'} işlemlerini yapabilirsiniz
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
