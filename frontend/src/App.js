@@ -3850,7 +3850,7 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
 
   // Filter orders for selected station
   const getOrdersForStation = (stationId) => {
-    return orders.filter(order => {
+    let stationOrders = orders.filter(order => {
       // Only show planned and production_started orders
       if (order.status !== 'planned' && order.status !== 'production_started') {
         return false;
@@ -3859,6 +3859,17 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
       const nextStation = getNextStation(order);
       return nextStation === stationId;
     });
+
+    // Apply search filter
+    if (searchQuery) {
+      stationOrders = stationOrders.filter(order =>
+        order.orderNo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.product?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return stationOrders;
   };
 
   const filteredOrders = selectedStation ? getOrdersForStation(selectedStation) : [];
