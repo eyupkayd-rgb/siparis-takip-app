@@ -2043,3 +2043,322 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
   );
 }
 
+// ============================================================================
+// 🏭 WAREHOUSE DASHBOARD (FULL FEATURED WITH WASTE CALCULATION)
+// ============================================================================
+
+function WarehouseDashboard({ orders, isSuperAdmin }) {
+  const [activeTab, setActiveTab] = useState('raw');
+  const [listMode, setListMode] = useState('pending');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [wData, setWData] = useState({
+    materialStatus: '',
+    slittingDate: '',
+    shippingStatus: '',
+    wastageRate: 0,
+    issuedMeterage: 0
+  });
+
+  const activeOrder = selectedOrder ? (orders.find(o => o.id === selectedOrder.id) || selectedOrder) : null;
+
+  const rawPending = orders.filter(o => 
+    o.status === 'warehouse_raw_pending' || 
+    o.status === 'warehouse_processing' || 
+    ((o.status === 'planning_pending' || o.status === 'planned') && 
+      o.warehouseData?.materialStatus === 'Dilimleme Aşamasında')
+  );
+  
+  const shippingPending = orders.filter(o => o.status === 'shipping_ready');
+  const currentList = listMode === 'all' ? orders : (activeTab === 'raw' ? rawPending : shippingPending);
+
+  useEffect(() => {
+    if (selectedOrder && selectedOrder.warehouseData) {
+      setWData({
+        materialStatus: selectedOrder.warehouseData.materialStatus || '',
+        slittingDate: selectedOrder.warehouseData.slittingDate || '',
+        shippingStatus: selectedOrder.warehouseData.shippingStatus || '',
+        wastageRate: selectedOrder.warehouseData.wastageRate || 0,
+        issuedMeterage: selectedOrder.warehouseData.issuedMeterage || 0
+      });
+    } else {
+      setWData({
+        materialStatus: '',
+        slittingDate: '',
+        shippingStatus: '',
+        wastageRate: 0,
+        issuedMeterage: 0
+      });
+    }
+  }, [selectedOrder]);
+
+  // Auto-calculate issued meterage when wastage rate changes
+  useEffect(() => {
+    if (selectedOrder && selectedOrder.graphicsData?.meterage && activeTab === 'raw') {
+      const rawMeterageStr = selectedOrder.graphicsData.meterage;
+      const theoretical = parseFloat(rawMeterageStr.replace(/[^0-9.]/g, '')) || 0;
+      const rate = parseFloat(wData.wastageRate) || 0;
+      const totalIssued = Math.ceil(theoretical * (1 + rate / 100));
+      
+      setWData(prev => ({
+        ...prev,
+        issuedMeterage: totalIssued
+      }));
+    }
+  }, [wData.wastageRate, selectedOrder?.graphicsData?.meterage, activeTab]);
+
+  const handleRawMaterialSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    
+    try {
+      let updatePayload = {
+        warehouseData: {
+          ...selectedOrder.warehouseData,
+          materialStatus: wData.materialStatus,
+          slittingDate: wData.materialStatus === 'Dilimleme Aşamasında' ? wData.slittingDate : null,
+          wastageRate: wData.wastageRate,
+          issuedMeterage: wData.issuedMeterage
+        }
+      };
+
+      if (listMode === 'pending') {
+        let nextStatus = selectedOrder.status;
+        if (selectedOrder.status === 'warehouse_raw_pending' || 
+            selectedOrder.status === 'warehouse_processing' || 
+            selectedOrder.status === 'planning_pending') {
+          if (wData.materialStatus === 'Hazır' || wData.materialStatus === 'Dilimleme Aşamasında') {
+            nextStatus = 'planning_pending';
+          } else {
+            nextStatus = 'warehouse_processing';
+          }
+        }
+        updatePayload.status = nextStatus;
+      } else {
+        updatePayload.revisionAlert = "Depo (Hammadde) tarafından güncellendi";
+      }
+
+      await updateDoc(
+        doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedOrder.id),
+        updatePayload
+      );
+      setSelectedOrder(null);
+      setWData({
+        materialStatus: '',
+        slittingDate: '',
+        shippingStatus: '',
+        wastageRate: 0,
+        issuedMeterage: 0
+      });
+    } catch (error) {
+      console.error("Warehouse save error:", error);
+      alert("Kayıt hatası: " + error.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleShippingSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    
+    try {
+      let updatePayload = {
+        'warehouseData.shippingStatus': wData.shippingStatus,
+        ...(listMode === 'pending' 
+          ? { status: wData.shippingStatus === 'Sevk Edildi' ? 'completed' : 'shipping_ready' } 
+          : { revisionAlert: "Depo (Sevkiyat) tarafından güncellendi" })
+      };
+      
+      await updateDoc(
+        doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedOrder.id),
+        updatePayload
+      );
+      setSelectedOrder(null);
+      setWData({
+        materialStatus: '',
+        slittingDate: '',
+        shippingStatus: '',
+        wastageRate: 0,
+        issuedMeterage: 0
+      });
+    } catch (error) {
+      console.error("Shipping save error:", error);
+      alert("Kayıt hatası: " + error.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm("DİKKAT: Bu siparişi kalıcı olarak silmek üzeresiniz.")) {
+      try {
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId));
+        if (selectedOrder?.id === orderId) setSelectedOrder(null);
+      } catch (error) {
+        alert("Silme hatası.");
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in">
+      {/* Tab Bar */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-gray-200 pb-4">
+        <div className="flex space-x-4 overflow-x-auto">
+          <button
+            onClick={() => {
+              setActiveTab('raw');
+              setSelectedOrder(null);
+            }}
+            className={`pb-3 px-6 font-bold whitespace-nowrap transition-all relative ${
+              activeTab === 'raw'
+                ? 'text-indigo-600 border-b-4 border-indigo-600'
+                : 'text-gray-500 hover:text-indigo-500 border-b-4 border-transparent'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Archive size={20} />
+              <span>Hammadde Girişi</span>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => {
+              setActiveTab('shipping');
+              setSelectedOrder(null);
+            }}
+            className={`pb-3 px-6 font-bold whitespace-nowrap transition-all relative ${
+              activeTab === 'shipping'
+                ? 'text-green-600 border-b-4 border-green-600'
+                : 'text-gray-500 hover:text-green-500 border-b-4 border-transparent'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Truck size={20} />
+              <span>Sevkiyat Yönetimi</span>
+            </div>
+          </button>
+        </div>
+
+        <div className="flex bg-white rounded-lg border-2 border-gray-200 p-1 shadow-sm">
+          <button
+            onClick={() => setListMode('pending')}
+            className={`px-4 py-2 text-xs font-bold rounded transition-all ${
+              listMode === 'pending'
+                ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-md'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            Bekleyenler
+          </button>
+          <button
+            onClick={() => setListMode('all')}
+            className={`px-4 py-2 text-xs font-bold rounded transition-all ${
+              listMode === 'all'
+                ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-md'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            Tüm İşler / Düzeltme
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Sidebar - Order List */}
+        <div className="lg:col-span-1 space-y-3 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+          <h3 className="font-bold text-lg text-gray-700 flex items-center gap-2 mb-4">
+            {activeTab === 'raw' ? (
+              <>
+                <Archive size={20} className="text-indigo-500" />
+                <span>Hammadde İşlemleri</span>
+              </>
+            ) : (
+              <>
+                <Truck size={20} className="text-green-500" />
+                <span>Sevkiyat İşlemleri</span>
+              </>
+            )}
+            <span className="ml-auto text-sm bg-gray-100 px-3 py-1 rounded-full">
+              {currentList.length}
+            </span>
+          </h3>
+
+          {currentList.map(order => (
+            <div
+              key={order.id}
+              onClick={() => setSelectedOrder(order)}
+              className={`p-4 rounded-xl border-2 cursor-pointer transition-all relative group ${
+                selectedOrder?.id === order.id
+                  ? activeTab === 'raw'
+                    ? 'bg-gradient-to-r from-indigo-50 to-indigo-100 border-indigo-400 shadow-lg ring-2 ring-indigo-300'
+                    : 'bg-gradient-to-r from-green-50 to-green-100 border-green-400 shadow-lg ring-2 ring-green-300'
+                  : 'bg-white border-gray-200 hover:border-indigo-300 hover:shadow-md'
+              }`}
+            >
+              {isSuperAdmin && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteOrder(order.id);
+                  }}
+                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Sil"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-bold text-gray-800">{order.orderNo}</span>
+                {order.warehouseData?.materialStatus && (
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                    order.warehouseData.materialStatus === 'Dilimleme Aşamasında'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-indigo-100 text-indigo-800'
+                  }`}>
+                    {order.warehouseData.materialStatus}
+                  </span>
+                )}
+              </div>
+
+              <div className="text-sm text-gray-600 mb-1">{order.customer}</div>
+              <div className="text-xs text-gray-500 mb-2">{order.product}</div>
+
+              <div className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold mb-2">
+                ⏰ Termin: {order.customerDeadline}
+              </div>
+
+              {/* Graphics Data Summary */}
+              {order.graphicsData && (
+                <div className="text-[10px] text-gray-500 space-y-1 border-t border-gray-200 pt-2">
+                  <div className="flex justify-between">
+                    <span>Hammadde:</span>
+                    <span className="font-bold text-gray-700">
+                      {order.rawMaterial?.substring(0, 20)}...
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Kağıt Eni:</span>
+                    <span className="font-bold text-indigo-700">
+                      {order.graphicsData.paperWidth}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Metraj (Net):</span>
+                    <span className="font-bold text-indigo-700">
+                      {order.graphicsData.meterage}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {currentList.length === 0 && (
+            <div className="text-center py-12 text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-300">
+              {activeTab === 'raw' ? <Archive size={48} className="mx-auto mb-3 opacity-20" /> : <Truck size={48} className="mx-auto mb-3 opacity-20" />}
+              <p className="text-sm">Kayıt yok</p>
+            </div>
+          )}
+        </div>
+
