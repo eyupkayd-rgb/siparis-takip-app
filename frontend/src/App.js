@@ -2870,14 +2870,17 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
 
           {/* Tab Content */}
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {readyForPlanning.length === 0 && (
-              <div className="text-center py-8 text-gray-400 bg-white border-2 border-dashed rounded-xl">
-                <Clock size={48} className="mx-auto mb-3 opacity-20" />
-                <p className="text-sm">Bekleyen iş yok.</p>
-              </div>
-            )}
+            {/* PENDING TAB */}
+            {leftPanelTab === 'pending' && (
+              <>
+                {readyForPlanning.length === 0 && (
+                  <div className="text-center py-8 text-gray-400 bg-white border-2 border-dashed rounded-xl">
+                    <Clock size={48} className="mx-auto mb-3 opacity-20" />
+                    <p className="text-sm">Bekleyen iş yok.</p>
+                  </div>
+                )}
 
-            {readyForPlanning.map(order => (
+                {readyForPlanning.map(order => (
               <div
                 key={order.id}
                 onClick={() => setSelectedId(order.id)}
