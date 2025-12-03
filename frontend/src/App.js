@@ -597,7 +597,8 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
       isComplex: order.isComplex || false,
       isSet: order.isSet || false,
       commonBack: order.commonBack || false,
-      variants: order.variants || []
+      variants: order.variants || [],
+      notes: order.notes || ''
     });
     setShowForm(true);
   };
