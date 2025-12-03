@@ -3785,16 +3785,27 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
 
   const filteredOrders = selectedStation ? getOrdersForStation(selectedStation) : [];
 
-  const handleStartStation = (order) => {
+  const handleSelectOrder = (order) => {
     setSelectedOrder(order);
     setStationData({
-      startTime: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      startTime: '',
       endTime: '',
       inputMeterage: order.warehouseData?.issuedMeterage || order.graphicsData?.meterage || '',
       outputMeterage: '',
       outputQuantity: '',
-      notes: ''
+      notes: '',
+      isStarted: false
     });
+  };
+
+  const handleStartWork = () => {
+    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    setStationData({ ...stationData, startTime: now, isStarted: true });
+  };
+
+  const handleEndWork = () => {
+    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    setStationData({ ...stationData, endTime: now });
   };
 
   const handleSaveStation = async (e) => {
