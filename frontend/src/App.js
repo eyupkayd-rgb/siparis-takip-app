@@ -1403,6 +1403,7 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [gData, setGData] = useState({
     machine: '', color: '', printType: '', zet: '', meterage: '', 
     lamination: '', plateStatus: '', dieStatus: '', paperWidth: '', 
