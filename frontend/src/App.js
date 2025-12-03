@@ -4118,8 +4118,12 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
 
                   <button
                     type="submit"
-                    disabled={isSaving}
-                    className="w-full py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3 bg-gradient-to-r from-teal-600 to-cyan-700 hover:from-teal-700 hover:to-cyan-800 text-white"
+                    disabled={isSaving || !stationData.endTime}
+                    className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3 ${
+                      !stationData.endTime 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-teal-600 to-cyan-700 hover:from-teal-700 hover:to-cyan-800'
+                    } text-white`}
                   >
                     {isSaving ? (
                       <>
