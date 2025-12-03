@@ -498,7 +498,6 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   
   const [formData, setFormData] = useState({
     orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
