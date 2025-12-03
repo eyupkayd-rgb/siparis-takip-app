@@ -2277,6 +2277,20 @@ function WarehouseDashboard({ orders, isSuperAdmin }) {
 
   return (
     <div className="space-y-6 animate-in fade-in">
+      {/* Search Bar */}
+      <div className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-100">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Sipariş No, Ürün Adı veya Firma Adına Göre Ara..."
+            className="input-field pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
       {/* Tab Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-gray-200 pb-4">
         <div className="flex space-x-4 overflow-x-auto">
