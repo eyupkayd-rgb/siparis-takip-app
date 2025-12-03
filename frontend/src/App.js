@@ -948,3 +948,158 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
   );
 }
 
+// ============================================================================
+// 📋 ORDER LIST TABLE COMPONENT
+// ============================================================================
+
+function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = 
+      order.orderNo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.product?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 overflow-hidden">
+      {/* Search & Filter Bar */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b-2 border-gray-100">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Sipariş no, firma veya ürün ara..."
+              className="input-field pl-12 w-full"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <select
+            className="input-field md:w-64"
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+          >
+            <option value="all">🔍 Tüm Durumlar</option>
+            <option value="graphics_pending">📐 Grafik Bekliyor</option>
+            <option value="warehouse_raw_pending">📦 Hammadde Onayı</option>
+            <option value="planning_pending">📅 Planlama Bekliyor</option>
+            <option value="planned">✅ Planlandı</option>
+            <option value="production_started">⚙️ Üretimde</option>
+            <option value="shipping_ready">🚚 Sevk Bekliyor</option>
+            <option value="completed">✔️ Tamamlandı</option>
+          </select>
+        </div>
+        
+        <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+          <span className="font-bold">{filteredOrders.length}</span>
+          <span>sipariş gösteriliyor</span>
+        </div>
+      </div>
+      
+      {/* Table */}
+      <div className="overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-b-2 border-gray-200">
+            <tr>
+              <th className="p-4 font-bold">Sipariş No</th>
+              <th className="p-4 font-bold">Müşteri</th>
+              <th className="p-4 font-bold">Ürün</th>
+              <th className="p-4 font-bold">Miktar</th>
+              <th className="p-4 font-bold">Tip</th>
+              <th className="p-4 font-bold">Termin</th>
+              <th className="p-4 font-bold">Durum</th>
+              <th className="p-4 font-bold text-right">İşlem</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filteredOrders.map(order => (
+              <tr
+                key={order.id}
+                className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 group"
+              >
+                <td className="p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="font-bold text-gray-800">{order.orderNo}</span>
+                  </div>
+                </td>
+                <td className="p-4">
+                  <div className="font-medium text-gray-700">{order.customer}</div>
+                </td>
+                <td className="p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600">{order.product}</span>
+                    {order.isComplex && (
+                      <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-bold">
+                        Varyant
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="p-4 font-medium">{order.quantity}</td>
+                <td className="p-4">
+                  <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                    order.category === 'Ambalaj' 
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {order.category || 'Etiket'}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <div className="text-xs text-gray-500">{order.customerDeadline}</div>
+                </td>
+                <td className="p-4">
+                  <StatusBadge status={order.status} />
+                </td>
+                <td className="p-4 text-right">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(order)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Düzenle"
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                    )}
+                    {isSuperAdmin && onDelete && (
+                      <button
+                        onClick={() => onDelete(order.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Sil"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filteredOrders.length === 0 && (
+              <tr>
+                <td colSpan="8" className="p-12 text-center">
+                  <div className="flex flex-col items-center gap-4 text-gray-400">
+                    <Package size={64} className="opacity-20" />
+                    <p className="text-lg font-medium">Sipariş bulunamadı</p>
+                    <p className="text-sm">Yeni sipariş eklemek için yukarıdaki butonu kullanın</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
