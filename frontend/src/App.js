@@ -4167,7 +4167,7 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
 
   // Calculate station-wise fire
   const calculateStationFire = (order) => {
-    if (!order.productionData || order.productionData.length === 0) {
+    if (!order.productionData || !Array.isArray(order.productionData) || order.productionData.length === 0) {
       return [];
     }
 
