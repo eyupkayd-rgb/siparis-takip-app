@@ -1373,11 +1373,7 @@ export default function OrderApp() {
         )}
         
         {activeDepartment === 'archive' && (
-          <div className="bg-white p-12 rounded-2xl shadow-xl text-center">
-            <FileText size={64} className="mx-auto mb-4 text-purple-500 opacity-50" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Arşiv Modülü</h2>
-            <p className="text-gray-600">Yakında eklenecek...</p>
-          </div>
+          <ArchiveDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
         )}
       </main>
     </div>
