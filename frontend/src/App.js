@@ -529,6 +529,12 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
     newVariants[index][field] = value;
     setFormData({ ...formData, variants: newVariants });
   };
+  
+  // Textarea otomatik boyutlandırma
+  const autoResizeTextarea = (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  };
 
   const addVariant = () => {
     setFormData({ 
