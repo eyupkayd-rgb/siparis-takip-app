@@ -1032,6 +1032,7 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
               <th className="p-4 font-bold">Miktar</th>
               <th className="p-4 font-bold">Tip</th>
               <th className="p-4 font-bold">Termin</th>
+              <th className="p-4 font-bold">Planlama</th>
               <th className="p-4 font-bold">Durum</th>
               <th className="p-4 font-bold text-right">İşlem</th>
             </tr>
