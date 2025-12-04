@@ -1153,7 +1153,16 @@ export default function OrderApp() {
           const userDoc = await getDoc(userDocRef);
           
           if (userDoc.exists()) {
-            setUserProfile(userDoc.data());
+            const profile = userDoc.data();
+            
+            // Onay kontrolü - Super admin değilse ve onaylanmamışsa çıkış yap
+            if (!profile.approved && !SUPER_ADMIN_EMAILS.includes(currentUser.email)) {
+              await signOut(auth);
+              alert('Hesabınız henüz onaylanmamış. Lütfen admin onayını bekleyin.');
+              return;
+            }
+            
+            setUserProfile(profile);
           } else {
             // Create new user profile
             const newProfile = {
