@@ -663,8 +663,9 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
           onClick={() => {
             setShowForm(!showForm);
             setEditingId(null);
+            const nextOrderNo = generateNextOrderNo();
             setFormData({
-              orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
+              orderNo: nextOrderNo, customer: '', product: '', category: 'Etiket', type: 'Yeni',
               rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
               customerDeadline: '', attachments: [],
               isComplex: false, isSet: false, commonBack: false, variants: [],
