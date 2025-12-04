@@ -4681,7 +4681,7 @@ function AuthScreen() {
       const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(email);
       const newProfile = {
         email: email,
-        role: isSuperAdmin ? 'super_admin' : 'operator',
+        role: isSuperAdmin ? 'super_admin' : 'marketing', // Default: Pazarlama
         station: null,
         approved: isSuperAdmin, // Super admin otomatik onaylı, diğerleri beklemede
         createdAt: new Date().toISOString(),
