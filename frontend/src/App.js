@@ -1225,22 +1225,7 @@ export default function OrderApp() {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-blue-900 p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="text-blue-600" size={32} />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800">Personel Girişi</h2>
-            <p className="text-gray-500 text-sm mt-1">Bulut Üretim Takip Sistemi</p>
-          </div>
-          <div className="text-center text-gray-500">
-            <p>Sistem yükleniyor...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <AuthScreen />;
   }
 
   // Department Selection Menu
