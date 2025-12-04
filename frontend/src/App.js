@@ -5194,11 +5194,9 @@ function AdminDashboard() {
                   <td className="px-4 py-3 text-sm">{user.email}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-3 py-1 rounded-full font-bold ${
-                      user.role === 'super_admin' 
-                        ? 'bg-red-100 text-red-800' 
-                        : 'bg-blue-100 text-blue-800'
+                      roles.find(r => r.id === user.role)?.color || 'bg-gray-100 text-gray-800'
                     }`}>
-                      {user.role === 'super_admin' ? '👑 Super Admin' : '👤 Operatör'}
+                      {roles.find(r => r.id === user.role)?.name || user.role}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
