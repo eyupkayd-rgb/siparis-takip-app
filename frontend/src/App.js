@@ -5077,16 +5077,28 @@ function AdminDashboard() {
     }
   };
 
-  const handleToggleRole = async (uid, currentRole) => {
-    const newRole = currentRole === 'super_admin' ? 'operator' : 'super_admin';
-    if (!window.confirm(`Kullanıcı rolünü "${newRole}" olarak değiştirmek istediğinizden emin misiniz?`)) return;
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
     
     try {
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
-      await updateDoc(userRef, { role: newRole });
-      alert('Rol güncellendi!');
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', selectedUser.uid);
+      const updateData = {
+        role: selectedUser.role
+      };
+      
+      // Sadece production rolündeyse istasyon ata
+      if (selectedUser.role === 'production') {
+        updateData.station = selectedUser.station;
+      } else {
+        updateData.station = null; // Diğer departmanlarda istasyon yok
+      }
+      
+      await updateDoc(userRef, updateData);
+      alert('Kullanıcı güncellendi!');
+      setShowEditModal(false);
+      setSelectedUser(null);
     } catch (error) {
-      console.error("Role update error:", error);
+      console.error("Update error:", error);
       alert('Hata: ' + error.message);
     }
   };
