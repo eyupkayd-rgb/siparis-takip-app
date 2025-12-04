@@ -4952,6 +4952,36 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+
+  // Migration: Eski kullanıcılara approved field ekle
+  const handleMigrateUsers = async () => {
+    if (!window.confirm('Tüm mevcut kullanıcılara "approved: true" eklemek istediğinizden emin misiniz?')) return;
+    
+    setIsMigrating(true);
+    try {
+      const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+      const snapshot = await getDocs(usersRef);
+      
+      let updatedCount = 0;
+      for (const docSnap of snapshot.docs) {
+        const userData = docSnap.data();
+        // Eğer approved field yoksa ekle
+        if (userData.approved === undefined) {
+          await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', docSnap.id), {
+            approved: true
+          });
+          updatedCount++;
+        }
+      }
+      
+      alert(`Migration tamamlandı! ${updatedCount} kullanıcı güncellendi.`);
+    } catch (error) {
+      console.error("Migration error:", error);
+      alert('Migration hatası: ' + error.message);
+    }
+    setIsMigrating(false);
+  };
 
   // Station options
   const stations = [
