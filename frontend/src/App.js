@@ -1064,15 +1064,15 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
         <table className="w-full text-left text-sm">
           <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-b-2 border-gray-200">
             <tr>
-              <th className="p-4 font-bold">Sipariş No</th>
+              <th className="p-4 font-bold w-32">Sipariş No</th>
               <th className="p-4 font-bold">Müşteri</th>
               <th className="p-4 font-bold">Ürün</th>
-              <th className="p-4 font-bold">Miktar</th>
-              <th className="p-4 font-bold">Tip</th>
-              <th className="p-4 font-bold">Termin</th>
-              <th className="p-4 font-bold">Planlama</th>
-              <th className="p-4 font-bold">Durum</th>
-              <th className="p-4 font-bold text-right">İşlem</th>
+              <th className="p-4 font-bold w-40">Miktar</th>
+              <th className="p-4 font-bold w-28">Tip</th>
+              <th className="p-4 font-bold w-32">Termin</th>
+              <th className="p-4 font-bold w-32">Planlama</th>
+              <th className="p-4 font-bold w-36">Durum</th>
+              <th className="p-4 font-bold text-right w-28">İşlem</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
