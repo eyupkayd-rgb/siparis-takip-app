@@ -4942,3 +4942,273 @@ function AuthScreen() {
   );
 }
 
+
+// ============================================================================
+// 👥 ADMIN DASHBOARD (USER MANAGEMENT)
+// ============================================================================
+
+function AdminDashboard() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  // Station options
+  const stations = [
+    { id: 'bobst_m1', name: 'Bobst M1 Operatörü (Etiket)' },
+    { id: 'bobst_m1_ambalaj', name: 'Bobst M1 Operatörü (Ambalaj)' },
+    { id: 'hibrit', name: 'Hibrit Operatörü' },
+    { id: 'muhürleme', name: 'Mühürleme' },
+    { id: 'etiket_qc', name: 'Kalite Kontrol (Etiket)' },
+    { id: 'sleeve_qc', name: 'Sleeve Kalite Kontrol' },
+    { id: 'tabakalama', name: 'Tabakalama' }
+  ];
+
+  // Fetch users
+  useEffect(() => {
+    const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+    const unsubscribe = onSnapshot(usersRef, (snapshot) => {
+      const usersList = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+      setUsers(usersList);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleApprove = async (uid) => {
+    try {
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+      await updateDoc(userRef, { approved: true });
+      alert('Kullanıcı onaylandı!');
+    } catch (error) {
+      console.error("Approve error:", error);
+      alert('Hata: ' + error.message);
+    }
+  };
+
+  const handleReject = async (uid) => {
+    if (!window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+      await deleteDoc(userRef);
+      alert('Kullanıcı silindi.');
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert('Hata: ' + error.message);
+    }
+  };
+
+  const handleUpdateStation = async (uid, station) => {
+    try {
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+      await updateDoc(userRef, { station: station });
+      alert('İstasyon ataması güncellendi!');
+      setShowEditModal(false);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error("Update error:", error);
+      alert('Hata: ' + error.message);
+    }
+  };
+
+  const handleToggleRole = async (uid, currentRole) => {
+    const newRole = currentRole === 'super_admin' ? 'operator' : 'super_admin';
+    if (!window.confirm(`Kullanıcı rolünü "${newRole}" olarak değiştirmek istediğinizden emin misiniz?`)) return;
+    
+    try {
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+      await updateDoc(userRef, { role: newRole });
+      alert('Rol güncellendi!');
+    } catch (error) {
+      console.error("Role update error:", error);
+      alert('Hata: ' + error.message);
+    }
+  };
+
+  const pendingUsers = users.filter(u => !u.approved);
+  const approvedUsers = users.filter(u => u.approved);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 animate-in fade-in">
+      {/* Header */}
+      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+            Kullanıcı Yönetimi
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Kullanıcı onayları ve istasyon atamaları
+          </p>
+        </div>
+      </div>
+
+      {/* Pending Users */}
+      {pendingUsers.length > 0 && (
+        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6">
+          <h3 className="text-xl font-bold text-yellow-800 mb-4 flex items-center gap-2">
+            <AlertCircle size={24} />
+            Onay Bekleyen Kullanıcılar ({pendingUsers.length})
+          </h3>
+          <div className="space-y-3">
+            {pendingUsers.map(user => (
+              <div key={user.uid} className="bg-white p-4 rounded-xl shadow flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-gray-800">{user.email}</div>
+                  <div className="text-xs text-gray-500">
+                    Kayıt: {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleApprove(user.uid)}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-all flex items-center gap-2"
+                  >
+                    <Check size={16} />
+                    Onayla
+                  </button>
+                  <button
+                    onClick={() => handleReject(user.uid)}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-all flex items-center gap-2"
+                  >
+                    <Ban size={16} />
+                    Reddet
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Approved Users */}
+      <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100">
+        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <Users size={24} />
+          Onaylı Kullanıcılar ({approvedUsers.length})
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b-2 border-gray-200">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Email</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Rol</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">İstasyon</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Kayıt Tarihi</th>
+                <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {approvedUsers.map(user => (
+                <tr key={user.uid} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm">{user.email}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+                      user.role === 'super_admin' 
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {user.role === 'super_admin' ? '👑 Super Admin' : '👤 Operatör'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {user.station ? (
+                      <span className="text-green-700 font-semibold">
+                        {stations.find(s => s.id === user.station)?.name || user.station}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">Atanmadı</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setShowEditModal(true);
+                        }}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                      {!SUPER_ADMIN_EMAILS.includes(user.email) && (
+                        <>
+                          <button
+                            onClick={() => handleToggleRole(user.uid, user.role)}
+                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition-all"
+                            title="Rol Değiştir"
+                          >
+                            <ShieldCheck size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleReject(user.uid)}
+                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {showEditModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">İstasyon Ata</h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">Kullanıcı: <strong>{selectedUser.email}</strong></p>
+              <label className="label">İstasyon Seçin</label>
+              <select
+                className="input-field"
+                value={selectedUser.station || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, station: e.target.value })}
+              >
+                <option value="">İstasyon Seçiniz</option>
+                {stations.map(station => (
+                  <option key={station.id} value={station.id}>{station.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleUpdateStation(selectedUser.uid, selectedUser.station)}
+                className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-all"
+              >
+                Kaydet
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedUser(null);
+                }}
+                className="flex-1 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-bold transition-all"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
