@@ -1123,51 +1123,63 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
 // 🏠 MAIN APP COMPONENT
 // ============================================================================
 
+// Super Admin Email List
+const SUPER_ADMIN_EMAILS = [
+  'eyupkayd@gmail.com',
+  'ukaydi.27@gmail.com',
+  'rec.row27@gmail.com',
+  'esenyakuppp@gmail.com'
+];
+
 export default function OrderApp() {
   const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
 
-  const isSuperAdmin = user && ADMIN_EMAILS.includes(user.email);
+  const isSuperAdmin = user && SUPER_ADMIN_EMAILS.includes(user.email);
 
-  // Auth initialization - Simplified for testing
+  // Auth initialization with proper user management
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        // Preview environment check
-        if (typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
-          await signInWithCustomToken(auth, window.__initial_auth_token);
-          return;
-        }
-        
-        // Try anonymous auth
-        try {
-          await signInAnonymously(auth);
-        } catch (anonError) {
-          console.warn("Anonymous auth failed, using test mode:", anonError);
-          // Immediate fallback - set test user and proceed
-          setUser({ uid: 'test-user-' + Date.now(), email: 'test@test.com', isAnonymous: true });
-          setUserRole('admin');
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Auth init error:", error);
-        // Final fallback
-        setUser({ uid: 'test-user-' + Date.now(), email: 'test@test.com', isAnonymous: true });
-        setUserRole('admin');
-        setLoading(false);
-      }
-    };
-    
-    initAuth();
-    
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        setUserRole('admin');
+        
+        // Fetch or create user profile
+        try {
+          const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            setUserProfile(userDoc.data());
+          } else {
+            // Create new user profile
+            const newProfile = {
+              email: currentUser.email,
+              role: SUPER_ADMIN_EMAILS.includes(currentUser.email) ? 'super_admin' : 'operator',
+              station: null,
+              createdAt: new Date().toISOString(),
+              displayName: currentUser.email?.split('@')[0] || 'User'
+            };
+            await setDoc(userDocRef, newProfile);
+            setUserProfile(newProfile);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          // Fallback profile
+          setUserProfile({
+            email: currentUser.email,
+            role: SUPER_ADMIN_EMAILS.includes(currentUser.email) ? 'super_admin' : 'operator',
+            station: null
+          });
+        }
+        
+        setLoading(false);
+      } else {
+        setUser(null);
+        setUserProfile(null);
         setLoading(false);
       }
     });
