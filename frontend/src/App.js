@@ -1260,6 +1260,13 @@ export default function OrderApp() {
       { id: 'production', name: 'Üretim', desc: 'İstasyon Takibi', icon: Printer, color: 'from-teal-500 to-teal-600' },
       { id: 'archive', name: 'Arşiv', desc: 'Geçmiş ve Raporlar', icon: FileText, color: 'from-purple-500 to-purple-600' }
     ];
+    
+    // Super Admin için ekstra modül
+    if (isSuperAdmin) {
+      departments.push(
+        { id: 'admin', name: 'Yönetim', desc: 'Kullanıcı Yönetimi', icon: Users, color: 'from-red-500 to-red-600' }
+      );
+    }
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
