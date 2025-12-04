@@ -850,15 +850,21 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
                   <label className="label">Ürün Adı</label>
-                  <input
+                  <textarea
                     required
                     placeholder="Ürün ismi"
-                    className="input-field"
+                    className="input-field resize-none overflow-hidden"
+                    style={{ minHeight: '42px' }}
+                    rows="1"
                     value={formData.product}
-                    onChange={e => setFormData({...formData, product: e.target.value})}
+                    onChange={e => {
+                      setFormData({...formData, product: e.target.value});
+                      autoResizeTextarea(e);
+                    }}
+                    onInput={autoResizeTextarea}
                   />
                 </div>
                 
@@ -868,13 +874,13 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
                     <input
                       required
                       type="number"
-                      placeholder="Miktar"
+                      placeholder="Adet"
                       className="input-field flex-1"
                       value={formData.qAmount}
                       onChange={e => setFormData({...formData, qAmount: e.target.value})}
                     />
                     <select
-                      className="input-field w-28 bg-gray-50"
+                      className="input-field w-20 bg-gray-50 text-sm"
                       value={formData.qUnit}
                       onChange={e => setFormData({...formData, qUnit: e.target.value})}
                     >
