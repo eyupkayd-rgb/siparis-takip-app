@@ -1209,7 +1209,8 @@ export default function OrderApp() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    setUserRole(null);
+    setUser(null);
+    setUserProfile(null);
     setActiveDepartment(null);
   };
 
