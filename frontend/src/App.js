@@ -1165,14 +1165,24 @@ export default function OrderApp() {
             setUserProfile(profile);
           } else {
             // Create new user profile
+            const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(currentUser.email);
             const newProfile = {
               email: currentUser.email,
-              role: SUPER_ADMIN_EMAILS.includes(currentUser.email) ? 'super_admin' : 'operator',
+              role: isSuperAdmin ? 'super_admin' : 'operator',
               station: null,
+              approved: isSuperAdmin, // Super admin otomatik onaylı
               createdAt: new Date().toISOString(),
               displayName: currentUser.email?.split('@')[0] || 'User'
             };
             await setDoc(userDocRef, newProfile);
+            
+            // Onaylanmamışsa çıkış yap
+            if (!newProfile.approved) {
+              await signOut(auth);
+              alert('Hesabınız henüz onaylanmamış. Lütfen admin onayını bekleyin.');
+              return;
+            }
+            
             setUserProfile(newProfile);
           }
         } catch (error) {
