@@ -5007,7 +5007,18 @@ function AdminDashboard() {
     setIsMigrating(false);
   };
 
-  // Station options
+  // Role options (Departmanlar)
+  const roles = [
+    { id: 'super_admin', name: '👑 Super Admin', color: 'bg-red-100 text-red-800' },
+    { id: 'marketing', name: '🔵 Pazarlama', color: 'bg-blue-100 text-blue-800' },
+    { id: 'graphics', name: '🟠 Grafik', color: 'bg-orange-100 text-orange-800' },
+    { id: 'warehouse', name: '🟣 Depo', color: 'bg-indigo-100 text-indigo-800' },
+    { id: 'planning', name: '🟢 Planlama', color: 'bg-green-100 text-green-800' },
+    { id: 'production', name: '🔷 Üretim', color: 'bg-teal-100 text-teal-800' },
+    { id: 'archive', name: '🟡 Arşiv', color: 'bg-purple-100 text-purple-800' }
+  ];
+
+  // Station options (Sadece Üretim için)
   const stations = [
     { id: 'bobst_m1', name: 'Bobst M1 Operatörü (Etiket)' },
     { id: 'bobst_m1_ambalaj', name: 'Bobst M1 Operatörü (Ambalaj)' },
