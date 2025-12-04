@@ -755,13 +755,14 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
             {/* Basic Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="label">Sipariş No</label>
+                <label className="label">Sipariş No {!editingId && <span className="text-xs text-green-600">(Otomatik)</span>}</label>
                 <input
                   required
-                  placeholder="Örn: SIP-2024-001"
-                  className="input-field"
+                  placeholder="Örn: SP-0588"
+                  className="input-field bg-gray-50"
                   value={formData.orderNo}
-                  onChange={e => setFormData({...formData, orderNo: e.target.value})}
+                  readOnly={!editingId}
+                  onChange={e => editingId && setFormData({...formData, orderNo: e.target.value})}
                 />
               </div>
               
