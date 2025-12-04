@@ -5064,19 +5064,6 @@ function AdminDashboard() {
     }
   };
 
-  const handleUpdateStation = async (uid, station) => {
-    try {
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
-      await updateDoc(userRef, { station: station });
-      alert('İstasyon ataması güncellendi!');
-      setShowEditModal(false);
-      setSelectedUser(null);
-    } catch (error) {
-      console.error("Update error:", error);
-      alert('Hata: ' + error.message);
-    }
-  };
-
   const handleUpdateUser = async () => {
     if (!selectedUser) return;
     
