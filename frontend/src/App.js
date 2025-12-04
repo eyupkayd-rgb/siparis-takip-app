@@ -805,22 +805,28 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
                 </div>
                 
                 {formData.variants.map((variant, index) => (
-                  <div key={index} className="flex gap-2 items-center bg-white p-3 rounded-lg border border-purple-200">
-                    <span className="text-sm font-bold text-purple-600 w-8">
+                  <div key={index} className="flex gap-2 items-start bg-white p-3 rounded-lg border border-purple-200">
+                    <span className="text-sm font-bold text-purple-600 w-8 pt-2">
                       {index + 1}.
                     </span>
-                    <input
+                    <textarea
                       required
                       placeholder="Varyant Adı (Örn: Elma, Portakal)"
-                      className="input-field flex-1"
+                      className="input-field flex-1 resize-none overflow-hidden"
+                      style={{ minHeight: '42px' }}
+                      rows="1"
                       value={variant.name}
-                      onChange={e => handleVariantChange(index, 'name', e.target.value)}
+                      onChange={e => {
+                        handleVariantChange(index, 'name', e.target.value);
+                        autoResizeTextarea(e);
+                      }}
+                      onInput={autoResizeTextarea}
                     />
                     <input
                       required
                       type="number"
                       placeholder="Adet"
-                      className="input-field w-32"
+                      className="input-field w-24"
                       value={variant.quantity}
                       onChange={e => handleVariantChange(index, 'quantity', e.target.value)}
                     />
