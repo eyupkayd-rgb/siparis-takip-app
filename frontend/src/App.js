@@ -1155,8 +1155,15 @@ export default function OrderApp() {
           if (userDoc.exists()) {
             const profile = userDoc.data();
             
+            // Eski kullanıcılar için: approved field yoksa true kabul et
+            if (profile.approved === undefined) {
+              profile.approved = true;
+              // Firestore'a da ekle
+              await updateDoc(userDocRef, { approved: true });
+            }
+            
             // Onay kontrolü - Super admin değilse ve onaylanmamışsa çıkış yap
-            if (!profile.approved && !SUPER_ADMIN_EMAILS.includes(currentUser.email)) {
+            if (profile.approved === false && !SUPER_ADMIN_EMAILS.includes(currentUser.email)) {
               await signOut(auth);
               alert('Hesabınız henüz onaylanmamış. Lütfen admin onayını bekleyin.');
               return;
