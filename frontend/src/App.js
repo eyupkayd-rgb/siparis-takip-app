@@ -4961,28 +4961,45 @@ function AdminDashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
 
-  // Migration: Eski kullanıcılara approved field ekle
+  // Migration: user_roles → users collection
   const handleMigrateUsers = async () => {
-    if (!window.confirm('Tüm mevcut kullanıcılara "approved: true" eklemek istediğinizden emin misiniz?')) return;
+    if (!window.confirm('Eski kullanıcıları (user_roles) yeni sisteme (users) aktarmak istediğinizden emin misiniz?')) return;
     
     setIsMigrating(true);
     try {
-      const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
-      const snapshot = await getDocs(usersRef);
+      // Eski user_roles collection'ını oku
+      const userRolesRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_roles');
+      const userRolesSnapshot = await getDocs(userRolesRef);
       
-      let updatedCount = 0;
-      for (const docSnap of snapshot.docs) {
-        const userData = docSnap.data();
-        // Eğer approved field yoksa ekle
-        if (userData.approved === undefined) {
-          await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', docSnap.id), {
-            approved: true
-          });
-          updatedCount++;
+      let migratedCount = 0;
+      
+      for (const docSnap of userRolesSnapshot.docs) {
+        const oldUserData = docSnap.data();
+        const uid = docSnap.id;
+        
+        // Yeni users collection'ında kontrol et
+        const newUserRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+        const newUserDoc = await getDoc(newUserRef);
+        
+        if (!newUserDoc.exists()) {
+          // Yeni formatta kullanıcı oluştur
+          const newUserData = {
+            email: oldUserData.email,
+            role: SUPER_ADMIN_EMAILS.includes(oldUserData.email) ? 'super_admin' : 'operator',
+            station: null,
+            approved: true, // Eski kullanıcılar otomatik onaylı
+            createdAt: oldUserData.createdAt || new Date().toISOString(),
+            displayName: oldUserData.email?.split('@')[0] || 'User',
+            // Eski rol bilgisini not olarak sakla
+            oldRole: oldUserData.role
+          };
+          
+          await setDoc(newUserRef, newUserData);
+          migratedCount++;
         }
       }
       
-      alert(`Migration tamamlandı! ${updatedCount} kullanıcı güncellendi.`);
+      alert(`Migration tamamlandı! ${migratedCount} kullanıcı aktarıldı.`);
     } catch (error) {
       console.error("Migration error:", error);
       alert('Migration hatası: ' + error.message);
