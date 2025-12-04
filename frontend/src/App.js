@@ -5231,25 +5231,18 @@ function AdminDashboard() {
                           setShowEditModal(true);
                         }}
                         className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all"
+                        title="Düzenle"
                       >
                         <Edit3 size={14} />
                       </button>
                       {!SUPER_ADMIN_EMAILS.includes(user.email) && (
-                        <>
-                          <button
-                            onClick={() => handleToggleRole(user.uid, user.role)}
-                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition-all"
-                            title="Rol Değiştir"
-                          >
-                            <ShieldCheck size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleReject(user.uid)}
-                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </>
+                        <button
+                          onClick={() => handleReject(user.uid)}
+                          className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all"
+                          title="Sil"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       )}
                     </div>
                   </td>
