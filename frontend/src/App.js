@@ -1188,10 +1188,12 @@ export default function OrderApp() {
         } catch (error) {
           console.error("Error fetching user profile:", error);
           // Fallback profile
+          const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(currentUser.email);
           setUserProfile({
             email: currentUser.email,
-            role: SUPER_ADMIN_EMAILS.includes(currentUser.email) ? 'super_admin' : 'operator',
-            station: null
+            role: isSuperAdmin ? 'super_admin' : 'operator',
+            station: null,
+            approved: isSuperAdmin
           });
         }
         
