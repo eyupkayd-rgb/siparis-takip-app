@@ -5264,6 +5264,9 @@ function AdminDashboard() {
                 className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-all"
               >
                 Kaydet
+
+// Migration fix - user_roles to users
+
               </button>
               <button
                 onClick={() => {
