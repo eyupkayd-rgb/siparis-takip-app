@@ -4639,16 +4639,26 @@ function AuthScreen() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       // Create user profile in Firestore
+      const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(email);
       const newProfile = {
         email: email,
-        role: SUPER_ADMIN_EMAILS.includes(email) ? 'super_admin' : 'operator',
+        role: isSuperAdmin ? 'super_admin' : 'operator',
         station: null,
+        approved: isSuperAdmin, // Super admin otomatik onaylı, diğerleri beklemede
         createdAt: new Date().toISOString(),
         displayName: email.split('@')[0]
       };
       
       const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userCredential.user.uid);
       await setDoc(userDocRef, newProfile);
+      
+      // Super admin değilse başarı mesajı göster ve logout yap
+      if (!isSuperAdmin) {
+        await signOut(auth);
+        setSuccessMessage('Kayıt başarılı! Hesabınız admin onayı bekliyor. Onaylandıktan sonra giriş yapabileceksiniz.');
+        setMode('login');
+        return;
+      }
       
       // User will be automatically handled by onAuthStateChanged
     } catch (error) {
