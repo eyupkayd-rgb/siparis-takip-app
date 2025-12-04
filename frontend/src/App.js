@@ -1417,6 +1417,10 @@ export default function OrderApp() {
         {activeDepartment === 'archive' && (
           <ArchiveDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
         )}
+        
+        {activeDepartment === 'admin' && isSuperAdmin && (
+          <AdminDashboard />
+        )}
       </main>
     </div>
   );
