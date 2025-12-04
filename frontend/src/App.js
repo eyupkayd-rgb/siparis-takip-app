@@ -4983,9 +4983,17 @@ function AdminDashboard() {
         
         if (!newUserDoc.exists()) {
           // Yeni formatta kullanıcı oluştur
+          // Eski rol mapping: graphics, marketing, warehouse, planning, production
+          let mappedRole = oldUserData.role || 'marketing';
+          
+          // Eski sistemdeki roller ile yeni sistem arasında mapping
+          if (!['marketing', 'graphics', 'warehouse', 'planning', 'production', 'archive'].includes(mappedRole)) {
+            mappedRole = 'marketing'; // Bilinmeyen roller için default
+          }
+          
           const newUserData = {
             email: oldUserData.email,
-            role: SUPER_ADMIN_EMAILS.includes(oldUserData.email) ? 'super_admin' : 'operator',
+            role: SUPER_ADMIN_EMAILS.includes(oldUserData.email) ? 'super_admin' : mappedRole,
             station: null,
             approved: true, // Eski kullanıcılar otomatik onaylı
             createdAt: oldUserData.createdAt || new Date().toISOString(),
