@@ -1076,6 +1076,22 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
                   <div className="text-xs text-gray-500">{order.customerDeadline}</div>
                 </td>
                 <td className="p-4">
+                  {order.planningData?.startDate ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="text-xs font-semibold text-green-700">
+                        📅 {order.planningData.startDate}
+                      </div>
+                      {order.planningData.startHour && (
+                        <div className="text-[10px] text-gray-500">
+                          🕐 {order.planningData.startHour}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">Planlanmadı</span>
+                  )}
+                </td>
+                <td className="p-4">
                   <StatusBadge status={order.status} />
                 </td>
                 <td className="p-4 text-right">
