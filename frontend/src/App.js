@@ -499,6 +499,23 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
+  // Otomatik sipariş numarası oluştur
+  const generateNextOrderNo = () => {
+    if (orders.length === 0) return 'SP-0588';
+    
+    const orderNumbers = orders
+      .map(o => o.orderNo)
+      .filter(no => no && no.startsWith('SP-'))
+      .map(no => parseInt(no.split('-')[1]))
+      .filter(num => !isNaN(num));
+    
+    if (orderNumbers.length === 0) return 'SP-0588';
+    
+    const maxNum = Math.max(...orderNumbers);
+    const nextNum = maxNum + 1;
+    return `SP-${nextNum.toString().padStart(4, '0')}`;
+  };
+  
   const [formData, setFormData] = useState({
     orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
     rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
