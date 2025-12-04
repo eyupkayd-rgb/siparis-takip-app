@@ -5257,30 +5257,65 @@ function AdminDashboard() {
       {showEditModal && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">İstasyon Ata</h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">Kullanıcı: <strong>{selectedUser.email}</strong></p>
-              <label className="label">İstasyon Seçin</label>
-              <select
-                className="input-field"
-                value={selectedUser.station || ''}
-                onChange={(e) => setSelectedUser({ ...selectedUser, station: e.target.value })}
-              >
-                <option value="">İstasyon Seçiniz</option>
-                {stations.map(station => (
-                  <option key={station.id} value={station.id}>{station.name}</option>
-                ))}
-              </select>
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Kullanıcı Düzenle</h3>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-3">
+                  Kullanıcı: <strong>{selectedUser.email}</strong>
+                </p>
+              </div>
+              
+              {/* Rol Seçimi */}
+              <div>
+                <label className="label">Departman / Rol</label>
+                <select
+                  className="input-field"
+                  value={selectedUser.role || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value, station: null })}
+                  disabled={SUPER_ADMIN_EMAILS.includes(selectedUser.email)}
+                >
+                  {roles.map(role => (
+                    <option key={role.id} value={role.id}>{role.name}</option>
+                  ))}
+                </select>
+                {SUPER_ADMIN_EMAILS.includes(selectedUser.email) && (
+                  <p className="text-xs text-gray-500 mt-1">Super Admin rolü değiştirilemez</p>
+                )}
+              </div>
+              
+              {/* İstasyon Seçimi (Sadece Üretim için) */}
+              {selectedUser.role === 'production' && (
+                <div>
+                  <label className="label">İstasyon (Üretim İçin)</label>
+                  <select
+                    className="input-field"
+                    value={selectedUser.station || ''}
+                    onChange={(e) => setSelectedUser({ ...selectedUser, station: e.target.value })}
+                  >
+                    <option value="">İstasyon Seçiniz</option>
+                    {stations.map(station => (
+                      <option key={station.id} value={station.id}>{station.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Üretim departmanında istasyon ataması zorunludur</p>
+                </div>
+              )}
+              
+              {selectedUser.role !== 'production' && selectedUser.role !== 'super_admin' && (
+                <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <p className="text-xs text-blue-800">
+                    Bu departmanda istasyon ataması yapılmaz. Kullanıcı sadece <strong>{roles.find(r => r.id === selectedUser.role)?.name}</strong> modülüne erişebilir.
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="flex gap-3">
+            
+            <div className="flex gap-3 mt-6">
               <button
-                onClick={() => handleUpdateStation(selectedUser.uid, selectedUser.station)}
+                onClick={handleUpdateUser}
                 className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-all"
               >
                 Kaydet
-
-// Migration fix - user_roles to users
-
               </button>
               <button
                 onClick={() => {
@@ -5294,13 +5329,6 @@ function AdminDashboard() {
             </div>
           </div>
         </div>
-
-
-
-// Deploy trigger v2 - React dependency fixed
-
-// Deploy trigger - 2024-12-04
-
       )}
     </div>
   );
