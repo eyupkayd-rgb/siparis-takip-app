@@ -5079,6 +5079,23 @@ function AdminDashboard() {
             Kullanıcı onayları ve istasyon atamaları
           </p>
         </div>
+        <button
+          onClick={handleMigrateUsers}
+          disabled={isMigrating}
+          className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold transition-all flex items-center gap-2"
+        >
+          {isMigrating ? (
+            <>
+              <Loader2 className="animate-spin" size={16} />
+              Migration...
+            </>
+          ) : (
+            <>
+              <Database size={16} />
+              Eski Kullanıcıları Güncelle
+            </>
+          )}
+        </button>
       </div>
 
       {/* Pending Users */}
