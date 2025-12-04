@@ -807,14 +807,14 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
                 </div>
                 
                 {formData.variants.map((variant, index) => (
-                  <div key={index} className="flex gap-2 items-start bg-white p-3 rounded-lg border border-purple-200">
-                    <span className="text-sm font-bold text-purple-600 w-8 pt-2">
+                  <div key={index} className="grid grid-cols-12 gap-2 items-start bg-white p-3 rounded-lg border border-purple-200">
+                    <span className="text-sm font-bold text-purple-600 pt-2 col-span-1">
                       {index + 1}.
                     </span>
                     <textarea
                       required
                       placeholder="Varyant Adı (Örn: Elma, Portakal)"
-                      className="input-field flex-1 resize-none overflow-hidden"
+                      className="input-field resize-none overflow-hidden col-span-9"
                       style={{ minHeight: '42px' }}
                       rows="1"
                       value={variant.name}
@@ -828,14 +828,14 @@ function MarketingDashboard({ orders, isSuperAdmin }) {
                       required
                       type="number"
                       placeholder="Adet"
-                      className="input-field w-24"
+                      className="input-field col-span-1"
                       value={variant.quantity}
                       onChange={e => handleVariantChange(index, 'quantity', e.target.value)}
                     />
                     <button
                       type="button"
                       onClick={() => removeVariant(index)}
-                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors col-span-1"
                     >
                       <Trash2 size={18} />
                     </button>
