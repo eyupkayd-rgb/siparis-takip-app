@@ -16,7 +16,7 @@ import {
   signInAnonymously 
 } from "firebase/auth";
 import { 
-  getFirestore, collection, doc, setDoc, getDoc, addDoc, 
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, 
   updateDoc, onSnapshot, deleteDoc 
 } from "firebase/firestore";
 import './App.css';
