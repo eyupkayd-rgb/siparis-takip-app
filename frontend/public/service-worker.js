@@ -1,55 +1,45 @@
 /* eslint-disable no-restricted-globals */
 
-// Service Worker versiyonu
-const CACHE_NAME = 'erp-v1';
-const urlsToCache = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/js/main.chunk.js',
-  '/static/js/0.chunk.js'
-];
+const CACHE_NAME = 'erp-app-v1';
 
-// Install
+// Install - basit cache stratejisi
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Cache açıldı');
-        return cache.addAll(urlsToCache);
-      })
-      .catch((err) => console.log('Cache hatası:', err))
-  );
+  console.log('Service Worker yükleniyor...');
   self.skipWaiting();
-});
-
-// Fetch
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache'de varsa döndür, yoksa internetten çek
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // Offline ise ana sayfayı göster
-        return caches.match('/');
-      })
-  );
 });
 
 // Activate
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
+  console.log('Service Worker aktif!');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  self.clients.claim();
+  return self.clients.claim();
+});
+
+// Fetch - network-first stratejisi
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Başarılı response'u cache'e kaydet
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
+        return response;
+      })
+      .catch(() => {
+        // Network hatası olursa cache'den dön
+        return caches.match(event.request);
+      })
+  );
 });
