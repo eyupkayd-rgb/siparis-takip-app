@@ -1239,6 +1239,12 @@ export default function OrderApp() {
   const [orders, setOrders] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
+  
+  // Yeni Stok Yönetimi State'leri
+  const [customerCards, setCustomerCards] = useState([]);
+  const [supplierCards, setSupplierCards] = useState([]);
+  const [stockRolls, setStockRolls] = useState([]);
+  const [rawMaterialMaster, setRawMaterialMaster] = useState([]);
 
   const isSuperAdmin = user && SUPER_ADMIN_EMAILS.includes(user.email);
 
