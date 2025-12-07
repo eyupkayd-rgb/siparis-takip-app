@@ -1440,10 +1440,11 @@ function StatusBadge({ status }) {
 // 📦 MARKETING DASHBOARD (FULL FEATURED)
 // ============================================================================
 
-function MarketingDashboard({ orders, isSuperAdmin }) {
+function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
   
   // Otomatik sipariş numarası oluştur
   const generateNextOrderNo = () => {
