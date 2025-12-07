@@ -4047,6 +4047,8 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
           )}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
