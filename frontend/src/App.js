@@ -6,7 +6,9 @@ import {
   FileText, X, Pen, Sparkles, MessageSquare, Download, Lock, Mail, 
   ShieldCheck, Monitor, Users, Check, Ban, Edit3, AlertCircle, Trash2, 
   Paperclip, Key, Play, StopCircle, BarChart3, History, Split, 
-  Cylinder, Component, Search, Ruler, LogIn, UserPlus, Database 
+  Cylinder, Component, Search, Ruler, LogIn, UserPlus, Database,
+  Barcode, QrCode, Scissors, PackagePlus, PackageCheck, Building2,
+  CreditCard, Phone, MapPin
 } from 'lucide-react';
 import { initializeApp } from "firebase/app";
 import { 
