@@ -1596,6 +1596,14 @@ function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
 
   return (
     <div className="space-y-6 animate-in fade-in">
+      {showCustomerModal && (
+        <CustomerCardModal
+          onClose={() => setShowCustomerModal(false)}
+          customers={customerCards || []}
+          onRefresh={() => {}}
+        />
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
@@ -1607,33 +1615,43 @@ function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
           </p>
         </div>
         
-        <button
-          onClick={() => {
-            setShowForm(!showForm);
-            setEditingId(null);
-            const nextOrderNo = generateNextOrderNo();
-            setFormData({
-              orderNo: nextOrderNo, customer: '', product: '', category: 'Etiket', type: 'Yeni',
-              rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
-              customerDeadline: '', attachments: [],
-              isComplex: false, isSet: false, commonBack: false, variants: [],
-              notes: ''
-            });
-          }}
-          className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl"
-        >
-          {showForm ? (
-            <>
-              <X size={18} />
-              Listeye Dön
-            </>
-          ) : (
-            <>
-              <Plus size={18} />
-              Yeni Sipariş Gir
-            </>
-          )}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowCustomerModal(true)}
+            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+          >
+            <Building2 size={18} />
+            Müşteri Kartları
+          </button>
+          
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              setEditingId(null);
+              const nextOrderNo = generateNextOrderNo();
+              setFormData({
+                orderNo: nextOrderNo, customer: '', product: '', category: 'Etiket', type: 'Yeni',
+                rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+                customerDeadline: '', attachments: [],
+                isComplex: false, isSet: false, commonBack: false, variants: [],
+                notes: ''
+              });
+            }}
+            className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl"
+          >
+            {showForm ? (
+              <>
+                <X size={18} />
+                Listeye Dön
+              </>
+            ) : (
+              <>
+                <Plus size={18} />
+                Yeni Sipariş Gir
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {showForm ? (
