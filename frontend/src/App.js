@@ -142,6 +142,479 @@ async function generateBarcode(materialName, supplierPrefix, db, appId) {
 // 🧩 HELPER COMPONENTS
 // ============================================================================
 
+// ==========================================================================================
+// 🏢 MÜŞTERİ KART YÖNETİMİ (CUSTOMER CARD MANAGEMENT)
+// ==========================================================================================
+
+function CustomerCardModal({ onClose, customers, onRefresh }) {
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    taxId: '',
+    city: '',
+    contactPerson: '',
+    phone: '',
+    email: ''
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    
+    try {
+      const customersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'customer_cards');
+      await addDoc(customersCollection, {
+        ...formData,
+        createdAt: new Date().toISOString(),
+        isApproved: true
+      });
+      
+      alert('✅ Müşteri kartı başarıyla oluşturuldu!');
+      setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', email: '' });
+      setShowForm(false);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Müşteri kartı kaydetme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+    
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Building2 className="text-white" size={28} />
+            <h2 className="text-2xl font-bold text-white">Müşteri Kartları</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {!showForm ? (
+            <>
+              <button
+                onClick={() => setShowForm(true)}
+                className="btn-primary mb-6 flex items-center gap-2"
+              >
+                <Plus size={20} />
+                Yeni Müşteri Ekle
+              </button>
+
+              <div className="space-y-3">
+                {customers.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <Building2 size={64} className="mx-auto mb-4 opacity-30" />
+                    <p>Henüz müşteri kartı eklenmemiş</p>
+                  </div>
+                ) : (
+                  customers.map(customer => (
+                    <div
+                      key={customer.id}
+                      className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-2 border-blue-100"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-800">{customer.name}</h3>
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                            {customer.taxId && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <CreditCard size={16} />
+                                <span>VKN: {customer.taxId}</span>
+                              </div>
+                            )}
+                            {customer.city && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <MapPin size={16} />
+                                <span>{customer.city}</span>
+                              </div>
+                            )}
+                            {customer.contactPerson && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <User size={16} />
+                                <span>{customer.contactPerson}</span>
+                              </div>
+                            )}
+                            {customer.phone && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <Phone size={16} />
+                                <span>{customer.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Müşteri Adı *</label>
+                  <input
+                    required
+                    className="input-field"
+                    value={formData.name}
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    placeholder="Örn: ABC Gıda San. Tic. Ltd. Şti."
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Vergi Kimlik No</label>
+                  <input
+                    className="input-field"
+                    value={formData.taxId}
+                    onChange={e => setFormData({...formData, taxId: e.target.value})}
+                    placeholder="10 haneli VKN"
+                    maxLength="10"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Şehir</label>
+                  <input
+                    className="input-field"
+                    value={formData.city}
+                    onChange={e => setFormData({...formData, city: e.target.value})}
+                    placeholder="Örn: İstanbul"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">İletişim Kişisi</label>
+                  <input
+                    className="input-field"
+                    value={formData.contactPerson}
+                    onChange={e => setFormData({...formData, contactPerson: e.target.value})}
+                    placeholder="Yetkili kişi adı"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Telefon</label>
+                  <input
+                    className="input-field"
+                    value={formData.phone}
+                    onChange={e => setFormData({...formData, phone: e.target.value})}
+                    placeholder="0555 123 45 67"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">E-posta</label>
+                  <input
+                    type="email"
+                    className="input-field"
+                    value={formData.email}
+                    onChange={e => setFormData({...formData, email: e.target.value})}
+                    placeholder="ornek@firma.com"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 btn-primary flex items-center justify-center gap-2"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Kaydediliyor...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={20} />
+                      Müşteri Kartını Kaydet
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================================================================
+// 🏭 TEDARİKÇİ KART YÖNETİMİ (SUPPLIER CARD MANAGEMENT)
+// ==========================================================================================
+
+function SupplierCardModal({ onClose, suppliers, onRefresh }) {
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    taxId: '',
+    city: '',
+    contactPerson: '',
+    phone: '',
+    prefix: '',
+    materialTypes: ''
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (formData.prefix.length !== 2) {
+      alert('⚠️ Prefix tam olarak 2 karakter olmalıdır!');
+      return;
+    }
+    
+    // Prefix benzersizlik kontrolü
+    const existingPrefix = suppliers.find(s => s.prefix?.toUpperCase() === formData.prefix.toUpperCase());
+    if (existingPrefix) {
+      alert(`⚠️ Bu prefix (${formData.prefix}) zaten "${existingPrefix.name}" tedarikçisine ait!`);
+      return;
+    }
+    
+    setSaving(true);
+    
+    try {
+      const suppliersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'supplier_cards');
+      await addDoc(suppliersCollection, {
+        ...formData,
+        prefix: formData.prefix.toUpperCase(),
+        createdAt: new Date().toISOString()
+      });
+      
+      alert('✅ Tedarikçi kartı başarıyla oluşturuldu!');
+      setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', prefix: '', materialTypes: '' });
+      setShowForm(false);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Tedarikçi kartı kaydetme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+    
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-gradient-to-r from-green-600 to-teal-600 p-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Truck className="text-white" size={28} />
+            <h2 className="text-2xl font-bold text-white">Tedarikçi Kartları</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {!showForm ? (
+            <>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg mb-6 flex items-center gap-2"
+              >
+                <Plus size={20} />
+                Yeni Tedarikçi Ekle
+              </button>
+
+              <div className="space-y-3">
+                {suppliers.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <Truck size={64} className="mx-auto mb-4 opacity-30" />
+                    <p>Henüz tedarikçi kartı eklenmemiş</p>
+                  </div>
+                ) : (
+                  suppliers.map(supplier => (
+                    <div
+                      key={supplier.id}
+                      className="bg-gradient-to-r from-green-50 to-teal-50 p-4 rounded-xl border-2 border-green-100"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-lg font-bold text-gray-800">{supplier.name}</h3>
+                            <span className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-mono font-bold">
+                              {supplier.prefix}
+                            </span>
+                          </div>
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                            {supplier.taxId && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <CreditCard size={16} />
+                                <span>VKN: {supplier.taxId}</span>
+                              </div>
+                            )}
+                            {supplier.city && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <MapPin size={16} />
+                                <span>{supplier.city}</span>
+                              </div>
+                            )}
+                            {supplier.contactPerson && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <User size={16} />
+                                <span>{supplier.contactPerson}</span>
+                              </div>
+                            )}
+                            {supplier.phone && (
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <Phone size={16} />
+                                <span>{supplier.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                          {supplier.materialTypes && (
+                            <div className="mt-2 text-xs text-gray-500">
+                              <span className="font-bold">Sağladığı Hammaddeler:</span> {supplier.materialTypes}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Tedarikçi Adı *</label>
+                  <input
+                    required
+                    className="input-field"
+                    value={formData.name}
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    placeholder="Örn: XYZ Kimya A.Ş."
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Barkod Prefix (2 Harf) *</label>
+                  <input
+                    required
+                    className="input-field uppercase"
+                    value={formData.prefix}
+                    onChange={e => setFormData({...formData, prefix: e.target.value.toUpperCase()})}
+                    placeholder="Örn: TA, TB, TC"
+                    maxLength="2"
+                    pattern="[A-Z]{2}"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    ⚠️ Bu prefix barkod oluşturmak için kullanılır. Benzersiz olmalıdır.
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="label">Vergi Kimlik No</label>
+                  <input
+                    className="input-field"
+                    value={formData.taxId}
+                    onChange={e => setFormData({...formData, taxId: e.target.value})}
+                    placeholder="10 haneli VKN"
+                    maxLength="10"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Şehir</label>
+                  <input
+                    className="input-field"
+                    value={formData.city}
+                    onChange={e => setFormData({...formData, city: e.target.value})}
+                    placeholder="Örn: İstanbul"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">İletişim Kişisi</label>
+                  <input
+                    className="input-field"
+                    value={formData.contactPerson}
+                    onChange={e => setFormData({...formData, contactPerson: e.target.value})}
+                    placeholder="Yetkili kişi adı"
+                  />
+                </div>
+                
+                <div>
+                  <label className="label">Telefon</label>
+                  <input
+                    className="input-field"
+                    value={formData.phone}
+                    onChange={e => setFormData({...formData, phone: e.target.value})}
+                    placeholder="0555 123 45 67"
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="label">Sağladığı Hammadde Türleri</label>
+                  <textarea
+                    className="input-field"
+                    rows="2"
+                    value={formData.materialTypes}
+                    onChange={e => setFormData({...formData, materialTypes: e.target.value})}
+                    placeholder="Örn: PP Opak, Kuşe, PET-G vs."
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Kaydediliyor...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={20} />
+                      Tedarikçi Kartını Kaydet
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function ChangePasswordModal({ onClose }) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
