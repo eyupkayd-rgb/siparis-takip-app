@@ -2469,7 +2469,11 @@ export default function OrderApp() {
         {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
         
         {activeDepartment === 'marketing' && (
-          <MarketingDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
+          <MarketingDashboard 
+            orders={orders} 
+            isSuperAdmin={isSuperAdmin}
+            customerCards={customerCards}
+          />
         )}
         
         {activeDepartment === 'graphics' && (
@@ -2477,7 +2481,12 @@ export default function OrderApp() {
         )}
         
         {activeDepartment === 'warehouse' && (
-          <WarehouseDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
+          <WarehouseDashboard 
+            orders={orders} 
+            isSuperAdmin={isSuperAdmin}
+            supplierCards={supplierCards}
+            stockRolls={stockRolls}
+          />
         )}
         
         {activeDepartment === 'planning' && (
