@@ -615,6 +615,433 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
 }
 
 
+// ==========================================================================================
+// 📦 BOBİN GİRİŞİ MODALI (ADD RAW MATERIAL MODAL)
+// ==========================================================================================
+
+function AddRawMaterialModal({ onClose, suppliers, onRefresh }) {
+  const [formData, setFormData] = useState({
+    supplierId: '',
+    materialName: '',
+    widthCM: '',
+    originalLength: '',
+    isJumbo: false
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const selectedSupplier = suppliers.find(s => s.id === formData.supplierId);
+      if (!selectedSupplier) {
+        alert('⚠️ Lütfen geçerli bir tedarikçi seçin!');
+        setSaving(false);
+        return;
+      }
+
+      // Otomatik barkod oluştur
+      const barcode = await generateBarcode(
+        formData.materialName,
+        selectedSupplier.prefix,
+        db,
+        appId
+      );
+
+      const rollsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_rolls');
+      await addDoc(rollsCollection, {
+        rollBarcode: barcode,
+        materialName: formData.materialName,
+        supplierName: selectedSupplier.name,
+        supplierId: formData.supplierId,
+        supplierPrefix: selectedSupplier.prefix,
+        widthCM: parseFloat(formData.widthCM),
+        originalLength: parseFloat(formData.originalLength),
+        currentLength: parseFloat(formData.originalLength),
+        isJumbo: formData.isJumbo,
+        isDilim: false,
+        reservationId: null,
+        createdAt: new Date().toISOString(),
+        status: 'available'
+      });
+
+      alert(`✅ Bobin başarıyla eklendi!\nBarkod: ${barcode}`);
+      setFormData({ supplierId: '', materialName: '', widthCM: '', originalLength: '', isJumbo: false });
+      if (onRefresh) onRefresh();
+      onClose();
+    } catch (error) {
+      console.error('Bobin kaydetme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+        <div className="bg-gradient-to-r from-orange-600 to-red-600 p-6 flex justify-between items-center rounded-t-2xl">
+          <div className="flex items-center gap-3">
+            <PackagePlus className="text-white" size={28} />
+            <h2 className="text-2xl font-bold text-white">Yeni Bobin Girişi</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="label">Tedarikçi *</label>
+            <select
+              required
+              className="input-field"
+              value={formData.supplierId}
+              onChange={e => setFormData({...formData, supplierId: e.target.value})}
+            >
+              <option value="">-- Tedarikçi Seçin --</option>
+              {suppliers.map(supplier => (
+                <option key={supplier.id} value={supplier.id}>
+                  [{supplier.prefix}] {supplier.name}
+                </option>
+              ))}
+            </select>
+            {suppliers.length === 0 && (
+              <p className="text-xs text-red-500 mt-1">
+                ⚠️ Önce tedarikçi kartı oluşturmalısınız!
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="label">Hammadde Adı *</label>
+            <input
+              required
+              className="input-field"
+              value={formData.materialName}
+              onChange={e => setFormData({...formData, materialName: e.target.value})}
+              placeholder="Örn: PP OPAK SARI PERGAMİN"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">En (cm) *</label>
+              <input
+                required
+                type="number"
+                step="0.1"
+                className="input-field"
+                value={formData.widthCM}
+                onChange={e => setFormData({...formData, widthCM: e.target.value})}
+                placeholder="Örn: 100"
+              />
+            </div>
+
+            <div>
+              <label className="label">Uzunluk (metre) *</label>
+              <input
+                required
+                type="number"
+                step="0.1"
+                className="input-field"
+                value={formData.originalLength}
+                onChange={e => setFormData({...formData, originalLength: e.target.value})}
+                placeholder="Örn: 5000"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border-2 border-orange-200">
+            <input
+              type="checkbox"
+              id="isJumbo"
+              checked={formData.isJumbo}
+              onChange={e => setFormData({...formData, isJumbo: e.target.checked})}
+              className="w-5 h-5 text-orange-600"
+            />
+            <label htmlFor="isJumbo" className="font-bold text-gray-700 cursor-pointer">
+              Bu bir Jumbo Bobin (Dilimlenebilir)
+            </label>
+          </div>
+
+          <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
+            <p className="text-sm text-gray-700">
+              <strong className="text-blue-700">ℹ️ Bilgi:</strong> Barkod otomatik oluşturulacaktır.
+              Format: <code className="bg-white px-2 py-1 rounded font-mono text-xs">TEDARİKÇİ-HAMMADDE-XXXX</code>
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 btn-secondary"
+            >
+              İptal
+            </button>
+            <button
+              type="submit"
+              disabled={saving || suppliers.length === 0}
+              className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Kaydediliyor...
+                </>
+              ) : (
+                <>
+                  <Barcode size={20} />
+                  Bobini Sisteme Ekle
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================================================================
+// ✂️ BOBİN DİLİMLEME MODALI (SLICING MODAL)
+// ==========================================================================================
+
+function DilimlemeModal({ onClose, jumboRoll, onRefresh }) {
+  const [dilimler, setDilimler] = useState([{ width: '', length: '' }]);
+  const [saving, setSaving] = useState(false);
+
+  const addDilim = () => {
+    setDilimler([...dilimler, { width: '', length: jumboRoll.currentLength }]);
+  };
+
+  const removeDilim = (index) => {
+    setDilimler(dilimler.filter((_, i) => i !== index));
+  };
+
+  const updateDilim = (index, field, value) => {
+    const newDilimler = [...dilimler];
+    newDilimler[index][field] = value;
+    setDilimler(newDilimler);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validasyon
+    const totalWidth = dilimler.reduce((sum, d) => sum + parseFloat(d.width || 0), 0);
+    if (totalWidth > jumboRoll.widthCM) {
+      alert(`⚠️ Toplam en (${totalWidth} cm) orijinal bobin eninden (${jumboRoll.widthCM} cm) büyük olamaz!`);
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const rollsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_rolls');
+      
+      // Orijinal bobini kapat
+      const jumboDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', jumboRoll.id);
+      await updateDoc(jumboDocRef, {
+        currentLength: 0,
+        isDilim: true,
+        status: 'sliced',
+        slicedAt: new Date().toISOString()
+      });
+
+      // Yeni dilimleri oluştur
+      for (let i = 0; i < dilimler.length; i++) {
+        const dilim = dilimler[i];
+        const newBarcode = await generateBarcode(
+          jumboRoll.materialName,
+          jumboRoll.supplierPrefix,
+          db,
+          appId
+        );
+
+        await addDoc(rollsCollection, {
+          rollBarcode: newBarcode,
+          materialName: jumboRoll.materialName,
+          supplierName: jumboRoll.supplierName,
+          supplierId: jumboRoll.supplierId,
+          supplierPrefix: jumboRoll.supplierPrefix,
+          widthCM: parseFloat(dilim.width),
+          originalLength: parseFloat(dilim.length || jumboRoll.currentLength),
+          currentLength: parseFloat(dilim.length || jumboRoll.currentLength),
+          isJumbo: false,
+          isDilim: false,
+          parentBarcode: jumboRoll.rollBarcode,
+          reservationId: null,
+          createdAt: new Date().toISOString(),
+          status: 'available'
+        });
+      }
+
+      alert(`✅ Jumbo bobin başarıyla ${dilimler.length} parçaya dilimlenmiş oldu!`);
+      if (onRefresh) onRefresh();
+      onClose();
+    } catch (error) {
+      console.error('Dilimleme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+
+    setSaving(false);
+  };
+
+  if (!jumboRoll) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-t-2xl">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Scissors className="text-white" size={28} />
+              <div>
+                <h2 className="text-2xl font-bold text-white">Jumbo Bobin Dilimleme</h2>
+                <p className="text-white text-sm opacity-90">
+                  {jumboRoll.rollBarcode} - {jumboRoll.materialName}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border-2 border-purple-200 mb-6">
+            <h3 className="font-bold text-gray-800 mb-2">Orijinal Bobin Bilgileri</h3>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">En:</span>
+                <p className="font-bold text-lg">{jumboRoll.widthCM} cm</p>
+              </div>
+              <div>
+                <span className="text-gray-600">Uzunluk:</span>
+                <p className="font-bold text-lg">{jumboRoll.currentLength} m</p>
+              </div>
+              <div>
+                <span className="text-gray-600">Tedarikçi:</span>
+                <p className="font-bold">{jumboRoll.supplierName}</p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-gray-800">Dilimlenen Parçalar</h3>
+                <button
+                  type="button"
+                  onClick={addDilim}
+                  className="btn-primary flex items-center gap-2 text-sm"
+                >
+                  <Plus size={16} />
+                  Dilim Ekle
+                </button>
+              </div>
+
+              {dilimler.map((dilim, index) => (
+                <div
+                  key={index}
+                  className="bg-white border-2 border-gray-200 p-4 rounded-xl flex items-center gap-3"
+                >
+                  <span className="font-bold text-purple-600 text-lg w-8">
+                    {index + 1}.
+                  </span>
+                  
+                  <div className="flex-1 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label text-xs">En (cm) *</label>
+                      <input
+                        required
+                        type="number"
+                        step="0.1"
+                        className="input-field"
+                        value={dilim.width}
+                        onChange={e => updateDilim(index, 'width', e.target.value)}
+                        placeholder="Örn: 50"
+                      />
+                    </div>
+                    <div>
+                      <label className="label text-xs">Uzunluk (m)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="input-field"
+                        value={dilim.length}
+                        onChange={e => updateDilim(index, 'length', e.target.value)}
+                        placeholder={`Varsayılan: ${jumboRoll.currentLength}`}
+                      />
+                    </div>
+                  </div>
+
+                  {dilimler.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeDilim(index)}
+                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200 mb-6">
+              <p className="text-sm text-gray-700">
+                <strong className="text-yellow-700">⚠️ Uyarı:</strong> Bu işlem geri alınamaz! 
+                Orijinal bobin kapatılacak ve seçilen sayıda yeni bobin oluşturulacaktır.
+                Her yeni bobin için benzersiz barkod otomatik oluşturulacaktır.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 btn-secondary"
+              >
+                İptal
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    Dilimleniyor...
+                  </>
+                ) : (
+                  <>
+                    <Scissors size={20} />
+                    Dilimlemeyi Tamamla ({dilimler.length} Parça)
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
 function ChangePasswordModal({ onClose }) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
