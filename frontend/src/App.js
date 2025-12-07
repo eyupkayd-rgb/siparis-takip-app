@@ -1342,6 +1342,66 @@ export default function OrderApp() {
     return () => unsubscribe();
   }, [user]);
 
+  // Fetch Customer Cards
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const customersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'customer_cards');
+    const unsubscribe = onSnapshot(
+      customersCollection,
+      (snapshot) => {
+        const fetchedCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedCustomers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        setCustomerCards(fetchedCustomers);
+      },
+      (error) => {
+        console.error("Customer cards fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  // Fetch Supplier Cards
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const suppliersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'supplier_cards');
+    const unsubscribe = onSnapshot(
+      suppliersCollection,
+      (snapshot) => {
+        const fetchedSuppliers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedSuppliers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        setSupplierCards(fetchedSuppliers);
+      },
+      (error) => {
+        console.error("Supplier cards fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  // Fetch Stock Rolls
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const rollsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_rolls');
+    const unsubscribe = onSnapshot(
+      rollsCollection,
+      (snapshot) => {
+        const fetchedRolls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedRolls.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setStockRolls(fetchedRolls);
+      },
+      (error) => {
+        console.error("Stock rolls fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
