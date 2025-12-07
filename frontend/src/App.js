@@ -3494,7 +3494,7 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
             <div className="text-center py-16 text-gray-400">
               <Package size={80} className="mx-auto mb-4 opacity-30" />
               <p className="text-xl">Henüz bobin girişi yapılmamış</p>
-              <p className="text-sm mt-2">Yukarıdaki "Bobin Girişi" butonuna tıklayarak başlayın</p>
+              <p className="text-sm mt-2">Yukarıdaki &quot;Bobin Girişi&quot; butonuna tıklayarak başlayın</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
