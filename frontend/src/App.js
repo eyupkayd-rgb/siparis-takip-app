@@ -3414,10 +3414,164 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
 
   return (
     <div className="space-y-6 animate-in fade-in">
-      {/* Search Bar */}
-      <div className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-100">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      {showSupplierModal && (
+        <SupplierCardModal
+          onClose={() => setShowSupplierModal(false)}
+          suppliers={supplierCards || []}
+          onRefresh={() => {}}
+        />
+      )}
+      
+      {showAddRollModal && (
+        <AddRawMaterialModal
+          onClose={() => setShowAddRollModal(false)}
+          suppliers={supplierCards || []}
+          onRefresh={() => {}}
+        />
+      )}
+      
+      {showDilimModal && selectedJumboRoll && (
+        <DilimlemeModal
+          onClose={() => {
+            setShowDilimModal(false);
+            setSelectedJumboRoll(null);
+          }}
+          jumboRoll={selectedJumboRoll}
+          onRefresh={() => {}}
+        />
+      )}
+
+      {/* Header with Action Buttons */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+            Depo Yönetimi
+          </h2>
+          <p className="text-gray-600 mt-1">Hammadde, Stok ve Sevkiyat İşlemleri</p>
+        </div>
+        
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowStockTab(!showStockTab)}
+            className={`px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 ${
+              showStockTab
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                : 'bg-white text-gray-700 border-2 border-gray-200'
+            }`}
+          >
+            <Database size={18} />
+            {showStockTab ? 'Siparişlere Dön' : 'Stok Yönetimi'}
+          </button>
+          
+          <button
+            onClick={() => setShowSupplierModal(true)}
+            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+          >
+            <Truck size={18} />
+            Tedarikçiler
+          </button>
+          
+          <button
+            onClick={() => setShowAddRollModal(true)}
+            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+          >
+            <PackagePlus size={18} />
+            Bobin Girişi
+          </button>
+        </div>
+      </div>
+
+      {showStockTab ? (
+        <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-800">Bobin Stok Listesi</h3>
+            <div className="text-sm text-gray-600">
+              Toplam: <span className="font-bold text-lg">{stockRolls?.length || 0}</span> bobin
+            </div>
+          </div>
+          
+          {(!stockRolls || stockRolls.length === 0) ? (
+            <div className="text-center py-16 text-gray-400">
+              <Package size={80} className="mx-auto mb-4 opacity-30" />
+              <p className="text-xl">Henüz bobin girişi yapılmamış</p>
+              <p className="text-sm mt-2">Yukarıdaki "Bobin Girişi" butonuna tıklayarak başlayın</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gradient-to-r from-orange-50 to-red-50 border-b-2 border-orange-200">
+                  <tr>
+                    <th className="p-3 text-left font-bold">Barkod</th>
+                    <th className="p-3 text-left font-bold">Hammadde</th>
+                    <th className="p-3 text-left font-bold">Tedarikçi</th>
+                    <th className="p-3 text-center font-bold">En (cm)</th>
+                    <th className="p-3 text-center font-bold">Uzunluk (m)</th>
+                    <th className="p-3 text-center font-bold">Durum</th>
+                    <th className="p-3 text-center font-bold">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stockRolls.map(roll => (
+                    <tr key={roll.id} className="border-b border-gray-100 hover:bg-orange-50">
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <Barcode size={16} className="text-orange-600" />
+                          <span className="font-mono font-bold">{roll.rollBarcode}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">{roll.materialName}</td>
+                      <td className="p-3">
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold">
+                          {roll.supplierPrefix}
+                        </span> {roll.supplierName}
+                      </td>
+                      <td className="p-3 text-center font-bold">{roll.widthCM}</td>
+                      <td className="p-3 text-center">
+                        <span className={`font-bold ${roll.currentLength === 0 ? 'text-red-500' : 'text-green-600'}`}>
+                          {roll.currentLength}
+                        </span>
+                        <span className="text-gray-400 text-xs"> / {roll.originalLength}</span>
+                      </td>
+                      <td className="p-3 text-center">
+                        {roll.isDilim ? (
+                          <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">Dilimlenmiş</span>
+                        ) : roll.reservationId ? (
+                          <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs">Rezerve</span>
+                        ) : roll.currentLength === 0 ? (
+                          <span className="bg-red-200 text-red-800 px-2 py-1 rounded text-xs">Tükendi</span>
+                        ) : roll.isJumbo ? (
+                          <span className="bg-purple-200 text-purple-800 px-2 py-1 rounded text-xs font-bold">JUMBO</span>
+                        ) : (
+                          <span className="bg-green-200 text-green-800 px-2 py-1 rounded text-xs">Mevcut</span>
+                        )}
+                      </td>
+                      <td className="p-3 text-center">
+                        {roll.isJumbo && !roll.isDilim && roll.currentLength > 0 && (
+                          <button
+                            onClick={() => {
+                              setSelectedJumboRoll(roll);
+                              setShowDilimModal(true);
+                            }}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 mx-auto"
+                          >
+                            <Scissors size={14} />
+                            Dilimle
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Search Bar */}
+          <div className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
             placeholder="Sipariş No, Ürün Adı veya Firma Adına Göre Ara..."
