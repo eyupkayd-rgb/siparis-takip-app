@@ -3244,12 +3244,17 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
 // 🏭 WAREHOUSE DASHBOARD (FULL FEATURED WITH WASTE CALCULATION)
 // ============================================================================
 
-function WarehouseDashboard({ orders, isSuperAdmin }) {
+function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls }) {
   const [activeTab, setActiveTab] = useState('raw');
   const [listMode, setListMode] = useState('pending');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
+  const [showAddRollModal, setShowAddRollModal] = useState(false);
+  const [showDilimModal, setShowDilimModal] = useState(false);
+  const [selectedJumboRoll, setSelectedJumboRoll] = useState(null);
+  const [showStockTab, setShowStockTab] = useState(false);
   const [wData, setWData] = useState({
     materialStatus: '',
     slittingDate: '',
