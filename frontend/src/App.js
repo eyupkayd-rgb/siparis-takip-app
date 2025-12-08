@@ -5897,6 +5897,21 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
                   }
                 );
                 
+                // Stok hareketi kaydet - Sarfiyat
+                await logStockMovement(db, appId, {
+                  type: 'SARFIYAT',
+                  rollBarcode: rollToConsume.rollBarcode,
+                  materialName: rollData.materialName || 'N/A',
+                  supplierName: rollData.supplierName || 'N/A',
+                  quantity: actualConsumed,
+                  unit: 'm',
+                  description: `Üretim sarfiyatı - ${selectedOrder.orderNo}`,
+                  referenceType: 'URETIM',
+                  referenceId: selectedOrder.id,
+                  orderNo: selectedOrder.orderNo,
+                  remainingReturned: remaining
+                });
+                
                 console.log(`✅ Sarfiyat: ${rollToConsume.rollBarcode}`);
                 console.log(`   Rezerve: ${reservedLength}m`);
                 console.log(`   Kullanılan: ${actualConsumed}m`);
