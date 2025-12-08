@@ -243,7 +243,11 @@ function CustomerCardModal({ onClose, customers, onRefresh }) {
           {!showForm ? (
             <>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setEditingId(null);
+                  setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', email: '' });
+                  setShowForm(true);
+                }}
                 className="btn-primary mb-6 flex items-center gap-2"
               >
                 <Plus size={20} />
