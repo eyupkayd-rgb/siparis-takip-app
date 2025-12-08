@@ -108,6 +108,19 @@ function getMaterialShortCode(materialName) {
   return materialName.substring(0, 3).toUpperCase();
 }
 
+// Stok hareketi kaydet
+async function logStockMovement(db, appId, movementData) {
+  try {
+    const movementsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_movements');
+    await addDoc(movementsCollection, {
+      ...movementData,
+      createdAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Stok hareketi kayıt hatası:', error);
+  }
+}
+
 // Otomatik barkod oluştur: PREFIX-MATCODE-XXXX
 async function generateBarcode(materialName, supplierPrefix, db, appId) {
   try {
