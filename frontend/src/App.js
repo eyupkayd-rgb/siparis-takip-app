@@ -4968,6 +4968,7 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   const handleCancelEdit = () => {
     setSelectedId(null);
     setPData({ startDate: '', startHour: '08:00', duration: 2 });
+    setProductionFlow([]);
     setAiAdvice("");
   };
 
