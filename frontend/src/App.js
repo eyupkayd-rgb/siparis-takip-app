@@ -3557,7 +3557,16 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                         {roll.isDilim ? (
                           <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">Dilimlenmiş</span>
                         ) : roll.reservationId ? (
-                          <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs">Rezerve</span>
+                          <div className="space-y-1">
+                            <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs font-bold block">
+                              ⚠️ Rezerve
+                            </span>
+                            {roll.reservedOrderNo && (
+                              <span className="text-[10px] text-gray-600 block">
+                                {roll.reservedOrderNo}
+                              </span>
+                            )}
+                          </div>
                         ) : roll.currentLength === 0 ? (
                           <span className="bg-red-200 text-red-800 px-2 py-1 rounded text-xs">Tükendi</span>
                         ) : roll.isJumbo ? (
