@@ -6566,12 +6566,36 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
   const [showPrintView, setShowPrintView] = useState(false);
 
   const handleExportPDF = (order) => {
-    setSelectedOrder(order);
-    setShowPrintView(true);
+    // Sadece seçili siparişi göster
+    const allCards = document.querySelectorAll('.order-card');
+    const selectedCard = document.querySelector(`[data-order-id="${order.id}"]`);
+    
+    // Diğer kartları gizle
+    allCards.forEach(card => {
+      if (card !== selectedCard) {
+        card.style.display = 'none';
+      }
+    });
+    
+    // Seçili kartı tam ekran yap
+    if (selectedCard) {
+      selectedCard.classList.add('print-content');
+    }
+    
+    // Yazdır
     setTimeout(() => {
       window.print();
-      setTimeout(() => setShowPrintView(false), 500);
-    }, 500);
+      
+      // Geri al
+      setTimeout(() => {
+        allCards.forEach(card => {
+          card.style.display = '';
+        });
+        if (selectedCard) {
+          selectedCard.classList.remove('print-content');
+        }
+      }, 500);
+    }, 100);
   };
 
   // Calculate fire percentage and success
