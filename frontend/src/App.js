@@ -3786,19 +3786,35 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                           <span className="bg-green-200 text-green-800 px-2 py-1 rounded text-xs">Mevcut</span>
                         )}
                       </td>
-                      <td className="p-3 text-center">
-                        {roll.isJumbo && !roll.isDilim && roll.currentLength > 0 && (
+                      <td className="p-3">
+                        <div className="flex gap-2 justify-center">
+                          {roll.isJumbo && !roll.isDilim && roll.currentLength > 0 && (
+                            <button
+                              onClick={() => {
+                                setSelectedJumboRoll(roll);
+                                setShowDilimModal(true);
+                              }}
+                              className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1"
+                              title="Dilimle"
+                            >
+                              <Scissors size={14} />
+                            </button>
+                          )}
                           <button
-                            onClick={() => {
-                              setSelectedJumboRoll(roll);
-                              setShowDilimModal(true);
-                            }}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 mx-auto"
+                            onClick={() => handleEditRoll(roll)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg text-xs"
+                            title="Düzenle"
                           >
-                            <Scissors size={14} />
-                            Dilimle
+                            <Edit3 size={14} />
                           </button>
-                        )}
+                          <button
+                            onClick={() => handleDeleteRoll(roll.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-lg text-xs"
+                            title="Sil"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
