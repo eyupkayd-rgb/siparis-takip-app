@@ -5572,6 +5572,22 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
                         <div><strong>Renk:</strong> {selectedOrder.graphicsData?.color}</div>
                         <div><strong>Kağıt Türü:</strong> {selectedOrder.rawMaterial}</div>
                       </div>
+                      
+                      {/* Rezerve Bobinler */}
+                      {selectedOrder.warehouseData?.reservedRolls && selectedOrder.warehouseData.reservedRolls.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <h5 className="text-xs font-bold text-purple-700 mb-1 flex items-center gap-1">
+                            <PackageCheck size={12} />
+                            Rezerve Bobinler
+                          </h5>
+                          {selectedOrder.warehouseData.reservedRolls.map((roll, idx) => (
+                            <div key={idx} className="bg-purple-50 p-1 px-2 rounded text-[10px] mb-1">
+                              <div className="font-mono font-bold">{roll.rollBarcode}</div>
+                              <div className="text-gray-600">{roll.reservedLength} m</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div>
