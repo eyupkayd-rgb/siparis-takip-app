@@ -5326,6 +5326,47 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
     setIsSaving(true);
     try {
       const stationInfo = stations[selectedStation];
+      
+      // SARFIYAT SİSTEMİ - İlk istasyonda bobin sarfiyatı yap
+      if (selectedOrder.productionData?.length === 0 || !selectedOrder.productionData) {
+        const reservedRolls = selectedOrder.warehouseData?.reservedRolls || [];
+        
+        if (reservedRolls.length > 0 && stationData.inputMeterage) {
+          const consumedMeterage = parseFloat(stationData.inputMeterage);
+          
+          // İlk rezerve bobini seç
+          const rollToConsume = reservedRolls[0];
+          
+          if (rollToConsume && rollToConsume.rollId) {
+            try {
+              // Bobinin mevcut durumunu al
+              const rollDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', rollToConsume.rollId));
+              
+              if (rollDoc.exists()) {
+                const rollData = rollDoc.data();
+                const newLength = Math.max(0, rollData.currentLength - consumedMeterage);
+                
+                // Bobin stoğunu güncelle
+                await updateDoc(
+                  doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', rollToConsume.rollId),
+                  {
+                    currentLength: newLength,
+                    reservationId: null, // Rezervasyonu kaldır
+                    lastConsumedAt: new Date().toISOString(),
+                    lastConsumedOrder: selectedOrder.orderNo
+                  }
+                );
+                
+                console.log(`✅ Sarfiyat: ${rollToConsume.rollBarcode} - ${consumedMeterage}m kullanıldı`);
+              }
+            } catch (rollError) {
+              console.error('Bobin sarfiyat hatası:', rollError);
+              // Devam et, sipariş kaydını engelleme
+            }
+          }
+        }
+      }
+      
       const newStationData = {
         station: selectedStation,
         stationName: stationInfo.name,
