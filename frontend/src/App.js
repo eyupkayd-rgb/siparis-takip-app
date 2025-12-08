@@ -3832,6 +3832,18 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
           onRefresh={() => {}}
         />
       )}
+      
+      {showEditRollModal && editingRoll && (
+        <EditStockRollModal
+          onClose={() => {
+            setShowEditRollModal(false);
+            setEditingRoll(null);
+          }}
+          roll={editingRoll}
+          suppliers={supplierCards || []}
+          onRefresh={() => {}}
+        />
+      )}
 
       {/* Header with Action Buttons */}
       <div className="flex justify-between items-center">
