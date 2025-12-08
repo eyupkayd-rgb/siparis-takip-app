@@ -2911,6 +2911,7 @@ export default function OrderApp() {
             isSuperAdmin={isSuperAdmin}
             supplierCards={supplierCards}
             stockRolls={stockRolls}
+            stockMovements={stockMovements}
           />
         )}
         
