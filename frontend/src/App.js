@@ -2682,6 +2682,26 @@ export default function OrderApp() {
     return () => unsubscribe();
   }, [user]);
 
+  // Fetch Stock Movements
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const movementsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_movements');
+    const unsubscribe = onSnapshot(
+      movementsCollection,
+      (snapshot) => {
+        const fetchedMovements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedMovements.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setStockMovements(fetchedMovements);
+      },
+      (error) => {
+        console.error("Stock movements fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
