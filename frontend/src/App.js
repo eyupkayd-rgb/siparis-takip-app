@@ -6762,9 +6762,22 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
                   <h3 className="text-xl font-bold text-gray-800">{order.orderNo}</h3>
                   <p className="text-sm text-gray-600">{order.customer}</p>
                 </div>
-                <span className={`text-xs px-3 py-1 rounded-full font-bold ${fireAnalysis.color}`}>
-                  {fireAnalysis.icon} {fireAnalysis.status === 'excellent' ? 'Başarılı' : fireAnalysis.status === 'normal' ? 'Normal' : 'Dikkat'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExportPDF(order);
+                    }}
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg print:hidden"
+                    title="PDF olarak indir"
+                  >
+                    <Download size={14} />
+                    PDF
+                  </button>
+                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${fireAnalysis.color}`}>
+                    {fireAnalysis.icon} {fireAnalysis.status === 'excellent' ? 'Başarılı' : fireAnalysis.status === 'normal' ? 'Normal' : 'Dikkat'}
+                  </span>
+                </div>
               </div>
 
               {/* Product Info */}
