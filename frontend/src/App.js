@@ -3401,6 +3401,17 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
 // ============================================================================
 
 function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls }) {
+  const rawMaterials = [
+    "PP OPAK SARI PERGAMİN", "PP OPAK BEYAZ PERGAMİN", "PP OPAK PET",
+    "KUŞE SARI PERGAMİN", "KUŞE BEYAZ PERGAMİN", "KUŞE PET", "KUŞE MAT",
+    "PP METALİZE GOLD", "PP METALİZE SİLVER",
+    "KUŞE METALİZE GOLD", "KUŞE METALİZE SİLVER",
+    "PP ŞEFFAF", "PP ULTRA CLEAR", "PE OPAK",
+    "LAMİNE TERMAL", "ECO TERMAL",
+    "PET-G 40 MİC.", "PET-G 45 MİC.", "PET-G 50 MİC.",
+    "PVC 40 MİC.", "PVC 45 MİC.", "PVC 50 MİC."
+  ];
+  
   const [activeTab, setActiveTab] = useState('raw');
   const [listMode, setListMode] = useState('pending');
   const [selectedOrder, setSelectedOrder] = useState(null);
