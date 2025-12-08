@@ -814,6 +814,18 @@ function AddRawMaterialModal({ onClose, suppliers, rawMaterialsList, onRefresh }
         status: 'available'
       });
 
+      // Stok hareketi kaydet
+      await logStockMovement(db, appId, {
+        type: 'GIRIS',
+        rollBarcode: barcode,
+        materialName: formData.materialName,
+        supplierName: selectedSupplier.name,
+        quantity: parseFloat(formData.originalLength),
+        unit: 'm',
+        description: `Yeni bobin girişi - ${formData.isJumbo ? 'JUMBO' : 'Normal'}`,
+        referenceType: 'BOBIN_GIRIS'
+      });
+
       alert(`✅ Bobin başarıyla eklendi!\nBarkod: ${barcode}`);
       setFormData({ supplierId: '', materialName: '', widthCM: '', originalLength: '', isJumbo: false });
       if (onRefresh) onRefresh();
