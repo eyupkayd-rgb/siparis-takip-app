@@ -3662,6 +3662,7 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                     <th className="p-3 text-left font-bold">Tedarikçi</th>
                     <th className="p-3 text-center font-bold">En (cm)</th>
                     <th className="p-3 text-center font-bold">Uzunluk (m)</th>
+                    <th className="p-3 text-center font-bold">m²</th>
                     <th className="p-3 text-center font-bold">Durum</th>
                     <th className="p-3 text-center font-bold">İşlem</th>
                   </tr>
