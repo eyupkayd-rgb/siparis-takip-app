@@ -4883,6 +4883,19 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   const [aiAdvice, setAiAdvice] = useState("");
   const [leftPanelTab, setLeftPanelTab] = useState('pending'); // 'pending' or 'planned'
   const [searchQuery, setSearchQuery] = useState('');
+  const [productionFlow, setProductionFlow] = useState([]);
+  
+  // Mevcut istasyonlar (ProductionDashboard'dan)
+  const availableStations = {
+    baski: { name: 'Baskı', order: 1 },
+    lak: { name: 'Lak', order: 2 },
+    kesim: { name: 'Kesim', order: 3 },
+    sanziman: { name: 'Sanzıman', order: 4 },
+    kalite_kontrol: { name: 'Kalite Kontrol', order: 5, isFinal: true },
+    sleeve_baski: { name: 'Sleeve Baskı', order: 6 },
+    sleeve_qc: { name: 'Sleeve QC', order: 7, isFinal: true },
+    tabakalama: { name: 'Tabakalama', order: 8, isFinal: true }
+  };
 
   const selectedOrder = orders.find(o => o.id === selectedId);
   const isEditing = selectedOrder?.status === 'planned' || 
