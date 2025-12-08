@@ -601,6 +601,22 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
                             </div>
                           )}
                         </div>
+                        <div className="flex gap-2 ml-4">
+                          <button
+                            onClick={() => handleEdit(supplier)}
+                            className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg"
+                            title="Düzenle"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(supplier.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
+                            title="Sil"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
