@@ -4081,17 +4081,22 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                                           { warehouseData: updatedWarehouseData }
                                         );
 
-                                        // Bobini rezerve et
+                                        // Bobini rezerve et VE kalan metrajı güncelle
+                                        const reservedLength = parseFloat(length);
+                                        const newCurrentLength = roll.currentLength - reservedLength;
+                                        
                                         await updateDoc(
                                           doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', roll.id),
                                           { 
+                                            currentLength: Math.max(0, newCurrentLength), // Negatif olmasını önle
                                             reservationId: selectedOrder.id,
                                             reservedAt: new Date().toISOString(),
-                                            reservedOrderNo: selectedOrder.orderNo
+                                            reservedOrderNo: selectedOrder.orderNo,
+                                            reservedLength: reservedLength
                                           }
                                         );
 
-                                        alert(`✅ Bobin rezerve edildi!\n\nBarkod: ${roll.rollBarcode}\nMiktar: ${length} metre`);
+                                        alert(`✅ Bobin rezerve edildi!\n\nBarkod: ${roll.rollBarcode}\nRezerve: ${length} m\nKalan: ${newCurrentLength} m`);
                                         
                                         // Sayfayı yenile
                                         window.location.reload();
