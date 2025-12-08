@@ -6666,11 +6666,6 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
     });
   };
 
-  // PDF Export function
-  const handleExportPDF = () => {
-    window.print();
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in">
       {/* Header */}
