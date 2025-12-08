@@ -2524,6 +2524,7 @@ export default function OrderApp() {
   const [supplierCards, setSupplierCards] = useState([]);
   const [stockRolls, setStockRolls] = useState([]);
   const [rawMaterialMaster, setRawMaterialMaster] = useState([]);
+  const [stockMovements, setStockMovements] = useState([]);
 
   const isSuperAdmin = user && SUPER_ADMIN_EMAILS.includes(user.email);
 
