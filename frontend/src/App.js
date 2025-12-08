@@ -1206,8 +1206,18 @@ function DilimlemeModal({ onClose, jumboRoll, onRefresh }) {
             <div className="bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200 mb-6">
               <p className="text-sm text-gray-700">
                 <strong className="text-yellow-700">⚠️ Uyarı:</strong> Bu işlem geri alınamaz! 
-                Orijinal bobin kapatılacak ve seçilen sayıda yeni bobin oluşturulacaktır.
-                Her yeni bobin için benzersiz barkod otomatik oluşturulacaktır.
+                <br />
+                • Orijinal bobin ({jumboRoll.widthCM} cm × {jumboRoll.currentLength} m) kapatılacak
+                <br />
+                • {dilimler.length} adet yeni bobin oluşturulacak
+                <br />
+                • Her yeni bobin için benzersiz barkod otomatik oluşturulacak
+                <br />
+                {jumboRoll.isJumbo ? (
+                  <span>• Jumbo bobin dilimlenecek</span>
+                ) : (
+                  <span>• Daha önce dilimlenmiş bobin tekrar dilimlenecek (Ana bobin: {jumboRoll.parentBarcode || jumboRoll.rollBarcode})</span>
+                )}
               </p>
             </div>
 
