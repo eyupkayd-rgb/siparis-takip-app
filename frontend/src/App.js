@@ -429,6 +429,7 @@ function CustomerCardModal({ onClose, customers, onRefresh }) {
 
 function SupplierCardModal({ onClose, suppliers, onRefresh }) {
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     taxId: '',
@@ -440,6 +441,33 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
   });
   const [saving, setSaving] = useState(false);
 
+  const handleEdit = (supplier) => {
+    setEditingId(supplier.id);
+    setFormData({
+      name: supplier.name || '',
+      taxId: supplier.taxId || '',
+      city: supplier.city || '',
+      contactPerson: supplier.contactPerson || '',
+      phone: supplier.phone || '',
+      prefix: supplier.prefix || '',
+      materialTypes: supplier.materialTypes || ''
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (supplierId) => {
+    if (!window.confirm('Bu tedarikçi kartını silmek istediğinize emin misiniz?')) return;
+    
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supplier_cards', supplierId));
+      alert('✅ Tedarikçi kartı silindi!');
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Tedarikçi kartı silme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -448,8 +476,10 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
       return;
     }
     
-    // Prefix benzersizlik kontrolü
-    const existingPrefix = suppliers.find(s => s.prefix?.toUpperCase() === formData.prefix.toUpperCase());
+    // Prefix benzersizlik kontrolü (düzenleme sırasında kendi prefix'i hariç)
+    const existingPrefix = suppliers.find(s => 
+      s.prefix?.toUpperCase() === formData.prefix.toUpperCase() && s.id !== editingId
+    );
     if (existingPrefix) {
       alert(`⚠️ Bu prefix (${formData.prefix}) zaten "${existingPrefix.name}" tedarikçisine ait!`);
       return;
