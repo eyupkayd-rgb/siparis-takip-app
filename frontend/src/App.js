@@ -3902,15 +3902,33 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
         
         <div className="flex gap-3">
           <button
-            onClick={() => setShowStockTab(!showStockTab)}
+            onClick={() => {
+              setShowStockTab(!showStockTab);
+              setShowStockMovements(false);
+            }}
             className={`px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 ${
-              showStockTab
+              showStockTab && !showStockMovements
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                 : 'bg-white text-gray-700 border-2 border-gray-200'
             }`}
           >
             <Database size={18} />
-            {showStockTab ? 'Siparişlere Dön' : 'Stok Yönetimi'}
+            Stok Yönetimi
+          </button>
+          
+          <button
+            onClick={() => {
+              setShowStockMovements(!showStockMovements);
+              setShowStockTab(false);
+            }}
+            className={`px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 ${
+              showStockMovements
+                ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white'
+                : 'bg-white text-gray-700 border-2 border-gray-200'
+            }`}
+          >
+            <BarChart3 size={18} />
+            Stok Hareketleri
           </button>
           
           <button
