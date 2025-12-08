@@ -1079,7 +1079,7 @@ function DilimlemeModal({ onClose, jumboRoll, onRefresh }) {
         });
       }
 
-      alert(`✅ Jumbo bobin başarıyla ${dilimler.length} parçaya dilimlenmiş oldu!`);
+      alert(`✅ Bobin başarıyla ${dilimler.length} parçaya dilimlenmiş oldu!\n\nOrijinal: ${jumboRoll.rollBarcode}\nYeni dilimler oluşturuldu.`);
       if (onRefresh) onRefresh();
       onClose();
     } catch (error) {
