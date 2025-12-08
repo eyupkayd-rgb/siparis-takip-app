@@ -3460,6 +3460,9 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
   const [showDilimModal, setShowDilimModal] = useState(false);
   const [selectedJumboRoll, setSelectedJumboRoll] = useState(null);
   const [showStockTab, setShowStockTab] = useState(false);
+  const [showStockMovements, setShowStockMovements] = useState(false);
+  const [editingRoll, setEditingRoll] = useState(null);
+  const [showEditRollModal, setShowEditRollModal] = useState(false);
   const [wData, setWData] = useState({
     materialStatus: '',
     slittingDate: '',
