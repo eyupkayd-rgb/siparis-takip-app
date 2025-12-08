@@ -3582,6 +3582,7 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
         <AddRawMaterialModal
           onClose={() => setShowAddRollModal(false)}
           suppliers={supplierCards || []}
+          rawMaterialsList={rawMaterials}
           onRefresh={() => {}}
         />
       )}
