@@ -3885,14 +3885,27 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
 
                         {/* Mevcut Bobinler */}
                         <div className="space-y-2">
-                          <h5 className="font-bold text-gray-800 text-sm">Mevcut Bobinler:</h5>
+                          <h5 className="font-bold text-gray-800 text-sm">
+                            Mevcut Bobinler: 
+                            <span className="text-xs text-gray-500 ml-2">
+                              (Toplam {stockRolls.filter(r => !r.isDilim && r.currentLength > 0 && !r.reservationId).length} bobin)
+                            </span>
+                          </h5>
                           {stockRolls
-                            .filter(roll => 
-                              !roll.isDilim && 
-                              roll.currentLength > 0 && 
-                              !roll.reservationId &&
-                              roll.materialName.toLowerCase().includes(selectedOrder.rawMaterial?.toLowerCase() || '')
-                            )
+                            .filter(roll => {
+                              // Temel filtreler
+                              if (roll.isDilim || roll.currentLength <= 0 || roll.reservationId) {
+                                return false;
+                              }
+                              
+                              // Hammadde eşleşmesi (daha esnek)
+                              const orderMaterial = (selectedOrder.rawMaterial || '').toLowerCase().trim();
+                              const rollMaterial = (roll.materialName || '').toLowerCase().trim();
+                              
+                              // Tam eşleşme veya içerme kontrolü
+                              return !orderMaterial || rollMaterial.includes(orderMaterial) || orderMaterial.includes(rollMaterial);
+                            })
+                            .sort((a, b) => b.currentLength - a.currentLength)
                             .map(roll => (
                               <div key={roll.id} className="bg-white p-3 rounded-lg border border-purple-200 flex justify-between items-center">
                                 <div className="flex-1">
