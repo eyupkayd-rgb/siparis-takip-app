@@ -5609,6 +5609,78 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
                   </div>
                 </div>
 
+                {/* İstasyon Akışı Seçimi */}
+                <div className="mt-6 bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-200">
+                  <h4 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                    <Component size={20} />
+                    Üretim İstasyon Akışı *
+                  </h4>
+                  <p className="text-sm text-indigo-700 mb-4">
+                    Bu sipariş hangi istasyonlardan geçecek? Sırayla seçin:
+                  </p>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                    {Object.entries(availableStations).map(([key, station]) => {
+                      const isSelected = productionFlow.includes(key);
+                      const orderIndex = productionFlow.indexOf(key);
+                      
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setProductionFlow(productionFlow.filter(s => s !== key));
+                            } else {
+                              setProductionFlow([...productionFlow, key]);
+                            }
+                          }}
+                          className={`p-3 rounded-lg font-bold text-sm transition-all border-2 ${
+                            isSelected
+                              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-700 shadow-lg'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                          }`}
+                        >
+                          {isSelected && (
+                            <span className="inline-block bg-white text-indigo-600 rounded-full w-6 h-6 text-xs leading-6 mr-2">
+                              {orderIndex + 1}
+                            </span>
+                          )}
+                          {station.name}
+                          {station.isFinal && ' 🏁'}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {productionFlow.length > 0 && (
+                    <div className="bg-white p-4 rounded-lg border-2 border-indigo-200">
+                      <p className="text-sm font-bold text-indigo-900 mb-2">Seçilen İstasyon Sırası:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {productionFlow.map((stationKey, index) => (
+                          <div key={stationKey} className="flex items-center gap-2 bg-indigo-100 px-3 py-1 rounded-full">
+                            <span className="font-bold text-indigo-900">{index + 1}.</span>
+                            <span className="text-indigo-700">{availableStations[stationKey].name}</span>
+                            <button
+                              type="button"
+                              onClick={() => setProductionFlow(productionFlow.filter(s => s !== stationKey))}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {productionFlow.length === 0 && (
+                    <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+                      ⚠️ En az bir istasyon seçmelisiniz!
+                    </div>
+                  )}
+                </div>
+
                 {/* Submit Button */}
                 <button
                   disabled={isSaving}
