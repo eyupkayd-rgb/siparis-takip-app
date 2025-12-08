@@ -296,6 +296,22 @@ function CustomerCardModal({ onClose, customers, onRefresh }) {
                             )}
                           </div>
                         </div>
+                        <div className="flex gap-2 ml-4">
+                          <button
+                            onClick={() => handleEdit(customer)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
+                            title="Düzenle"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(customer.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
+                            title="Sil"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
