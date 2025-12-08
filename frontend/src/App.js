@@ -3528,6 +3528,23 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
     }
   }, [wData.wastageRate, selectedOrder?.graphicsData?.meterage, activeTab]);
 
+  const handleDeleteRoll = async (rollId) => {
+    if (!window.confirm('Bu bobini silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) return;
+    
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', rollId));
+      alert('✅ Bobin silindi!');
+    } catch (error) {
+      console.error('Bobin silme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+  };
+
+  const handleEditRoll = (roll) => {
+    setEditingRoll(roll);
+    setShowEditRollModal(true);
+  };
+
   const handleRawMaterialSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
