@@ -4066,6 +4066,148 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls, s
             </div>
           )}
         </div>
+      ) : showStockMovements ? (
+        <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <BarChart3 size={28} className="text-indigo-600" />
+                Stok Hareketleri
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">Tüm giriş, çıkış ve rezervasyon işlemleri</p>
+            </div>
+            <div className="text-sm text-gray-600">
+              Toplam: <span className="font-bold text-lg">{stockMovements?.length || 0}</span> hareket
+            </div>
+          </div>
+
+          {/* İstatistikler */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border-2 border-green-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-500 p-3 rounded-lg">
+                  <PackagePlus size={24} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-green-700 font-medium">Toplam Giriş</p>
+                  <p className="text-2xl font-bold text-green-900">
+                    {stockMovements?.filter(m => m.type === 'GIRIS').length || 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border-2 border-yellow-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-yellow-500 p-3 rounded-lg">
+                  <AlertCircle size={24} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-yellow-700 font-medium">Rezervasyonlar</p>
+                  <p className="text-2xl font-bold text-yellow-900">
+                    {stockMovements?.filter(m => m.type === 'REZERVE').length || 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl border-2 border-red-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-red-500 p-3 rounded-lg">
+                  <Truck size={24} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-red-700 font-medium">Sarfiyat</p>
+                  <p className="text-2xl font-bold text-red-900">
+                    {stockMovements?.filter(m => m.type === 'SARFIYAT').length || 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-500 p-3 rounded-lg">
+                  <Calculator size={24} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-blue-700 font-medium">Toplam Metraj</p>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {(stockMovements?.reduce((sum, m) => sum + (m.quantity || 0), 0) || 0).toFixed(0)} m
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Hareketler Listesi */}
+          {(!stockMovements || stockMovements.length === 0) ? (
+            <div className="text-center py-16 text-gray-400">
+              <BarChart3 size={80} className="mx-auto mb-4 opacity-30" />
+              <p className="text-xl">Henüz stok hareketi yok</p>
+              <p className="text-sm mt-2">Bobin girişi, rezervasyon veya üretim işlemleri yapıldığında burada görünecek</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b-2 border-indigo-200">
+                  <tr>
+                    <th className="p-3 text-left font-bold">Tarih/Saat</th>
+                    <th className="p-3 text-left font-bold">Tip</th>
+                    <th className="p-3 text-left font-bold">Barkod</th>
+                    <th className="p-3 text-left font-bold">Hammadde</th>
+                    <th className="p-3 text-center font-bold">Miktar</th>
+                    <th className="p-3 text-left font-bold">Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stockMovements.map(movement => {
+                    const movementDate = new Date(movement.createdAt);
+                    const typeColors = {
+                      'GIRIS': 'bg-green-100 text-green-800',
+                      'REZERVE': 'bg-yellow-100 text-yellow-800',
+                      'SARFIYAT': 'bg-red-100 text-red-800'
+                    };
+                    
+                    return (
+                      <tr key={movement.id} className="border-b border-gray-100 hover:bg-indigo-50">
+                        <td className="p-3">
+                          <div className="text-xs text-gray-600">
+                            {movementDate.toLocaleDateString('tr-TR')}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {movementDate.toLocaleTimeString('tr-TR')}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${typeColors[movement.type] || 'bg-gray-100 text-gray-800'}`}>
+                            {movement.type}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <span className="font-mono font-bold text-xs">{movement.rollBarcode}</span>
+                        </td>
+                        <td className="p-3 text-xs">{movement.materialName}</td>
+                        <td className="p-3 text-center">
+                          <span className="font-bold">{movement.quantity}</span>
+                          <span className="text-gray-500 ml-1">{movement.unit}</span>
+                        </td>
+                        <td className="p-3 text-xs text-gray-600">
+                          {movement.description}
+                          {movement.orderNo && (
+                            <span className="ml-2 bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px]">
+                              {movement.orderNo}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       ) : (
         <>
           {/* Search Bar */}
