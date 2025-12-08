@@ -148,6 +148,7 @@ async function generateBarcode(materialName, supplierPrefix, db, appId) {
 
 function CustomerCardModal({ onClose, customers, onRefresh }) {
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     taxId: '',
@@ -158,20 +159,60 @@ function CustomerCardModal({ onClose, customers, onRefresh }) {
   });
   const [saving, setSaving] = useState(false);
 
+  const handleEdit = (customer) => {
+    setEditingId(customer.id);
+    setFormData({
+      name: customer.name || '',
+      taxId: customer.taxId || '',
+      city: customer.city || '',
+      contactPerson: customer.contactPerson || '',
+      phone: customer.phone || '',
+      email: customer.email || ''
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (customerId) => {
+    if (!window.confirm('Bu müşteri kartını silmek istediğinize emin misiniz?')) return;
+    
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'customer_cards', customerId));
+      alert('✅ Müşteri kartı silindi!');
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Müşteri kartı silme hatası:', error);
+      alert('❌ Hata: ' + error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     
     try {
-      const customersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'customer_cards');
-      await addDoc(customersCollection, {
-        ...formData,
-        createdAt: new Date().toISOString(),
-        isApproved: true
-      });
+      if (editingId) {
+        // Güncelleme
+        await updateDoc(
+          doc(db, 'artifacts', appId, 'public', 'data', 'customer_cards', editingId),
+          {
+            ...formData,
+            updatedAt: new Date().toISOString()
+          }
+        );
+        alert('✅ Müşteri kartı güncellendi!');
+      } else {
+        // Yeni ekleme
+        const customersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'customer_cards');
+        await addDoc(customersCollection, {
+          ...formData,
+          createdAt: new Date().toISOString(),
+          isApproved: true
+        });
+        alert('✅ Müşteri kartı oluşturuldu!');
+      }
       
-      alert('✅ Müşteri kartı başarıyla oluşturuldu!');
       setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', email: '' });
+      setEditingId(null);
       setShowForm(false);
       if (onRefresh) onRefresh();
     } catch (error) {
