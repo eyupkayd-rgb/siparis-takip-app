@@ -5621,38 +5621,46 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
                     Bu sipariş hangi istasyonlardan geçecek? Sırayla seçin:
                   </p>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    {Object.entries(availableStations).map(([key, station]) => {
-                      const isSelected = productionFlow.includes(key);
-                      const orderIndex = productionFlow.indexOf(key);
-                      
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              setProductionFlow(productionFlow.filter(s => s !== key));
-                            } else {
-                              setProductionFlow([...productionFlow, key]);
-                            }
-                          }}
-                          className={`p-3 rounded-lg font-bold text-sm transition-all border-2 ${
-                            isSelected
-                              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-700 shadow-lg'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
-                          }`}
-                        >
-                          {isSelected && (
-                            <span className="inline-block bg-white text-indigo-600 rounded-full w-6 h-6 text-xs leading-6 mr-2">
-                              {orderIndex + 1}
-                            </span>
-                          )}
-                          {station.name}
-                          {station.isFinal && ' 🏁'}
-                        </button>
-                      );
-                    })}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    {Object.entries(availableStations)
+                      .filter(([key, station]) => {
+                        // Seçili siparişin kategorisine göre filtrele
+                        const selectedOrder = orders.find(o => o.id === selectedId);
+                        if (!selectedOrder) return true;
+                        return !station.category || station.category === selectedOrder.category;
+                      })
+                      .map(([key, station]) => {
+                        const isSelected = productionFlow.includes(key);
+                        const orderIndex = productionFlow.indexOf(key);
+                        
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setProductionFlow(productionFlow.filter(s => s !== key));
+                              } else {
+                                setProductionFlow([...productionFlow, key]);
+                              }
+                            }}
+                            className={`p-3 rounded-lg font-bold text-sm transition-all border-2 ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-700 shadow-lg'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                            }`}
+                          >
+                            {isSelected && (
+                              <span className="inline-block bg-white text-indigo-600 rounded-full w-6 h-6 text-xs leading-6 mr-2">
+                                {orderIndex + 1}
+                              </span>
+                            )}
+                            {station.name}
+                            {station.isFinal && ' 🏁'}
+                            {station.optional && ' (Opsiyonel)'}
+                          </button>
+                        );
+                      })}
                   </div>
 
                   {productionFlow.length > 0 && (
