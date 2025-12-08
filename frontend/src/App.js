@@ -1732,14 +1732,35 @@ function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
               </div>
               
               <div>
-                <label className="label">Firma Adı</label>
-                <input
-                  required
-                  placeholder="Müşteri firma adı"
-                  className="input-field"
-                  value={formData.customer}
-                  onChange={e => setFormData({...formData, customer: e.target.value})}
-                />
+                <label className="label">Firma Adı *</label>
+                {customerCards && customerCards.length > 0 ? (
+                  <select
+                    required
+                    className="input-field"
+                    value={formData.customer}
+                    onChange={e => setFormData({...formData, customer: e.target.value})}
+                  >
+                    <option value="">-- Müşteri Seçin --</option>
+                    {customerCards.map(customer => (
+                      <option key={customer.id} value={customer.name}>
+                        {customer.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div>
+                    <input
+                      required
+                      placeholder="Müşteri firma adı"
+                      className="input-field bg-yellow-50"
+                      value={formData.customer}
+                      onChange={e => setFormData({...formData, customer: e.target.value})}
+                    />
+                    <p className="text-xs text-yellow-600 mt-1">
+                      ⚠️ Henüz müşteri kartı yok. Yukarıdan "Müşteri Kartları" butonuna tıklayarak ekleyin.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
