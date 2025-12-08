@@ -1100,10 +1100,17 @@ function DilimlemeModal({ onClose, jumboRoll, onRefresh }) {
             <div className="flex items-center gap-3">
               <Scissors className="text-white" size={28} />
               <div>
-                <h2 className="text-2xl font-bold text-white">Jumbo Bobin Dilimleme</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  {jumboRoll.isJumbo ? 'Jumbo Bobin' : 'Bobin'} Dilimleme
+                </h2>
                 <p className="text-white text-sm opacity-90">
                   {jumboRoll.rollBarcode} - {jumboRoll.materialName}
                 </p>
+                {jumboRoll.parentBarcode && (
+                  <p className="text-white text-xs opacity-75">
+                    Ana Bobin: {jumboRoll.parentBarcode}
+                  </p>
+                )}
               </div>
             </div>
             <button
