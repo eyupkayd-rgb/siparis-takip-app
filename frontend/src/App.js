@@ -753,7 +753,7 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
 // 📦 BOBİN GİRİŞİ MODALI (ADD RAW MATERIAL MODAL)
 // ==========================================================================================
 
-function AddRawMaterialModal({ onClose, suppliers, onRefresh }) {
+function AddRawMaterialModal({ onClose, suppliers, rawMaterialsList, onRefresh }) {
   const [formData, setFormData] = useState({
     supplierId: '',
     materialName: '',
@@ -761,6 +761,7 @@ function AddRawMaterialModal({ onClose, suppliers, onRefresh }) {
     originalLength: '',
     isJumbo: false
   });
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e) => {
