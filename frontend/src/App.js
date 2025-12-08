@@ -3651,7 +3651,7 @@ function GraphicsDashboard({ orders, isSuperAdmin }) {
 // 🏭 WAREHOUSE DASHBOARD (FULL FEATURED WITH WASTE CALCULATION)
 // ============================================================================
 
-function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls }) {
+function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls, stockMovements }) {
   const rawMaterials = [
     "PP OPAK SARI PERGAMİN", "PP OPAK BEYAZ PERGAMİN", "PP OPAK PET",
     "KUŞE SARI PERGAMİN", "KUŞE BEYAZ PERGAMİN", "KUŞE PET", "KUŞE MAT",
