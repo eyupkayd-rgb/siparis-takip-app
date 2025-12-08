@@ -4960,6 +4960,7 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
         startHour: order.planningData.startHour,
         duration: order.planningData.duration
       });
+      setProductionFlow(order.planningData.productionFlow || []);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
