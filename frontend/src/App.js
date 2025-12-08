@@ -4031,7 +4031,7 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls, s
                       </td>
                       <td className="p-3">
                         <div className="flex gap-2 justify-center">
-                          {roll.isJumbo && !roll.isDilim && roll.currentLength > 0 && (
+                          {!roll.isDilim && roll.currentLength > 0 && !roll.reservationId && (
                             <button
                               onClick={() => {
                                 setSelectedJumboRoll(roll);
@@ -4041,6 +4041,7 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls, s
                               title="Dilimle"
                             >
                               <Scissors size={14} />
+                              {roll.isJumbo ? 'Jumbo' : 'Dilim'}
                             </button>
                           )}
                           <button
