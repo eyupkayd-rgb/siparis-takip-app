@@ -1061,6 +1061,8 @@ function DilimlemeModal({ onClose, jumboRoll, onRefresh }) {
           appId
         );
 
+        const newLength = parseFloat(dilim.length || jumboRoll.currentLength);
+
         await addDoc(rollsCollection, {
           rollBarcode: newBarcode,
           materialName: jumboRoll.materialName,
@@ -1068,14 +1070,28 @@ function DilimlemeModal({ onClose, jumboRoll, onRefresh }) {
           supplierId: jumboRoll.supplierId,
           supplierPrefix: jumboRoll.supplierPrefix,
           widthCM: parseFloat(dilim.width),
-          originalLength: parseFloat(dilim.length || jumboRoll.currentLength),
-          currentLength: parseFloat(dilim.length || jumboRoll.currentLength),
+          originalLength: newLength,
+          currentLength: newLength,
           isJumbo: false,
           isDilim: false,
           parentBarcode: jumboRoll.rollBarcode,
           reservationId: null,
           createdAt: new Date().toISOString(),
           status: 'available'
+        });
+
+        // Stok hareketi kaydet
+        await logStockMovement(db, appId, {
+          type: 'GIRIS',
+          rollBarcode: newBarcode,
+          materialName: jumboRoll.materialName,
+          supplierName: jumboRoll.supplierName,
+          quantity: newLength,
+          unit: 'm',
+          description: `${jumboRoll.rollBarcode} bobininden dilimlenme - ${parseFloat(dilim.width)} cm × ${newLength} m`,
+          referenceType: 'DILIMLEME',
+          referenceId: jumboRoll.id,
+          parentBarcode: jumboRoll.rollBarcode
         });
       }
 
