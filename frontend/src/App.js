@@ -5302,6 +5302,14 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
   };
 
   const handleStartWork = () => {
+    // Rezervasyon kontrolü
+    if (selectedOrder && (!selectedOrder.warehouseData?.reservedRolls || selectedOrder.warehouseData.reservedRolls.length === 0)) {
+      const confirmed = window.confirm(
+        '⚠️ Bu sipariş için rezerve edilmiş bobin bulunmamaktadır!\n\nYine de üretime başlamak istiyor musunuz?'
+      );
+      if (!confirmed) return;
+    }
+    
     const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
     setStationData({ ...stationData, startTime: now, isStarted: true });
   };
