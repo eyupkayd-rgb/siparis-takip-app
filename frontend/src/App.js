@@ -6782,7 +6782,8 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
           return (
             <div
               key={order.id}
-              className="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all cursor-pointer print:break-inside-avoid"
+              data-order-id={order.id}
+              className="order-card bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl transition-all cursor-pointer print:break-inside-avoid"
               onClick={() => setSelectedOrder(order)}
             >
               {/* Order Header */}
