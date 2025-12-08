@@ -854,13 +854,50 @@ function AddRawMaterialModal({ onClose, suppliers, rawMaterialsList, onRefresh }
 
           <div>
             <label className="label">Hammadde Adı *</label>
-            <input
-              required
-              className="input-field"
-              value={formData.materialName}
-              onChange={e => setFormData({...formData, materialName: e.target.value})}
-              placeholder="Örn: PP OPAK SARI PERGAMİN"
-            />
+            {!showCustomInput ? (
+              <div className="space-y-2">
+                <select
+                  required
+                  className="input-field"
+                  value={formData.materialName}
+                  onChange={e => {
+                    if (e.target.value === '__custom__') {
+                      setShowCustomInput(true);
+                      setFormData({...formData, materialName: ''});
+                    } else {
+                      setFormData({...formData, materialName: e.target.value});
+                    }
+                  }}
+                >
+                  <option value="">-- Hammadde Seçin --</option>
+                  {rawMaterialsList && rawMaterialsList.map((mat, idx) => (
+                    <option key={idx} value={mat}>{mat}</option>
+                  ))}
+                  <option value="__custom__">➕ Yeni Hammadde Ekle</option>
+                </select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  required
+                  className="input-field"
+                  value={formData.materialName}
+                  onChange={e => setFormData({...formData, materialName: e.target.value})}
+                  placeholder="Yeni hammadde adı"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCustomInput(false);
+                    setFormData({...formData, materialName: ''});
+                  }}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  ← Listeden seç
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
