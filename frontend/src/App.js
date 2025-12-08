@@ -3840,6 +3840,106 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                     </select>
                   </div>
 
+                  {/* 📦 BOBIN REZERVASYON SİSTEMİ */}
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-purple-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <PackageCheck size={24} className="text-purple-600" />
+                      <div>
+                        <h4 className="text-lg font-bold text-purple-900">Bobin Rezervasyonu</h4>
+                        <p className="text-xs text-purple-700">
+                          Bu sipariş için hammadde bobini tahsis edin
+                        </p>
+                      </div>
+                    </div>
+
+                    {selectedOrder.rawMaterial && stockRolls && stockRolls.length > 0 ? (
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-700">
+                          <strong>Aranan Hammadde:</strong> {selectedOrder.rawMaterial}
+                        </p>
+                        
+                        {/* Rezerve Edilmiş Bobinler */}
+                        {selectedOrder.warehouseData?.reservedRolls && selectedOrder.warehouseData.reservedRolls.length > 0 && (
+                          <div className="bg-green-50 p-4 rounded-xl border-2 border-green-200">
+                            <h5 className="font-bold text-green-800 mb-2 flex items-center gap-2">
+                              <CheckCircle size={16} />
+                              Rezerve Edilmiş Bobinler
+                            </h5>
+                            {selectedOrder.warehouseData.reservedRolls.map((res, idx) => (
+                              <div key={idx} className="text-sm text-green-700 flex justify-between items-center mb-1">
+                                <span>🏷️ {res.rollBarcode}</span>
+                                <span className="font-bold">{res.reservedLength} m</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Mevcut Bobinler */}
+                        <div className="space-y-2">
+                          <h5 className="font-bold text-gray-800 text-sm">Mevcut Bobinler:</h5>
+                          {stockRolls
+                            .filter(roll => 
+                              !roll.isDilim && 
+                              roll.currentLength > 0 && 
+                              !roll.reservationId &&
+                              roll.materialName.toLowerCase().includes(selectedOrder.rawMaterial?.toLowerCase() || '')
+                            )
+                            .map(roll => (
+                              <div key={roll.id} className="bg-white p-3 rounded-lg border border-purple-200 flex justify-between items-center">
+                                <div className="flex-1">
+                                  <div className="font-mono text-sm font-bold text-purple-700">{roll.rollBarcode}</div>
+                                  <div className="text-xs text-gray-600">
+                                    {roll.widthCM} cm × {roll.currentLength} m - {roll.supplierName}
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const length = prompt(`Bu bobinden kaç metre rezerve edilsin?\n\nMevcut: ${roll.currentLength} m`);
+                                    if (length && !isNaN(length) && parseFloat(length) > 0 && parseFloat(length) <= roll.currentLength) {
+                                      try {
+                                        const reservedRolls = selectedOrder.warehouseData?.reservedRolls || [];
+                                        reservedRolls.push({
+                                          rollBarcode: roll.rollBarcode,
+                                          rollId: roll.id,
+                                          reservedLength: parseFloat(length),
+                                          reservedAt: new Date().toISOString()
+                                        });
+
+                                        // Order'ı güncelle
+                                        await updateDoc(
+                                          doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedOrder.id),
+                                          { 'warehouseData.reservedRolls': reservedRolls }
+                                        );
+
+                                        // Bobini rezerve et
+                                        await updateDoc(
+                                          doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', roll.id),
+                                          { reservationId: selectedOrder.id }
+                                        );
+
+                                        alert('✅ Bobin rezerve edildi!');
+                                      } catch (error) {
+                                        alert('❌ Hata: ' + error.message);
+                                      }
+                                    }
+                                  }}
+                                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-xs font-bold"
+                                >
+                                  Rezerve Et
+                                </button>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-400">
+                        <Package size={48} className="mx-auto mb-2 opacity-30" />
+                        <p className="text-sm">Uygun bobin bulunamadı veya hammadde bilgisi eksik</p>
+                      </div>
+                    )}
+                  </div>
+
                   {/* 🔥 FIRE CALCULATION SECTION - HIGHLIGHT FEATURE */}
                   <div className="bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 p-6 rounded-2xl border-3 border-orange-200 shadow-lg">
                     <div className="flex items-center gap-3 mb-5">
