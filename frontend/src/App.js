@@ -4885,16 +4885,18 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [productionFlow, setProductionFlow] = useState([]);
   
-  // Mevcut istasyonlar (ProductionDashboard'dan)
+  // Mevcut istasyonlar (ProductionDashboard ile aynı)
   const availableStations = {
-    baski: { name: 'Baskı', order: 1 },
-    lak: { name: 'Lak', order: 2 },
-    kesim: { name: 'Kesim', order: 3 },
-    sanziman: { name: 'Sanzıman', order: 4 },
-    kalite_kontrol: { name: 'Kalite Kontrol', order: 5, isFinal: true },
-    sleeve_baski: { name: 'Sleeve Baskı', order: 6 },
-    sleeve_qc: { name: 'Sleeve QC', order: 7, isFinal: true },
-    tabakalama: { name: 'Tabakalama', order: 8, isFinal: true }
+    // Etiket için
+    'bobst_m1': { name: 'Bobst M1 Operatörü', category: 'Etiket', order: 1 },
+    'etiket_qc': { name: 'Kalite Kontrol (Etiket)', category: 'Etiket', order: 2, isFinal: true },
+    
+    // Ambalaj için
+    'bobst_m1_ambalaj': { name: 'Bobst M1 Operatörü', category: 'Ambalaj', order: 1 },
+    'hibrit': { name: 'Hibrit Operatörü', category: 'Ambalaj', order: 1 },
+    'muhürleme': { name: 'Mühürleme', category: 'Ambalaj', order: 2 },
+    'sleeve_qc': { name: 'Sleeve Kalite Kontrol', category: 'Ambalaj', order: 3, isFinal: true },
+    'tabakalama': { name: 'Tabakalama', category: 'Ambalaj', order: 4, optional: true }
   };
 
   const selectedOrder = orders.find(o => o.id === selectedId);
