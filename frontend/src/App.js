@@ -4412,6 +4412,20 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                                           }
                                         );
 
+                                        // Stok hareketi kaydet
+                                        await logStockMovement(db, appId, {
+                                          type: 'REZERVE',
+                                          rollBarcode: roll.rollBarcode,
+                                          materialName: roll.materialName,
+                                          supplierName: roll.supplierName,
+                                          quantity: reservedLength,
+                                          unit: 'm',
+                                          description: `Sipariş rezervasyonu - ${selectedOrder.orderNo}`,
+                                          referenceType: 'REZERVASYON',
+                                          referenceId: selectedOrder.id,
+                                          orderNo: selectedOrder.orderNo
+                                        });
+
                                         alert(`✅ Bobin rezerve edildi!\n\nBarkod: ${roll.rollBarcode}\nRezerve: ${length} m\nKalan: ${newCurrentLength} m`);
                                         
                                         // Sayfayı yenile
