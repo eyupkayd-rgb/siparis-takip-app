@@ -488,15 +488,30 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
     setSaving(true);
     
     try {
-      const suppliersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'supplier_cards');
-      await addDoc(suppliersCollection, {
-        ...formData,
-        prefix: formData.prefix.toUpperCase(),
-        createdAt: new Date().toISOString()
-      });
+      if (editingId) {
+        // Güncelleme
+        await updateDoc(
+          doc(db, 'artifacts', appId, 'public', 'data', 'supplier_cards', editingId),
+          {
+            ...formData,
+            prefix: formData.prefix.toUpperCase(),
+            updatedAt: new Date().toISOString()
+          }
+        );
+        alert('✅ Tedarikçi kartı güncellendi!');
+      } else {
+        // Yeni ekleme
+        const suppliersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'supplier_cards');
+        await addDoc(suppliersCollection, {
+          ...formData,
+          prefix: formData.prefix.toUpperCase(),
+          createdAt: new Date().toISOString()
+        });
+        alert('✅ Tedarikçi kartı oluşturuldu!');
+      }
       
-      alert('✅ Tedarikçi kartı başarıyla oluşturuldu!');
       setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', prefix: '', materialTypes: '' });
+      setEditingId(null);
       setShowForm(false);
       if (onRefresh) onRefresh();
     } catch (error) {
