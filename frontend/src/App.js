@@ -3898,30 +3898,52 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                                     const length = prompt(`Bu bobinden kaç metre rezerve edilsin?\n\nMevcut: ${roll.currentLength} m`);
                                     if (length && !isNaN(length) && parseFloat(length) > 0 && parseFloat(length) <= roll.currentLength) {
                                       try {
-                                        const reservedRolls = selectedOrder.warehouseData?.reservedRolls || [];
-                                        reservedRolls.push({
+                                        // Mevcut warehouseData'yı al veya yeni oluştur
+                                        const currentWarehouseData = selectedOrder.warehouseData || {};
+                                        const reservedRolls = currentWarehouseData.reservedRolls || [];
+                                        
+                                        // Yeni rezervasyonu ekle
+                                        const newReservation = {
                                           rollBarcode: roll.rollBarcode,
                                           rollId: roll.id,
                                           reservedLength: parseFloat(length),
                                           reservedAt: new Date().toISOString()
-                                        });
+                                        };
+                                        
+                                        reservedRolls.push(newReservation);
+                                        
+                                        // warehouseData'yı tamamen güncelle
+                                        const updatedWarehouseData = {
+                                          ...currentWarehouseData,
+                                          reservedRolls: reservedRolls
+                                        };
 
                                         // Order'ı güncelle
                                         await updateDoc(
                                           doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedOrder.id),
-                                          { 'warehouseData.reservedRolls': reservedRolls }
+                                          { warehouseData: updatedWarehouseData }
                                         );
 
                                         // Bobini rezerve et
                                         await updateDoc(
                                           doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', roll.id),
-                                          { reservationId: selectedOrder.id }
+                                          { 
+                                            reservationId: selectedOrder.id,
+                                            reservedAt: new Date().toISOString(),
+                                            reservedOrderNo: selectedOrder.orderNo
+                                          }
                                         );
 
-                                        alert('✅ Bobin rezerve edildi!');
+                                        alert(`✅ Bobin rezerve edildi!\n\nBarkod: ${roll.rollBarcode}\nMiktar: ${length} metre`);
+                                        
+                                        // Sayfayı yenile
+                                        window.location.reload();
                                       } catch (error) {
+                                        console.error('Rezervasyon hatası:', error);
                                         alert('❌ Hata: ' + error.message);
                                       }
+                                    } else if (length) {
+                                      alert('⚠️ Geçersiz miktar! Lütfen mevcut stoktan az veya eşit bir değer girin.');
                                     }
                                   }}
                                   className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-xs font-bold"
