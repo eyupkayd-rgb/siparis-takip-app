@@ -1972,8 +1972,8 @@ function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="md:col-span-3">
                   <label className="label">Ürün Adı</label>
                   <textarea
                     required
@@ -1990,19 +1990,20 @@ function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
                   />
                 </div>
                 
-                <div>
+                <div className="md:col-span-2">
                   <label className="label">Miktar</label>
                   <div className="flex gap-2">
                     <input
                       required
                       type="number"
-                      placeholder="Adet"
+                      placeholder="Miktar"
                       className="input-field flex-1"
                       value={formData.qAmount}
                       onChange={e => setFormData({...formData, qAmount: e.target.value})}
                     />
                     <select
-                      className="input-field w-20 bg-gray-50 text-sm"
+                      className="input-field w-auto px-2 bg-gray-50 text-sm"
+                      style={{ width: 'fit-content', minWidth: '70px' }}
                       value={formData.qUnit}
                       onChange={e => setFormData({...formData, qUnit: e.target.value})}
                     >
