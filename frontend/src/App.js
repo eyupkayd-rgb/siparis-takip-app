@@ -388,7 +388,11 @@ function CustomerCardModal({ onClose, customers, onRefresh }) {
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingId(null);
+                    setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', email: '' });
+                  }}
                   className="flex-1 btn-secondary"
                 >
                   İptal
@@ -401,12 +405,12 @@ function CustomerCardModal({ onClose, customers, onRefresh }) {
                   {saving ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
-                      Kaydediliyor...
+                      {editingId ? 'Güncelleniyor...' : 'Kaydediliyor...'}
                     </>
                   ) : (
                     <>
                       <CheckCircle size={20} />
-                      Müşteri Kartını Kaydet
+                      {editingId ? 'Güncelle' : 'Kaydet'}
                     </>
                   )}
                 </button>
