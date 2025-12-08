@@ -5604,20 +5604,30 @@ function ProductionDashboard({ orders, isSuperAdmin, currentUser }) {
               
               if (rollDoc.exists()) {
                 const rollData = rollDoc.data();
-                const newLength = Math.max(0, rollData.currentLength - consumedMeterage);
+                const reservedLength = rollToConsume.reservedLength || 0;
+                const actualConsumed = Math.min(consumedMeterage, reservedLength);
+                const remaining = reservedLength - actualConsumed;
                 
-                // Bobin stoğunu güncelle
+                // Rezervasyonu kaldır ve kalan metrajı geri ekle
                 await updateDoc(
                   doc(db, 'artifacts', appId, 'public', 'data', 'stock_rolls', rollToConsume.rollId),
                   {
-                    currentLength: newLength,
+                    currentLength: rollData.currentLength + remaining, // Kullanılmayan kısmı geri ekle
                     reservationId: null, // Rezervasyonu kaldır
+                    reservedLength: null,
+                    reservedOrderNo: null,
+                    reservedAt: null,
                     lastConsumedAt: new Date().toISOString(),
-                    lastConsumedOrder: selectedOrder.orderNo
+                    lastConsumedOrder: selectedOrder.orderNo,
+                    lastConsumedAmount: actualConsumed
                   }
                 );
                 
-                console.log(`✅ Sarfiyat: ${rollToConsume.rollBarcode} - ${consumedMeterage}m kullanıldı`);
+                console.log(`✅ Sarfiyat: ${rollToConsume.rollBarcode}`);
+                console.log(`   Rezerve: ${reservedLength}m`);
+                console.log(`   Kullanılan: ${actualConsumed}m`);
+                console.log(`   Stoka iade: ${remaining}m`);
+                console.log(`   Yeni stok: ${rollData.currentLength + remaining}m`);
               }
             } catch (rollError) {
               console.error('Bobin sarfiyat hatası:', rollError);
