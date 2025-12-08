@@ -21,12 +21,15 @@ code {
 
 /* Print Styles for PDF Export */
 @media print {
+  /* Tüm elemanları gizle */
   body * {
     visibility: hidden;
   }
   
-  .print-content, .print-content * {
-    visibility: visible;
+  /* Sadece print-content ve içeriğini göster */
+  .print-content,
+  .print-content * {
+    visibility: visible !important;
   }
   
   .print-content {
@@ -35,15 +38,33 @@ code {
     top: 0;
     width: 100%;
     padding: 20px;
+    background: white;
   }
   
-  .print:hidden {
+  /* Print:hidden class'ı olanları tamamen gizle */
+  .print\:hidden {
     display: none !important;
+    visibility: hidden !important;
   }
   
+  /* Sayfa ayarları */
   @page {
-    margin: 1cm;
-    size: A4;
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+  
+  /* Kartları düzgün yazdır */
+  .order-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  /* Gradient'ları düz renge çevir */
+  .bg-gradient-to-r,
+  .bg-gradient-to-br {
+    background: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
