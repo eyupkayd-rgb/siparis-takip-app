@@ -542,7 +542,11 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
           {!showForm ? (
             <>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setEditingId(null);
+                  setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', prefix: '', materialTypes: '' });
+                  setShowForm(true);
+                }}
                 className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg mb-6 flex items-center gap-2"
               >
                 <Plus size={20} />
