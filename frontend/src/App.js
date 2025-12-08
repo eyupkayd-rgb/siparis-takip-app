@@ -3690,6 +3690,11 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                         <span className="text-gray-400 text-xs"> / {roll.originalLength}</span>
                       </td>
                       <td className="p-3 text-center">
+                        <span className="font-bold text-blue-600">
+                          {((roll.widthCM / 100) * roll.currentLength).toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="p-3 text-center">
                         {roll.isDilim ? (
                           <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">Dilimlenmiş</span>
                         ) : roll.reservationId ? (
