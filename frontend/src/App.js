@@ -6553,6 +6553,16 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'completed', 'incomplete'
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showPrintView, setShowPrintView] = useState(false);
+
+  const handleExportPDF = (order) => {
+    setSelectedOrder(order);
+    setShowPrintView(true);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => setShowPrintView(false), 500);
+    }, 500);
+  };
 
   // Calculate fire percentage and success
   const calculateFireAnalysis = (order) => {
