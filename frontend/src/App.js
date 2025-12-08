@@ -4924,6 +4924,8 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
   const handlePlan = async (e) => {
     e.preventDefault();
     if (!pData.startDate) return alert("Tarih seçin!");
+    if (productionFlow.length === 0) return alert("⚠️ En az bir istasyon seçmelisiniz!");
+    
     setIsSaving(true);
 
     try {
@@ -4934,11 +4936,13 @@ function PlanningDashboard({ orders, isSuperAdmin }) {
           startDate: pData.startDate,
           startHour: pData.startHour,
           duration: pData.duration,
-          productionDate: pData.startDate
+          productionDate: pData.startDate,
+          productionFlow: productionFlow // İstasyon akışını kaydet
         }
       });
       setSelectedId(null);
       setPData({ startDate: '', startHour: '08:00', duration: 2 });
+      setProductionFlow([]);
       setAiAdvice("");
     } catch (error) {
       console.error("Planning save error:", error);
