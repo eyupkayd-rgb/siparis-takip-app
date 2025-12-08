@@ -713,7 +713,11 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingId(null);
+                    setFormData({ name: '', taxId: '', city: '', contactPerson: '', phone: '', prefix: '', materialTypes: '' });
+                  }}
                   className="flex-1 btn-secondary"
                 >
                   İptal
@@ -726,12 +730,12 @@ function SupplierCardModal({ onClose, suppliers, onRefresh }) {
                   {saving ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
-                      Kaydediliyor...
+                      {editingId ? 'Güncelleniyor...' : 'Kaydediliyor...'}
                     </>
                   ) : (
                     <>
                       <CheckCircle size={20} />
-                      Tedarikçi Kartını Kaydet
+                      {editingId ? 'Güncelle' : 'Kaydet'}
                     </>
                   )}
                 </button>
