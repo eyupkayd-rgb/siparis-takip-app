@@ -3974,12 +3974,32 @@ function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls })
                                 </button>
                               </div>
                             ))}
+                          
+                          {stockRolls.filter(roll => {
+                            if (roll.isDilim || roll.currentLength <= 0 || roll.reservationId) return false;
+                            const orderMaterial = (selectedOrder.rawMaterial || '').toLowerCase().trim();
+                            const rollMaterial = (roll.materialName || '').toLowerCase().trim();
+                            return !orderMaterial || rollMaterial.includes(orderMaterial) || orderMaterial.includes(rollMaterial);
+                          }).length === 0 && (
+                            <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200 text-center">
+                              <p className="text-sm text-yellow-700">
+                                ⚠️ Uygun bobin bulunamadı. 
+                                <br />
+                                <span className="text-xs">
+                                  Hammadde: "{selectedOrder.rawMaterial}"
+                                  <br />
+                                  Lütfen yukarıdaki "Bobin Girişi" butonundan yeni bobin ekleyin.
+                                </span>
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (
                       <div className="text-center py-8 text-gray-400">
                         <Package size={48} className="mx-auto mb-2 opacity-30" />
-                        <p className="text-sm">Uygun bobin bulunamadı veya hammadde bilgisi eksik</p>
+                        <p className="text-sm">Stok yok veya hammadde bilgisi eksik</p>
+                        <p className="text-xs mt-2">Önce "Bobin Girişi" yapın</p>
                       </div>
                     )}
                   </div>
