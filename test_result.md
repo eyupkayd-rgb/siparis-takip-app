@@ -312,8 +312,12 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "React 19 Firebase Compatibility"
+    - "Admin Module Dashboard"
+  stuck_tasks:
+    - "Admin Module Dashboard"
+    - "React 19 Firebase Compatibility"
   test_all: false
   test_priority: "high_first"
 
