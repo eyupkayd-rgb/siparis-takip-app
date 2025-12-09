@@ -113,6 +113,7 @@ export default function SupplierCardModal({ onClose, suppliers, onRefresh }) {
             <h2 className="text-2xl font-bold text-white">Tedarikçi Kartları</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition"
           >
