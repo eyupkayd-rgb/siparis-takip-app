@@ -35,6 +35,9 @@ import StatusBadge from './components/shared/StatusBadge';
 import ChangePasswordModal from './components/shared/ChangePasswordModal';
 import AttachmentManager from './components/shared/AttachmentManager';
 
+// Import dashboard components
+import ArchiveDashboard from './components/Archive/ArchiveDashboard';
+
 // Legacy compatibility
 const ADMIN_EMAILS = SUPER_ADMIN_EMAILS;
 
