@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Plus, CheckCircle, X, Loader2, Search, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Plus, CheckCircle, X, Loader2, Search, Trash2, ChevronLeft, ChevronRight, Component, Grid, Layers, List, Sparkles } from 'lucide-react';
 import { updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import StatusBadge from '../shared/StatusBadge';
