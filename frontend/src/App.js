@@ -35,6 +35,13 @@ import StatusBadge from './components/shared/StatusBadge';
 import ChangePasswordModal from './components/shared/ChangePasswordModal';
 import AttachmentManager from './components/shared/AttachmentManager';
 
+// Import modal components
+import CustomerCardModal from './components/MasterData/CustomerCardModal';
+import SupplierCardModal from './components/MasterData/SupplierCardModal';
+import AddRawMaterialModal from './components/MasterData/AddRawMaterialModal';
+import DilimlemeModal from './components/Stock/DilimlemeModal';
+import EditStockRollModal from './components/Stock/EditStockRollModal';
+
 // Import dashboard components
 import ArchiveDashboard from './components/Archive/ArchiveDashboard';
 import AuthScreen from './components/Auth/AuthScreen';
