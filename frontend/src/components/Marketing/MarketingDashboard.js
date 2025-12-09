@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Sparkles, MessageSquare, Loader2, Edit3, Trash2, Search, Grid, List, Building2, Package } from 'lucide-react';
+import { Plus, Sparkles, MessageSquare, Loader2, Edit3, Trash2, Search, Grid, List, Building2, Package, CheckCircle, Split } from 'lucide-react';
 import { collection, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { callGemini } from '../../services/gemini';
