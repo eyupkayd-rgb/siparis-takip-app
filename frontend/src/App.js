@@ -41,6 +41,9 @@ import AuthScreen from './components/Auth/AuthScreen';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import MarketingDashboard from './components/Marketing/MarketingDashboard';
 import GraphicsDashboard from './components/Graphics/GraphicsDashboard';
+import WarehouseDashboard from './components/Warehouse/WarehouseDashboard';
+import PlanningDashboard from './components/Planning/PlanningDashboard';
+import ProductionDashboard from './components/Production/ProductionDashboard';
 
 // Legacy compatibility
 const ADMIN_EMAILS = SUPER_ADMIN_EMAILS;
