@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Plus, CheckCircle, X, Loader2, AlertCircle, Building2, CreditCard, Phone, MapPin, User, Database, Barcode, QrCode, Scissors, PackagePlus, PackageCheck, Split, Cylinder, Component, Search, Ruler, AlertTriangle, Archive, BarChart3, Calculator, ClipboardCheck, Edit3, Settings, Trash2, Truck } from 'lucide-react';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { getMaterialShortCode, logStockMovement, generateBarcode } from '../../utils/stockHelpers';
 import StatusBadge from '../shared/StatusBadge';
+import SupplierCardModal from '../MasterData/SupplierCardModal';
+import AddRawMaterialModal from '../MasterData/AddRawMaterialModal';
+import DilimlemeModal from '../Stock/DilimlemeModal';
+import EditStockRollModal from '../Stock/EditStockRollModal';
 
 export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards, stockRolls, stockMovements }) {
   const rawMaterials = [
