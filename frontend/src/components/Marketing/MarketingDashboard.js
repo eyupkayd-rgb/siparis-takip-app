@@ -1,0 +1,1133 @@
+import React, { useState } from 'react';
+import { Plus, Sparkles, MessageSquare, Loader2, Edit3, Trash2, Search, Grid, List } from 'lucide-react';
+import { collection, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { db, appId } from '../../services/firebase';
+import { callGemini } from '../../services/gemini';
+import StatusBadge from '../shared/StatusBadge';
+import AttachmentManager from '../shared/AttachmentManager';
+
+export default function MarketingDashboard({ orders, isSuperAdmin, customerCards }) {
+  const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  
+  // Otomatik sipariş numarası oluştur
+  const generateNextOrderNo = () => {
+    if (orders.length === 0) return 'SP-0588';
+    
+    const orderNumbers = orders
+      .map(o => o.orderNo)
+      .filter(no => no && no.startsWith('SP-'))
+      .map(no => parseInt(no.split('-')[1]))
+      .filter(num => !isNaN(num));
+    
+    if (orderNumbers.length === 0) return 'SP-0588';
+    
+    const maxNum = Math.max(...orderNumbers);
+    const nextNum = maxNum + 1;
+    return `SP-${nextNum.toString().padStart(4, '0')}`;
+  };
+  
+  const [formData, setFormData] = useState({
+    orderNo: '', customer: '', product: '', category: 'Etiket', type: 'Yeni',
+    rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+    customerDeadline: '', attachments: [],
+    isComplex: false, isSet: false, commonBack: false, variants: [],
+    notes: '' // Not alanı eklendi
+  });
+
+  const handleVariantChange = (index, field, value) => {
+    const newVariants = [...formData.variants];
+    newVariants[index][field] = value;
+    setFormData({ ...formData, variants: newVariants });
+  };
+  
+  // Textarea otomatik boyutlandırma
+  const autoResizeTextarea = (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  };
+
+  const addVariant = () => {
+    setFormData({ 
+      ...formData, 
+      variants: [...formData.variants, { name: '', quantity: '' }] 
+    });
+  };
+
+  const removeVariant = (index) => {
+    const newVariants = formData.variants.filter((_, i) => i !== index);
+    setFormData({ ...formData, variants: newVariants });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    
+    try {
+      const ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+      
+      const finalQuantity = formData.isComplex 
+        ? formData.variants.reduce((sum, v) => sum + parseInt(v.quantity || 0), 0) + ' Adet (Toplam)' 
+        : `${formData.qAmount} ${formData.qUnit}`;
+      
+      const generatedJobs = formData.isComplex ? generateProductionJobs(formData) : [];
+
+      const payload = { 
+        ...formData, 
+        quantity: finalQuantity, 
+        generatedJobs: generatedJobs,
+        revisionAlert: editingId ? "Pazarlama tarafından güncellendi" : null 
+      };
+      
+      if (editingId) {
+        await updateDoc(
+          doc(db, 'artifacts', appId, 'public', 'data', 'orders', editingId), 
+          payload
+        );
+      } else {
+        await addDoc(ordersCollection, { 
+          ...payload, 
+          status: 'graphics_pending', 
+          graphicsData: null, 
+          warehouseData: null, 
+          planningData: null, 
+          productionData: null, 
+          createdAt: new Date().toISOString() 
+        });
+      }
+      
+      setShowForm(false);
+      setEditingId(null);
+      const nextOrderNo = generateNextOrderNo();
+      setFormData({
+        orderNo: nextOrderNo, customer: '', product: '', category: 'Etiket', type: 'Yeni',
+        rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+        customerDeadline: '', attachments: [],
+        isComplex: false, isSet: false, commonBack: false, variants: [],
+        notes: ''
+      });
+    } catch (error) {
+      console.error("Order save error:", error);
+      alert("Hata: " + error.message);
+    }
+    setIsSaving(false);
+  };
+
+  const handleEdit = (order) => {
+    setEditingId(order.id);
+    const [amount, unit] = (order.quantity || "0 Adet").split(" ");
+    setFormData({
+      orderNo: order.orderNo || '', 
+      customer: order.customer || '', 
+      product: order.product || '',
+      category: order.category || 'Etiket', 
+      type: order.type || 'Yeni', 
+      rawMaterial: order.rawMaterial || '',
+      qAmount: amount, 
+      qUnit: unit || 'Adet', 
+      sheetStatus: order.sheetStatus || '', 
+      customerDeadline: order.customerDeadline || '',
+      attachments: order.attachments || [],
+      isComplex: order.isComplex || false,
+      isSet: order.isSet || false,
+      commonBack: order.commonBack || false,
+      variants: order.variants || [],
+      notes: order.notes || ''
+    });
+    setShowForm(true);
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm("DİKKAT: Bu siparişi kalıcı olarak silmek üzeresiniz.")) {
+      try {
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId));
+      } catch (error) {
+        alert("Silme işlemi başarısız oldu.");
+      }
+    }
+  };
+
+  const rawMaterials = [
+    "PP OPAK SARI PERGAMİN", "PP OPAK BEYAZ PERGAMİN", "PP OPAK PET",
+    "KUŞE SARI PERGAMİN", "KUŞE BEYAZ PERGAMİN", "KUŞE PET", "KUŞE MAT",
+    "PP METALİZE GOLD", "PP METALİZE SİLVER",
+    "KUŞE METALİZE GOLD", "KUŞE METALİZE SİLVER",
+    "PP ŞEFFAF", "PP ULTRA CLEAR", "PE OPAK",
+    "LAMİNE TERMAL", "ECO TERMAL",
+    "PET-G 40 MİC.", "PET-G 45 MİC.", "PET-G 50 MİC.",
+    "PVC 40 MİC.", "PVC 45 MİC.", "PVC 50 MİC."
+  ];
+
+  return (
+    <div className="space-y-6 animate-in fade-in">
+      {showCustomerModal && (
+        <CustomerCardModal
+          onClose={() => setShowCustomerModal(false)}
+          customers={customerCards || []}
+          onRefresh={() => {}}
+        />
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Sipariş Yönetimi
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Yeni sipariş oluşturun veya mevcutları düzenleyin
+          </p>
+        </div>
+        
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowCustomerModal(true)}
+            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+          >
+            <Building2 size={18} />
+            Müşteri Kartları
+          </button>
+          
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              setEditingId(null);
+              const nextOrderNo = generateNextOrderNo();
+              setFormData({
+                orderNo: nextOrderNo, customer: '', product: '', category: 'Etiket', type: 'Yeni',
+                rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
+                customerDeadline: '', attachments: [],
+                isComplex: false, isSet: false, commonBack: false, variants: [],
+                notes: ''
+              });
+            }}
+            className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl"
+          >
+            {showForm ? (
+              <>
+                <X size={18} />
+                Listeye Dön
+              </>
+            ) : (
+              <>
+                <Plus size={18} />
+                Yeni Sipariş Gir
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {showForm ? (
+        <div className="bg-white p-8 rounded-2xl shadow-xl border-2 border-gray-100 animate-slide-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+              <Package size={24} className="text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800">
+              {editingId ? 'Siparişi Düzenle' : 'Yeni Sipariş Oluştur'}
+            </h3>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Category Selection */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-5 rounded-xl border-2 border-blue-100">
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-sm font-bold text-blue-900">
+                  📦 Sipariş Kategorisi & Tipi
+                </label>
+                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm">
+                  <span className="text-xs font-bold text-purple-700">
+                    Gelişmiş Sipariş (Varyant/Takım)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, isComplex: !formData.isComplex})}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      formData.isComplex ? 'bg-purple-600' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                      formData.isComplex ? 'translate-x-6' : ''
+                    }`} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-3 rounded-lg border-2 border-transparent hover:border-blue-300 transition-all">
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Etiket"
+                    checked={formData.category === 'Etiket'}
+                    onChange={() => setFormData({...formData, category: 'Etiket', sheetStatus: ''})}
+                    className="w-5 h-5 text-blue-600"
+                  />
+                  <span className="font-bold text-gray-700">📄 Etiket Siparişi</span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-3 rounded-lg border-2 border-transparent hover:border-blue-300 transition-all">
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Ambalaj"
+                    checked={formData.category === 'Ambalaj'}
+                    onChange={() => setFormData({...formData, category: 'Ambalaj'})}
+                    className="w-5 h-5 text-blue-600"
+                  />
+                  <span className="font-bold text-gray-700">📦 Ambalaj Siparişi</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Basic Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Sipariş No {!editingId && <span className="text-xs text-green-600">(Otomatik)</span>}</label>
+                <input
+                  required
+                  placeholder="Örn: SP-0588"
+                  className="input-field bg-gray-50"
+                  value={formData.orderNo}
+                  readOnly={!editingId}
+                  onChange={e => editingId && setFormData({...formData, orderNo: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="label">Firma Adı *</label>
+                {customerCards && customerCards.length > 0 ? (
+                  <select
+                    required
+                    className="input-field"
+                    value={formData.customer}
+                    onChange={e => setFormData({...formData, customer: e.target.value})}
+                  >
+                    <option value="">-- Müşteri Seçin --</option>
+                    {customerCards.map(customer => (
+                      <option key={customer.id} value={customer.name}>
+                        {customer.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div>
+                    <input
+                      required
+                      placeholder="Müşteri firma adı"
+                      className="input-field bg-yellow-50"
+                      value={formData.customer}
+                      onChange={e => setFormData({...formData, customer: e.target.value})}
+                    />
+                    <p className="text-xs text-yellow-600 mt-1">
+                      ⚠️ Henüz müşteri kartı yok. Yukarıdan "Müşteri Kartları" butonuna tıklayarak ekleyin.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Complex Order (Variants) */}
+            {formData.isComplex ? (
+              <div className="bg-purple-50 p-5 rounded-xl border-2 border-purple-200 space-y-4">
+                <div className="flex gap-4 items-center">
+                  <h4 className="font-bold text-purple-800 flex items-center gap-2">
+                    <Split size={18} />
+                    Varyant / Çeşit Yönetimi
+                  </h4>
+                  <label className="flex items-center gap-2 text-xs cursor-pointer bg-white px-3 py-2 rounded-lg border border-purple-200">
+                    <input
+                      type="checkbox"
+                      checked={formData.isSet}
+                      onChange={e => setFormData({...formData, isSet: e.target.checked})}
+                    />
+                    <span className="font-bold">Takım (Ön+Arka)</span>
+                  </label>
+                  {formData.isSet && (
+                    <label className="flex items-center gap-2 text-xs cursor-pointer bg-white px-3 py-2 rounded-lg border border-purple-200">
+                      <input
+                        type="checkbox"
+                        checked={formData.commonBack}
+                        onChange={e => setFormData({...formData, commonBack: e.target.checked})}
+                      />
+                      <span className="font-bold">Ortak Arka Etiket</span>
+                    </label>
+                  )}
+                </div>
+                
+                {formData.variants.map((variant, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-2 items-start bg-white p-3 rounded-lg border border-purple-200">
+                    <span className="text-sm font-bold text-purple-600 pt-2 col-span-1">
+                      {index + 1}.
+                    </span>
+                    <textarea
+                      required
+                      placeholder="Varyant Adı (Örn: Elma, Portakal)"
+                      className="input-field resize-none overflow-hidden col-span-9"
+                      style={{ minHeight: '42px' }}
+                      rows="1"
+                      value={variant.name}
+                      onChange={e => {
+                        handleVariantChange(index, 'name', e.target.value);
+                        autoResizeTextarea(e);
+                      }}
+                      onInput={autoResizeTextarea}
+                    />
+                    <input
+                      required
+                      type="number"
+                      placeholder="Adet"
+                      className="input-field col-span-1"
+                      value={variant.quantity}
+                      onChange={e => handleVariantChange(index, 'quantity', e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors col-span-1"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="text-sm font-bold text-purple-600 hover:text-purple-800 flex items-center gap-2 bg-white px-4 py-2 rounded-lg border-2 border-dashed border-purple-300 hover:border-purple-400 transition-all"
+                >
+                  <Plus size={16} />
+                  Varyant Ekle
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="md:col-span-3">
+                  <label className="label">Ürün Adı</label>
+                  <textarea
+                    required
+                    placeholder="Ürün ismi"
+                    className="input-field resize-none overflow-hidden"
+                    style={{ minHeight: '42px' }}
+                    rows="1"
+                    value={formData.product}
+                    onChange={e => {
+                      setFormData({...formData, product: e.target.value});
+                      autoResizeTextarea(e);
+                    }}
+                    onInput={autoResizeTextarea}
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="label">Miktar</label>
+                  <div className="flex gap-2">
+                    <input
+                      required
+                      type="number"
+                      placeholder="Miktar"
+                      className="input-field flex-1"
+                      value={formData.qAmount}
+                      onChange={e => setFormData({...formData, qAmount: e.target.value})}
+                    />
+                    <select
+                      className="input-field w-auto px-2 bg-gray-50 text-sm"
+                      style={{ width: 'fit-content', minWidth: '70px' }}
+                      value={formData.qUnit}
+                      onChange={e => setFormData({...formData, qUnit: e.target.value})}
+                    >
+                      <option>Adet</option>
+                      <option>Kg</option>
+                      <option>Metre</option>
+                      <option>Top</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Rest of the fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Sipariş Türü</label>
+                <select
+                  className="input-field"
+                  value={formData.type}
+                  onChange={e => setFormData({...formData, type: e.target.value})}
+                >
+                  <option>Yeni</option>
+                  <option>Tekrar</option>
+                  <option>Numune</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="label">Hammadde</label>
+                <select
+                  className="input-field"
+                  value={formData.rawMaterial}
+                  onChange={e => setFormData({...formData, rawMaterial: e.target.value})}
+                >
+                  <option value="" disabled>Hammadde Seçin</option>
+                  {rawMaterials.map(mat => (
+                    <option key={mat} value={mat}>{mat}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {formData.category === 'Ambalaj' && (
+                <div className="animate-in fade-in">
+                  <label className="label">Tabaka Durumu</label>
+                  <select
+                    className="input-field border-blue-300 bg-blue-50"
+                    value={formData.sheetStatus}
+                    onChange={e => setFormData({...formData, sheetStatus: e.target.value})}
+                  >
+                    <option value="">Seçiniz</option>
+                    <option>Var</option>
+                    <option>Yok</option>
+                  </select>
+                </div>
+              )}
+              
+              <div>
+                <label className="label">Müşteri Termin Tarihi</label>
+                <input
+                  required
+                  type="date"
+                  className="input-field"
+                  value={formData.customerDeadline}
+                  onChange={e => setFormData({...formData, customerDeadline: e.target.value})}
+                />
+              </div>
+            </div>
+
+            {/* Notes Field */}
+            <div>
+              <label className="label">Notlar (Opsiyonel)</label>
+              <textarea
+                className="input-field"
+                rows="3"
+                placeholder="Önemli detaylar, özel talepler veya notlar..."
+                value={formData.notes}
+                onChange={e => setFormData({...formData, notes: e.target.value})}
+              />
+            </div>
+
+            {/* Attachments */}
+            <AttachmentManager
+              order={editingId ? { id: editingId, attachments: formData.attachments } : null}
+              onAttachmentsChange={(newAtt) => setFormData({...formData, attachments: newAtt})}
+            />
+
+            {/* Submit Button */}
+            <button
+              disabled={isSaving}
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-3"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="animate-spin" size={24} />
+                  Kaydediliyor...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={24} />
+                  {editingId ? 'Değişiklikleri Kaydet' : 'Kaydet ve Grafiğe Gönder'}
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      ) : (
+        <OrderListTable
+          orders={orders}
+          onEdit={handleEdit}
+          onDelete={handleDeleteOrder}
+          isSuperAdmin={isSuperAdmin}
+        />
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// 📋 ORDER LIST TABLE COMPONENT
+// ============================================================================
+
+function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = 
+      order.orderNo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.product?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 overflow-hidden">
+      {/* Search & Filter Bar */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b-2 border-gray-100">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Sipariş no, firma veya ürün ara..."
+              className="input-field pl-12 w-full"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <select
+            className="input-field md:w-64"
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+          >
+            <option value="all">🔍 Tüm Durumlar</option>
+            <option value="graphics_pending">📐 Grafik Bekliyor</option>
+            <option value="warehouse_raw_pending">📦 Hammadde Onayı</option>
+            <option value="planning_pending">📅 Planlama Bekliyor</option>
+            <option value="planned">✅ Planlandı</option>
+            <option value="production_started">⚙️ Üretimde</option>
+            <option value="shipping_ready">🚚 Sevk Bekliyor</option>
+            <option value="completed">✔️ Tamamlandı</option>
+          </select>
+        </div>
+        
+        <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+          <span className="font-bold">{filteredOrders.length}</span>
+          <span>sipariş gösteriliyor</span>
+        </div>
+      </div>
+      
+      {/* Table */}
+      <div className="overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-b-2 border-gray-200">
+            <tr>
+              <th className="p-4 font-bold w-32">Sipariş No</th>
+              <th className="p-4 font-bold">Müşteri</th>
+              <th className="p-4 font-bold">Ürün</th>
+              <th className="p-4 font-bold w-40">Miktar</th>
+              <th className="p-4 font-bold w-28">Tip</th>
+              <th className="p-4 font-bold w-32">Termin</th>
+              <th className="p-4 font-bold w-32">Planlama</th>
+              <th className="p-4 font-bold w-36">Durum</th>
+              <th className="p-4 font-bold text-right w-28">İşlem</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filteredOrders.map(order => (
+              <tr
+                key={order.id}
+                className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 group"
+              >
+                <td className="p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="font-bold text-gray-800">{order.orderNo}</span>
+                  </div>
+                </td>
+                <td className="p-4">
+                  <div className="font-medium text-gray-700">{order.customer}</div>
+                </td>
+                <td className="p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600">{order.product}</span>
+                    {order.isComplex && (
+                      <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-bold">
+                        Varyant
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="p-4 font-medium">{order.quantity}</td>
+                <td className="p-4">
+                  <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                    order.category === 'Ambalaj' 
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {order.category || 'Etiket'}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <div className="text-xs text-gray-500">{order.customerDeadline}</div>
+                </td>
+                <td className="p-4">
+                  {order.planningData?.startDate ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="text-xs font-semibold text-green-700">
+                        📅 {order.planningData.startDate}
+                      </div>
+                      {order.planningData.startHour && (
+                        <div className="text-[10px] text-gray-500">
+                          🕐 {order.planningData.startHour}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">Planlanmadı</span>
+                  )}
+                </td>
+                <td className="p-4">
+                  <StatusBadge status={order.status} />
+                </td>
+                <td className="p-4 text-right">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(order)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Düzenle"
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                    )}
+                    {isSuperAdmin && onDelete && (
+                      <button
+                        onClick={() => onDelete(order.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Sil"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filteredOrders.length === 0 && (
+              <tr>
+                <td colSpan="8" className="p-12 text-center">
+                  <div className="flex flex-col items-center gap-4 text-gray-400">
+                    <Package size={64} className="opacity-20" />
+                    <p className="text-lg font-medium">Sipariş bulunamadı</p>
+                    <p className="text-sm">Yeni sipariş eklemek için yukarıdaki butonu kullanın</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// 🏠 MAIN APP COMPONENT
+// ============================================================================
+// Main Application Component
+// ============================================================================
+
+export default function OrderApp() {
+  const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [activeDepartment, setActiveDepartment] = useState(null);
+  
+  // Yeni Stok Yönetimi State'leri
+  const [customerCards, setCustomerCards] = useState([]);
+  const [supplierCards, setSupplierCards] = useState([]);
+  const [stockRolls, setStockRolls] = useState([]);
+  const [rawMaterialMaster, setRawMaterialMaster] = useState([]);
+  const [stockMovements, setStockMovements] = useState([]);
+
+  const isSuperAdmin = user && SUPER_ADMIN_EMAILS.includes(user.email);
+
+  // Auth initialization with proper user management
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        
+        // Fetch or create user profile
+        try {
+          const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            const profile = userDoc.data();
+            
+            // Eski kullanıcılar için: approved field yoksa true kabul et
+            if (profile.approved === undefined) {
+              profile.approved = true;
+              // Firestore'a da ekle
+              await updateDoc(userDocRef, { approved: true });
+            }
+            
+            // Onay kontrolü - Super admin değilse ve onaylanmamışsa çıkış yap
+            if (profile.approved === false && !SUPER_ADMIN_EMAILS.includes(currentUser.email)) {
+              await signOut(auth);
+              alert('Hesabınız henüz onaylanmamış. Lütfen admin onayını bekleyin.');
+              return;
+            }
+            
+            setUserProfile(profile);
+          } else {
+            // Create new user profile
+            const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(currentUser.email);
+            const newProfile = {
+              email: currentUser.email,
+              role: isSuperAdmin ? 'super_admin' : 'operator',
+              station: null,
+              approved: isSuperAdmin, // Super admin otomatik onaylı
+              createdAt: new Date().toISOString(),
+              displayName: currentUser.email?.split('@')[0] || 'User'
+            };
+            await setDoc(userDocRef, newProfile);
+            
+            // Onaylanmamışsa çıkış yap
+            if (!newProfile.approved) {
+              await signOut(auth);
+              alert('Hesabınız henüz onaylanmamış. Lütfen admin onayını bekleyin.');
+              return;
+            }
+            
+            setUserProfile(newProfile);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          // Fallback profile
+          const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(currentUser.email);
+          setUserProfile({
+            email: currentUser.email,
+            role: isSuperAdmin ? 'super_admin' : 'operator',
+            station: null,
+            approved: isSuperAdmin
+          });
+        }
+        
+        setLoading(false);
+      } else {
+        setUser(null);
+        setUserProfile(null);
+        setLoading(false);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch orders
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+    const unsubscribe = onSnapshot(
+      ordersCollection,
+      (snapshot) => {
+        const fetchedOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedOrders.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setOrders(fetchedOrders);
+      },
+      (error) => {
+        console.error("Orders fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  // Fetch Customer Cards
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const customersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'customer_cards');
+    const unsubscribe = onSnapshot(
+      customersCollection,
+      (snapshot) => {
+        const fetchedCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedCustomers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        setCustomerCards(fetchedCustomers);
+      },
+      (error) => {
+        console.error("Customer cards fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  // Fetch Supplier Cards
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const suppliersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'supplier_cards');
+    const unsubscribe = onSnapshot(
+      suppliersCollection,
+      (snapshot) => {
+        const fetchedSuppliers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedSuppliers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        setSupplierCards(fetchedSuppliers);
+      },
+      (error) => {
+        console.error("Supplier cards fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  // Fetch Stock Rolls
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const rollsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_rolls');
+    const unsubscribe = onSnapshot(
+      rollsCollection,
+      (snapshot) => {
+        const fetchedRolls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedRolls.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setStockRolls(fetchedRolls);
+      },
+      (error) => {
+        console.error("Stock rolls fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  // Fetch Stock Movements
+  useEffect(() => {
+    if (!user || !db) return;
+    
+    const movementsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stock_movements');
+    const unsubscribe = onSnapshot(
+      movementsCollection,
+      (snapshot) => {
+        const fetchedMovements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        fetchedMovements.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setStockMovements(fetchedMovements);
+      },
+      (error) => {
+        console.error("Stock movements fetch error:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUser(null);
+    setUserProfile(null);
+    setActiveDepartment(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-blue-600 mx-auto mb-4" size={64} />
+          <p className="text-gray-600 text-lg font-medium">Sistem yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  // Department Selection Menu
+  if (!activeDepartment) {
+    const departments = [
+      { id: 'marketing', name: 'Pazarlama', desc: 'Sipariş Girişi', icon: User, color: 'from-blue-500 to-blue-600' },
+      { id: 'graphics', name: 'Grafik', desc: 'Teknik Detaylar', icon: Palette, color: 'from-orange-500 to-orange-600' },
+      { id: 'warehouse', name: 'Depo', desc: 'Hammadde & Sevkiyat', icon: Archive, color: 'from-indigo-500 to-indigo-600' },
+      { id: 'planning', name: 'Planlama', desc: 'Üretim Takvimi', icon: Calendar, color: 'from-green-500 to-green-600' },
+      { id: 'production', name: 'Üretim', desc: 'İstasyon Takibi', icon: Printer, color: 'from-teal-500 to-teal-600' },
+      { id: 'archive', name: 'Arşiv', desc: 'Geçmiş ve Raporlar', icon: FileText, color: 'from-purple-500 to-purple-600' }
+    ];
+    
+    // Super Admin için ekstra modül
+    if (isSuperAdmin) {
+      departments.push(
+        { id: 'admin', name: 'Yönetim', desc: 'Kullanıcı Yönetimi', icon: Users, color: 'from-red-500 to-red-600' }
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl">
+          {/* Header */}
+          <div className="text-center mb-12 animate-in fade-in">
+            <div className="bg-white/10 backdrop-blur-lg w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <Package size={40} className="text-white" />
+            </div>
+            <h1 className="text-5xl font-bold text-white mb-3">
+              Bulut Takip Sistemi
+            </h1>
+            <p className="text-blue-100 text-lg">
+              Lütfen departmanınızı seçiniz
+            </p>
+          </div>
+
+          {/* Department Cards */}
+          <div className="grid gap-4 animate-in fade-in duration-500">
+            {departments.map((dept, index) => {
+              const Icon = dept.icon;
+              return (
+                <button
+                  key={dept.id}
+                  onClick={() => setActiveDepartment(dept.id)}
+                  className="group bg-white/10 backdrop-blur-lg hover:bg-white/20 p-6 rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl text-left"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`bg-gradient-to-br ${dept.color} p-4 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon size={28} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-1">
+                        {dept.name}
+                      </h3>
+                      <p className="text-blue-100 text-sm">
+                        {dept.desc}
+                      </p>
+                    </div>
+                    <ChevronRight className="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" size={24} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleLogout}
+              className="text-white/80 hover:text-white text-sm font-medium flex items-center gap-2 mx-auto transition-colors"
+            >
+              <LogOut size={16} />
+              Çıkış Yap
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Dashboard
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
+      {/* Header */}
+      <header className="bg-white shadow-md border-b-2 border-gray-200 px-6 py-4 sticky top-0 z-50">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setActiveDepartment(null)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Ana Menüye Dön"
+            >
+              <ChevronLeft size={24} className="text-gray-600" />
+            </button>
+            
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white p-2 rounded-xl shadow-lg">
+                <Package size={24} />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">
+                  Üretim Takip v7.0 (Modern)
+                </h1>
+                <p className="text-xs text-gray-500">
+                  {activeDepartment === 'marketing' && 'Pazarlama Departmanı'}
+                  {activeDepartment === 'graphics' && 'Grafik Departmanı'}
+                  {activeDepartment === 'warehouse' && 'Depo Departmanı'}
+                  {activeDepartment === 'planning' && 'Planlama Departmanı'}
+                  {activeDepartment === 'archive' && 'Arşiv Departmanı'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full">
+              <User size={16} className="text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">
+                {user.isAnonymous ? 'Test User' : user.email}
+              </span>
+            </div>
+            
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Şifre Değiştir"
+            >
+              <Key size={20} />
+            </button>
+            
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+            >
+              <LogOut size={18} />
+              <span className="hidden sm:inline">Çıkış</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-[1800px] mx-auto p-6">
+        {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
+        
+        {activeDepartment === 'marketing' && (
+          <MarketingDashboard 
+            orders={orders} 
+            isSuperAdmin={isSuperAdmin}
+            customerCards={customerCards}
+          />
+        )}
+        
+        {activeDepartment === 'graphics' && (
+          <GraphicsDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
+        )}
+        
+        {activeDepartment === 'warehouse' && (
+          <WarehouseDashboard 
+            orders={orders} 
+            isSuperAdmin={isSuperAdmin}
+            supplierCards={supplierCards}
+            stockRolls={stockRolls}
+            stockMovements={stockMovements}
+          />
+        )}
+        
+        {activeDepartment === 'planning' && (
+          <PlanningDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
+        )}
+        
+        {activeDepartment === 'production' && (
+          <ProductionDashboard orders={orders} isSuperAdmin={isSuperAdmin} currentUser={user} />
+        )}
+        
+        {activeDepartment === 'archive' && (
+          <ArchiveDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
+        )}
+        
+        {activeDepartment === 'admin' && isSuperAdmin && (
+          <AdminDashboard />
+        )}
+      </main>
+    </div>
+  );
+}
