@@ -265,18 +265,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Login and Dashboard Access"
-    - "Marketing Module - Yeni Sipariş Button"
-    - "Marketing Module - Müşteri Kartı Modal"
-    - "Warehouse Module - Tedarikçi Kartları Button"
     - "Warehouse Module - Hammadde Ekle Button"
     - "Warehouse Module - Stok Dilimleme Button"
-    - "Planning Module - Order Cards and Buttons"
-    - "Production Module - Station Cards"
-    - "Archive Module - New Design"
-  stuck_tasks: []
-  test_all: true
-  test_priority: "high_first"
+  stuck_tasks:
+    - "Warehouse Module - Hammadde Ekle Button"
+    - "Warehouse Module - Stok Dilimleme Button"
+  test_all: false
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "testing"
