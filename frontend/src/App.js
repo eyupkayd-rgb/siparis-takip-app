@@ -1349,8 +1349,6 @@ function EditStockRollModal({ onClose, roll, suppliers, onRefresh }) {
 // 📦 MARKETING & GRAPHICS DASHBOARDS - Now imported from separate components
 // ============================================================================
 
-}
-
 // ============================================================================
 // 🏭 WAREHOUSE DASHBOARD (FULL FEATURED WITH WASTE CALCULATION)
 // ============================================================================
