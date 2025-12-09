@@ -1358,9 +1358,6 @@ function EditStockRollModal({ onClose, roll, suppliers, onRefresh }) {
 // 🏭 WAREHOUSE, PLANNING & PRODUCTION DASHBOARDS - Now imported from separate components
 // ============================================================================
 
-}
-
-
 // ============================================================================
 // 📦 ARCHIVE DASHBOARD - Now imported from components/Archive
 // ============================================================================
