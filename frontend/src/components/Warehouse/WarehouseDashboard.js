@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Package, Plus, CheckCircle, X, Loader2, AlertCircle, Building2, CreditCard, Phone, MapPin, User, Database, Barcode, QrCode, Scissors, PackagePlus, PackageCheck, Split, Cylinder, Component, Search, Ruler } from 'lucide-react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
