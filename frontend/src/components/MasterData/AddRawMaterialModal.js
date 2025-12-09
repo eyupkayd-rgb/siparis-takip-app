@@ -77,8 +77,14 @@ export default function AddRawMaterialModal({ onClose, suppliers, rawMaterialsLi
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="bg-gradient-to-r from-orange-600 to-red-600 p-6 flex justify-between items-center rounded-t-2xl">
           <div className="flex items-center gap-3">
             <PackagePlus className="text-white" size={28} />
