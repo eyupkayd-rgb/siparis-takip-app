@@ -103,6 +103,28 @@ export default function OrderApp() {
   const [stockRolls, setStockRolls] = useState([]);
   const [stockMovements, setStockMovements] = useState([]);
 
+  // ============================================================================
+  // 🔄 AUTOMATIC REDIRECT TO PRODUCTION URL
+  // ============================================================================
+  useEffect(() => {
+    const productionUrl = process.env.REACT_APP_PRODUCTION_URL;
+    const currentUrl = window.location.origin;
+    
+    // Only redirect if:
+    // 1. Production URL is configured
+    // 2. Current URL is different from production URL
+    // 3. Not running on localhost (for development)
+    if (
+      productionUrl && 
+      currentUrl !== productionUrl && 
+      !currentUrl.includes('localhost') &&
+      !currentUrl.includes('127.0.0.1')
+    ) {
+      console.log(`🔄 Redirecting from ${currentUrl} to ${productionUrl}`);
+      window.location.href = productionUrl + window.location.pathname + window.location.search;
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
