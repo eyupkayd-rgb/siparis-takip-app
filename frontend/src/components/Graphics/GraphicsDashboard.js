@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Palette, Loader2, CheckCircle, X, Sparkles, MessageSquare, Download } from 'lucide-react';
 import { updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
