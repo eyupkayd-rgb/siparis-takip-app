@@ -10,61 +10,33 @@ import {
   Barcode, QrCode, Scissors, PackagePlus, PackageCheck, Building2,
   CreditCard, Phone, MapPin
 } from 'lucide-react';
-import { initializeApp } from "firebase/app";
 import { 
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, updatePassword, 
   reauthenticateWithCredential, EmailAuthProvider, signInWithCustomToken, 
   signInAnonymously 
 } from "firebase/auth";
 import { 
-  getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, 
+  collection, doc, setDoc, getDoc, getDocs, addDoc, 
   updateDoc, onSnapshot, deleteDoc 
 } from "firebase/firestore";
 import './App.css';
 
-// ============================================================================
-// 🔐 CONFIGURATION & ADMIN SETTINGS
-// ============================================================================
+// Import services
+import { auth, db, appId, SUPER_ADMIN_EMAILS } from './services/firebase';
+import { callGemini } from './services/gemini';
 
-const ADMIN_EMAILS = [
-  "eyupkayd@gmail.com", 
-  "ukaydi.27@gmail.com", 
-  "rec.row27@gmail.com", 
-  "esenyakuppp@gmail.com"
-];
+// Import utils
+import { getMaterialShortCode, logStockMovement, generateBarcode } from './utils/stockHelpers';
+import { generateProductionJobs, calculatePlateMeterage } from './utils/productionHelpers';
 
-const apiKey = process.env.REACT_APP_GEMINI_API_KEY || "";
+// Import shared components
+import StatusBadge from './components/shared/StatusBadge';
+import ChangePasswordModal from './components/shared/ChangePasswordModal';
+import AttachmentManager from './components/shared/AttachmentManager';
 
-const myLocalFirebaseConfig = {
-  apiKey: "AIzaSyAThI1hzjCjr_g9KbI1VPaJgCUz995CmTM",
-  authDomain: "bizim-uretim-takip.firebaseapp.com",
-  projectId: "bizim-uretim-takip",
-  storageBucket: "bizim-uretim-takip.firebasestorage.app",
-  messagingSenderId: "71742965986",
-  appId: "1:71742965986:web:8b0dfdce38d43243adf6bb",
-  measurementId: "G-XRD6ZR3BDP"
-};
-
-let firebaseConfig = myLocalFirebaseConfig;
-let appId = "siparis-takip-app";
-
-try {
-  if (typeof window !== 'undefined') {
-    if (typeof window.__firebase_config !== 'undefined') {
-      firebaseConfig = JSON.parse(window.__firebase_config);
-    }
-    if (typeof window.__app_id !== 'undefined') {
-      appId = window.__app_id;
-    }
-  }
-} catch (error) {
-  console.warn("Firebase config parse warning:", error);
-}
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Legacy compatibility
+const ADMIN_EMAILS = SUPER_ADMIN_EMAILS;
 
 // ============================================================================
 // 🤖 AI API FUNCTION
