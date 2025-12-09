@@ -40,8 +40,14 @@ export default function EditStockRollModal({ onClose, roll, suppliers, onRefresh
   if (!roll) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
