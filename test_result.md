@@ -152,11 +152,11 @@ frontend:
 
   - task: "Warehouse Module - Tedarikçi Kartları Button"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
@@ -164,12 +164,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "ISSUE: Modal overlay blocking interactions. When clicking 'Tedarikçiler' button, modal overlay appears but prevents further interactions. Error: 'ElementHandle.click: Timeout 30000ms exceeded' due to overlay intercepting pointer events. Modal functionality implemented but has UI interaction issue."
+      - working: true
+        agent: "testing"
+        comment: "SUCCESS: Modal overlay fix verified. Tedarikçi Kartları modal opens successfully, displays supplier data, and can be closed properly with overlay click. No more blocking interactions detected."
 
   - task: "Warehouse Module - Hammadde Ekle Button"
     implemented: true
     working: false
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -179,12 +182,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "ISSUE: Same modal overlay issue as Tedarikçiler button. 'Bobin Girişi' button exists but modal interactions blocked by overlay preventing proper testing."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE REMAINS: Bobin Girişi modal opens successfully and form elements are accessible, but close button (X) is not found or not working properly. Modal cannot be closed, causing overlay to remain and block subsequent interactions. This prevents access to Stok Yönetimi and other functions."
 
   - task: "Warehouse Module - Stok Dilimleme Button"
     implemented: true
     working: false
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -194,6 +200,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "ISSUE: Modal overlay issue prevents testing of 'Stok Yönetimi' button functionality. Button exists but cannot be properly tested due to UI interaction blocking."
+      - working: false
+        agent: "testing"
+        comment: "BLOCKED BY MODAL OVERLAY: Stok Yönetimi button cannot be clicked due to persistent modal overlay from Bobin Girişi modal that cannot be closed. The modal overlay from previous modal interactions is blocking access to this functionality."
 
   - task: "Planning Module - Order Cards and Buttons"
     implemented: true
