@@ -122,27 +122,33 @@ frontend:
 
   - task: "Marketing Module - Yeni Sipariş Button"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/Marketing/MarketingDashboard.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing 'Yeni Sipariş' button functionality in Marketing module"
+      - working: true
+        agent: "testing"
+        comment: "SUCCESS: 'Yeni Sipariş' button works perfectly. Clicking opens new order form with title 'Yeni Sipariş Oluştur', form can be closed with 'Listeye Dön' button. Marketing dashboard loads with 'Sipariş Yönetimi' title."
 
   - task: "Marketing Module - Müşteri Kartı Modal"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/Marketing/MarketingDashboard.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing 'Müşteri Kartları' button and modal functionality in Marketing module"
+      - working: true
+        agent: "testing"
+        comment: "SUCCESS: 'Müşteri Kartları' button works correctly. Button opens customer cards modal, modal can be closed with '×' button. Shows existing customer data (OSLIN AMBALAJ VE ETİKET, Evea Etiket) with proper formatting."
 
   - task: "Warehouse Module - Tedarikçi Kartları Button"
     implemented: true
