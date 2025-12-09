@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Arşiv modülünün yeni tasarımını test et. Kullanıcının yüklediği görsellere göre büyük bir tasarım değişikliği yapıldı."
+user_problem_statement: "Comprehensive Test - Tüm Modüller: Kullanıcının bildirdiği tüm departman/modülleri test et ve hataları kontrol et. Login: eyupkayd@gmail.com / Agr110727-. Test: 1) Login ve Dashboard, 2) Pazarlama - Yeni Sipariş, Müşteri Kartı modal, 3) Depo - Tedarikçi Kartları, Hammadde Ekle, Stok Dilimleme butonları, 4) Planlama - Sipariş kartları ve butonlar, 5) Üretim - İstasyon kartları, 6) Arşiv - Yeni tasarım. Beklenen: Tüm modüller açılıyor, tüm butonlar çalışıyor, modal'lar açılıyor, SIFIR console hatası."
 
 frontend:
   - task: "Archive Module Access"
