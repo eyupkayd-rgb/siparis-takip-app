@@ -241,8 +241,4 @@ test_plan:
 
 agent_communication:
   - agent: "testing"
-    message: "Starting comprehensive testing of Archive module redesign. Will test authentication, navigation, new UI elements, PDF export, and search/filter functionality."
-  - agent: "testing"
-    message: "TESTING BLOCKED: Firebase authentication prevents access to Archive module. Attempted multiple authentication methods without success. However, completed thorough code analysis of ArchiveDashboard component. All requested design elements are properly implemented in the code. Manual testing with valid credentials required to verify runtime functionality."
-  - agent: "testing"
-    message: "TESTING COMPLETE: Successfully tested Archive module with provided credentials (eyupkayd@gmail.com). All functionality verified working: ✅ Login successful ✅ Dashboard accessible ✅ Archive module loads ✅ New design elements present ✅ Search/filter working ✅ No console errors. Archive module redesign fully functional and ready for production use."
+    message: "Starting comprehensive testing of ALL modules as requested. Will test: 1) Login and Dashboard access, 2) Marketing module (Yeni Sipariş, Müşteri Kartı modal), 3) Warehouse module (Tedarikçiler, Hammadde Ekle, Stok Dilimleme), 4) Planning module (order cards and buttons), 5) Production module (station cards), 6) Archive module (new design). Using provided credentials: eyupkayd@gmail.com / Agr110727-. Goal: Zero console errors and all functionality working."
