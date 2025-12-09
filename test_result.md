@@ -270,14 +270,10 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus:
-    - "Warehouse Module - Hammadde Ekle Button"
-    - "Warehouse Module - Stok Dilimleme Button"
-  stuck_tasks:
-    - "Warehouse Module - Hammadde Ekle Button"
-    - "Warehouse Module - Stok Dilimleme Button"
+  current_focus: []
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
