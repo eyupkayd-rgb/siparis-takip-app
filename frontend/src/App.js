@@ -39,6 +39,8 @@ import AttachmentManager from './components/shared/AttachmentManager';
 import ArchiveDashboard from './components/Archive/ArchiveDashboard';
 import AuthScreen from './components/Auth/AuthScreen';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import MarketingDashboard from './components/Marketing/MarketingDashboard';
+import GraphicsDashboard from './components/Graphics/GraphicsDashboard';
 
 // Legacy compatibility
 const ADMIN_EMAILS = SUPER_ADMIN_EMAILS;
