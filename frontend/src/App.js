@@ -6598,6 +6598,7 @@ function ArchiveDashboard({ orders, isSuperAdmin }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showPrintView, setShowPrintView] = useState(false);
+  const [expandedOrder, setExpandedOrder] = useState(null); // For expanding details
 
   const handleExportPDF = (order) => {
     // Sadece seçili siparişi göster
