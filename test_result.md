@@ -152,39 +152,48 @@ frontend:
 
   - task: "Warehouse Module - Tedarikçi Kartları Button"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing 'Tedarikçiler' button functionality in Warehouse module"
+      - working: false
+        agent: "testing"
+        comment: "ISSUE: Modal overlay blocking interactions. When clicking 'Tedarikçiler' button, modal overlay appears but prevents further interactions. Error: 'ElementHandle.click: Timeout 30000ms exceeded' due to overlay intercepting pointer events. Modal functionality implemented but has UI interaction issue."
 
   - task: "Warehouse Module - Hammadde Ekle Button"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing 'Bobin Girişi' (Hammadde Ekle) button functionality in Warehouse module"
+      - working: false
+        agent: "testing"
+        comment: "ISSUE: Same modal overlay issue as Tedarikçiler button. 'Bobin Girişi' button exists but modal interactions blocked by overlay preventing proper testing."
 
   - task: "Warehouse Module - Stok Dilimleme Button"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing 'Stok Yönetimi' and dilim functionality buttons in Warehouse module"
+      - working: false
+        agent: "testing"
+        comment: "ISSUE: Modal overlay issue prevents testing of 'Stok Yönetimi' button functionality. Button exists but cannot be properly tested due to UI interaction blocking."
 
   - task: "Planning Module - Order Cards and Buttons"
     implemented: true
