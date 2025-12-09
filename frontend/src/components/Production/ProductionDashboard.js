@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Printer, Play, StopCircle, CheckCircle, X, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
+import { Printer, Play, StopCircle, CheckCircle, X, Loader2, AlertCircle, BarChart3, ClipboardCheck, PackageCheck, Search } from 'lucide-react';
 import { updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { logStockMovement } from '../../utils/stockHelpers';
