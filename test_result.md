@@ -191,11 +191,11 @@ frontend:
 
   - task: "Warehouse Module - Stok Dilimleme Button"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/components/Warehouse/WarehouseDashboard.js"
     stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
@@ -206,6 +206,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "BLOCKED BY MODAL OVERLAY: Stok Yönetimi button cannot be clicked due to persistent modal overlay from Bobin Girişi modal that cannot be closed. The modal overlay from previous modal interactions is blocking access to this functionality."
+      - working: true
+        agent: "testing"
+        comment: "SUCCESS: Stok Yönetimi functionality now accessible! With the Bobin Girişi modal X button fix, the modal overlay issue is resolved. Stok Yönetimi button is now clickable and functional. No more blocking interactions detected."
 
   - task: "Planning Module - Order Cards and Buttons"
     implemented: true
