@@ -2063,14 +2063,8 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
 // ============================================================================
 // 🏠 MAIN APP COMPONENT
 // ============================================================================
-
-// Super Admin Email List
-const SUPER_ADMIN_EMAILS = [
-  'eyupkayd@gmail.com',
-  'ukaydi.27@gmail.com',
-  'rec.row27@gmail.com',
-  'esenyakuppp@gmail.com'
-];
+// Main Application Component
+// ============================================================================
 
 export default function OrderApp() {
   const [user, setUser] = useState(null);
