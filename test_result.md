@@ -206,6 +206,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Testing order cards display and button functionality in Planning module"
+      - working: "NA"
+        agent: "testing"
+        comment: "PARTIAL TEST: Planning module accessible, 'Üretim Planlama' title found, tab buttons exist. Could not complete full testing due to modal overlay issue preventing navigation to Planning module. Module appears functional from code analysis."
 
   - task: "Production Module - Station Cards"
     implemented: true
@@ -218,6 +221,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Testing station cards and functionality in Production module"
+      - working: "NA"
+        agent: "testing"
+        comment: "PARTIAL TEST: Production module accessible, 'Üretim Takibi' title found, station selector exists. Could not complete full testing due to modal overlay issue preventing navigation to Production module. Module appears functional from code analysis."
 
   - task: "Archive Module - New Design"
     implemented: true
