@@ -327,6 +327,30 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "AttachmentManager Fix in Depo Sipariş Kartları"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/shared/AttachmentManager.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing AttachmentManager functionality in Depo module order cards. User reported potential AttachmentManager errors when clicking order cards in warehouse module. Need to verify: 1) Order cards clickable, 2) Order details open, 3) AttachmentManager component loads without errors, 4) File upload section visible, 5) Console clean."
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 2
+
+test_plan:
+  current_focus:
+    - "AttachmentManager Fix in Depo Sipariş Kartları"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
 agent_communication:
   - agent: "testing"
     message: "Starting comprehensive testing of ALL modules as requested. Will test: 1) Login and Dashboard access, 2) Marketing module (Yeni Sipariş, Müşteri Kartı modal), 3) Warehouse module (Tedarikçiler, Hammadde Ekle, Stok Dilimleme), 4) Planning module (order cards and buttons), 5) Production module (station cards), 6) Archive module (new design). Using provided credentials: eyupkayd@gmail.com / Agr110727-. Goal: Zero console errors and all functionality working."
@@ -342,3 +366,5 @@ agent_communication:
     message: "CHECKCIRCLE FIX + ADMIN MODULE TEST COMPLETED: ✅ CheckCircle Fix VERIFIED - No errors when clicking 'Yeni Tedarikçi Ekle' button ✅ Tedarikçi Kartları modal opens successfully ✅ Form opens and can be filled/cancelled properly ❌ CRITICAL: Console shows React/Firebase errors (onSnapshot not defined, ReferenceError) ❌ Admin module navigation works but may have underlying issues ✅ User logged in as 'eyupkayd' with proper permissions. ISSUE: React 19 compatibility problems with Firebase onSnapshot causing runtime errors - needs main agent attention for React/Firebase version compatibility fix."
   - agent: "testing"
     message: "FINAL VERIFICATION COMPLETE - ALL FIXES WORKING: ✅ CheckCircle Fix CONFIRMED - Zero errors in Tedarikçi Ekle functionality, form works perfectly ✅ Admin Module FULLY FUNCTIONAL - 'Kullanıcı Yönetimi' dashboard loads successfully, user table displays 9 approved + 2 pending users, all admin features working ✅ React 19 Firebase Compatibility RESOLVED - Zero onSnapshot errors, zero Firebase errors, zero React errors detected ✅ Console completely clean with no critical errors ✅ User authentication working properly as 'eyupkayd' with admin permissions. RESULT: Both requested fixes verified working correctly with zero console errors as expected."
+  - agent: "testing"
+    message: "STARTING ATTACHMENTMANAGER FIX TEST: Testing AttachmentManager functionality in Depo module order cards as requested. Will verify: 1) Login with eyupkayd@gmail.com / Agr110727-, 2) Navigate to Depo module, 3) Click on order cards in order list, 4) Check for AttachmentManager errors, 5) Verify order details open, 6) Confirm file upload section visible, 7) Ensure console is clean. Focus: AttachmentManager component error-free operation in warehouse order details."
