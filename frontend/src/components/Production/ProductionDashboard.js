@@ -277,10 +277,10 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
       {/* Header */}
       <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4 mb-4">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
             Üretim Takibi
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm md:text-base text-gray-600 mt-1">
             İstasyon bazlı üretim akışı
           </p>
         </div>
