@@ -354,6 +354,18 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "PWA Mobile Responsive Features"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing PWA mobile responsive features across different viewports: Mobile (375x667), Tablet (768x1024), Desktop (1920x1080). Will test hamburger menu visibility/functionality, sidebar behavior, overlay interactions, responsive button text, and table horizontal scrolling. Login credentials: eyupkayd@gmail.com / Agr110727-"
+
 agent_communication:
   - agent: "testing"
     message: "Starting comprehensive testing of ALL modules as requested. Will test: 1) Login and Dashboard access, 2) Marketing module (Yeni Sipariş, Müşteri Kartı modal), 3) Warehouse module (Tedarikçiler, Hammadde Ekle, Stok Dilimleme), 4) Planning module (order cards and buttons), 5) Production module (station cards), 6) Archive module (new design). Using provided credentials: eyupkayd@gmail.com / Agr110727-. Goal: Zero console errors and all functionality working."
@@ -373,3 +385,5 @@ agent_communication:
     message: "STARTING ATTACHMENTMANAGER FIX TEST: Testing AttachmentManager functionality in Depo module order cards as requested. Will verify: 1) Login with eyupkayd@gmail.com / Agr110727-, 2) Navigate to Depo module, 3) Click on order cards in order list, 4) Check for AttachmentManager errors, 5) Verify order details open, 6) Confirm file upload section visible, 7) Ensure console is clean. Focus: AttachmentManager component error-free operation in warehouse order details."
   - agent: "testing"
     message: "ATTACHMENTMANAGER FIX TEST COMPLETED SUCCESSFULLY: ✅ Login successful with eyupkayd@gmail.com / Agr110727- ✅ Depo module accessible and loaded properly ✅ Found 57 orders in 'Tüm İşler / Düzeltme' mode ✅ Order cards clickable and responsive ✅ Order details panel opens correctly ✅ AttachmentManager component loads without any errors ✅ File upload section visible with 'Dosya Ekle' button ✅ Attachment count display working (shows '0') ✅ Container styling and layout correct ✅ Consistent functionality across multiple order cards tested ✅ Console completely clean - zero AttachmentManager errors ✅ No JavaScript errors detected. RESULT: AttachmentManager fix confirmed working perfectly in Depo module as requested. No errors found."
+  - agent: "testing"
+    message: "STARTING PWA MOBILE RESPONSIVE TESTING: Testing responsive features across Mobile (375x667), Tablet (768x1024), and Desktop (1920x1080) viewports. Will verify: 1) Hamburger menu visibility/functionality per viewport, 2) Sidebar behavior (hidden/visible), 3) Overlay interactions, 4) Responsive button text, 5) Table horizontal scrolling, 6) Content layout adaptation. Login: eyupkayd@gmail.com / Agr110727-. Focus: Ensuring proper responsive behavior across all breakpoints."
