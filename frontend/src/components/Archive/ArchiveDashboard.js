@@ -129,21 +129,22 @@ export default function ArchiveDashboard({ orders, isSuperAdmin }) {
   return (
     <div className="space-y-8 animate-in fade-in">
       {/* Header */}
-      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4 mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-gray-200 pb-4 mb-4">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Arşiv & Raporlama
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm md:text-base text-gray-600 mt-1">
             Tüm siparişlerin detaylı geçmişi ve fire analizi
           </p>
         </div>
         <button
           onClick={handleExportPDF}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 text-sm md:text-base px-3 md:px-4"
         >
-          <Download size={18} />
-          PDF İndir
+          <Download size={16} className="md:w-[18px] md:h-[18px]" />
+          <span className="hidden sm:inline">PDF İndir</span>
+          <span className="sm:hidden">İndir</span>
         </button>
       </div>
 
@@ -162,36 +163,39 @@ export default function ArchiveDashboard({ orders, isSuperAdmin }) {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-2 md:gap-3">
         <button
           onClick={() => setFilterStatus('all')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+          className={`px-3 md:px-6 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all ${
             filterStatus === 'all'
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Tümü ({orders.length})
+          <span className="hidden sm:inline">Tümü</span>
+          <span className="sm:hidden">Tüm</span> ({orders.length})
         </button>
         <button
           onClick={() => setFilterStatus('completed')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+          className={`px-3 md:px-6 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all ${
             filterStatus === 'completed'
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Tamamlananlar ({orders.filter(o => o.status === 'shipping_ready' || o.status === 'completed').length})
+          <span className="hidden sm:inline">Tamamlananlar</span>
+          <span className="sm:hidden">Tamam</span> ({orders.filter(o => o.status === 'shipping_ready' || o.status === 'completed').length})
         </button>
         <button
           onClick={() => setFilterStatus('incomplete')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+          className={`px-3 md:px-6 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all ${
             filterStatus === 'incomplete'
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Devam Edenler ({orders.filter(o => o.status !== 'shipping_ready' && o.status !== 'completed').length})
+          <span className="hidden sm:inline">Devam Edenler</span>
+          <span className="sm:hidden">Devam</span> ({orders.filter(o => o.status !== 'shipping_ready' && o.status !== 'completed').length})
         </button>
       </div>
 
