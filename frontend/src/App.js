@@ -8,7 +8,7 @@ import {
   Paperclip, Key, Play, StopCircle, BarChart3, History, Split, 
   Cylinder, Component, Search, Ruler, LogIn, UserPlus, Database,
   Barcode, QrCode, Scissors, PackagePlus, PackageCheck, Building2,
-  CreditCard, Phone, MapPin
+  CreditCard, Phone, MapPin, Menu
 } from 'lucide-react';
 import { 
   signInWithEmailAndPassword, createUserWithEmailAndPassword, 
@@ -102,6 +102,7 @@ export default function OrderApp() {
   const [supplierCards, setSupplierCards] = useState([]);
   const [stockRolls, setStockRolls] = useState([]);
   const [stockMovements, setStockMovements] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // ============================================================================
   // 🔄 AUTOMATIC REDIRECT TO PRODUCTION URL
@@ -242,38 +243,66 @@ export default function OrderApp() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 text-white p-4 shadow-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Package className="animate-pulse" />
-            Sipariş Takip Sistemi
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="md:hidden bg-white/10 hover:bg-white/20 p-2 rounded-lg transition"
+              aria-label="Menüyü Aç/Kapat"
+            >
+              <Menu size={24} />
+            </button>
+            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+              <Package className="animate-pulse" />
+              <span className="hidden sm:inline">Sipariş Takip Sistemi</span>
+              <span className="sm:hidden">STS</span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="text-xs md:text-sm bg-white/10 px-2 md:px-3 py-1.5 rounded-lg truncate max-w-[100px] md:max-w-none">
               {userProfile.displayName || userProfile.email}
             </span>
             <button
               onClick={() => setShowPasswordModal(true)}
-              className="text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition flex items-center gap-2"
+              className="hidden md:flex text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition items-center gap-2"
             >
               <Key size={16} />
               Şifre Değiştir
             </button>
             <button
               onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2"
+              className="bg-red-600 hover:bg-red-700 px-2 md:px-4 py-2 rounded-lg font-bold transition flex items-center gap-1 md:gap-2 text-sm md:text-base"
             >
-              <LogOut size={18} />
-              Çıkış
+              <LogOut size={16} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Çıkış</span>
             </button>
           </div>
         </div>
       </nav>
 
-      <div className="flex">
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4 shadow-lg">
+      <div className="flex relative">
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+        <aside className={`
+          fixed md:static inset-y-0 left-0 z-40
+          w-64 bg-white border-r border-gray-200 min-h-screen p-4 shadow-lg
+          transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0
+        `}>
           <nav className="space-y-2">
             {(isSuperAdmin || userProfile.role === 'marketing') && (
               <button
-                onClick={() => setCurrentView('marketing')}
+                onClick={() => {
+                  setCurrentView('marketing');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                   currentView === 'marketing'
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -287,7 +316,10 @@ export default function OrderApp() {
 
             {(isSuperAdmin || userProfile.role === 'graphics') && (
               <button
-                onClick={() => setCurrentView('graphics')}
+                onClick={() => {
+                  setCurrentView('graphics');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                   currentView === 'graphics'
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -301,7 +333,10 @@ export default function OrderApp() {
 
             {(isSuperAdmin || userProfile.role === 'warehouse') && (
               <button
-                onClick={() => setCurrentView('warehouse')}
+                onClick={() => {
+                  setCurrentView('warehouse');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                   currentView === 'warehouse'
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -315,7 +350,10 @@ export default function OrderApp() {
 
             {(isSuperAdmin || userProfile.role === 'planning') && (
               <button
-                onClick={() => setCurrentView('planning')}
+                onClick={() => {
+                  setCurrentView('planning');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                   currentView === 'planning'
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -329,7 +367,10 @@ export default function OrderApp() {
 
             {(isSuperAdmin || userProfile.role === 'production') && (
               <button
-                onClick={() => setCurrentView('production')}
+                onClick={() => {
+                  setCurrentView('production');
+                  setIsSidebarOpen(false);
+                }}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                   currentView === 'production'
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -344,7 +385,10 @@ export default function OrderApp() {
             {isSuperAdmin && (
               <>
                 <button
-                  onClick={() => setCurrentView('archive')}
+                  onClick={() => {
+                    setCurrentView('archive');
+                    setIsSidebarOpen(false);
+                  }}
                   className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                     currentView === 'archive'
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -356,7 +400,10 @@ export default function OrderApp() {
                 </button>
 
                 <button
-                  onClick={() => setCurrentView('admin')}
+                  onClick={() => {
+                    setCurrentView('admin');
+                    setIsSidebarOpen(false);
+                  }}
                   className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
                     currentView === 'admin'
                       ? 'bg-gradient-to-r from-red-600 to-pink-600 text-white shadow-lg'
@@ -371,7 +418,7 @@ export default function OrderApp() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 md:p-8 w-full md:w-auto overflow-x-hidden">
           {currentView === 'marketing' && (
             <MarketingDashboard orders={orders} isSuperAdmin={isSuperAdmin} customerCards={customerCards} />
           )}
