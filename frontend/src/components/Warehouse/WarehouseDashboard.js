@@ -4,6 +4,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } fr
 import { db, appId } from '../../services/firebase';
 import { getMaterialShortCode, logStockMovement, generateBarcode } from '../../utils/stockHelpers';
 import StatusBadge from '../shared/StatusBadge';
+import AttachmentManager from '../shared/AttachmentManager';
 import SupplierCardModal from '../MasterData/SupplierCardModal';
 import AddRawMaterialModal from '../MasterData/AddRawMaterialModal';
 import DilimlemeModal from '../Stock/DilimlemeModal';
