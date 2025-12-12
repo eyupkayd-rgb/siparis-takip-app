@@ -252,28 +252,29 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
       )}
 
       {/* Header with Action Buttons */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
             Depo Yönetimi
           </h2>
-          <p className="text-gray-600 mt-1">Hammadde, Stok ve Sevkiyat İşlemleri</p>
+          <p className="text-sm md:text-base text-gray-600 mt-1">Hammadde, Stok ve Sevkiyat İşlemleri</p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
           <button
             onClick={() => {
               setShowStockTab(!showStockTab);
               setShowStockMovements(false);
             }}
-            className={`px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 ${
+            className={`px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base ${
               showStockTab && !showStockMovements
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                 : 'bg-white text-gray-700 border-2 border-gray-200'
             }`}
           >
-            <Database size={18} />
-            Stok Yönetimi
+            <Database size={16} className="md:w-[18px] md:h-[18px]" />
+            <span className="hidden sm:inline">Stok Yönetimi</span>
+            <span className="sm:hidden">Stok</span>
           </button>
           
           <button
@@ -281,30 +282,33 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
               setShowStockMovements(!showStockMovements);
               setShowStockTab(false);
             }}
-            className={`px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 ${
+            className={`px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base ${
               showStockMovements
                 ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white'
                 : 'bg-white text-gray-700 border-2 border-gray-200'
             }`}
           >
-            <BarChart3 size={18} />
-            Stok Hareketleri
+            <BarChart3 size={16} className="md:w-[18px] md:h-[18px]" />
+            <span className="hidden sm:inline">Stok Hareketleri</span>
+            <span className="sm:hidden">Hareketler</span>
           </button>
           
           <button
             onClick={() => setShowSupplierModal(true)}
-            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base"
           >
-            <Truck size={18} />
-            Tedarikçiler
+            <Truck size={16} className="md:w-[18px] md:h-[18px]" />
+            <span className="hidden sm:inline">Tedarikçiler</span>
+            <span className="sm:hidden">Tedarik</span>
           </button>
           
           <button
             onClick={() => setShowAddRollModal(true)}
-            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base"
           >
-            <PackagePlus size={18} />
-            Bobin Girişi
+            <PackagePlus size={16} className="md:w-[18px] md:h-[18px]" />
+            <span className="hidden sm:inline">Bobin Girişi</span>
+            <span className="sm:hidden">Bobin</span>
           </button>
         </div>
       </div>
