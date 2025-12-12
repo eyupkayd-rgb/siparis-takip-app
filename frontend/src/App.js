@@ -290,7 +290,7 @@ export default function OrderApp() {
 
         {/* Sidebar */}
         <aside className={`
-          fixed md:static inset-y-0 left-0 z-40
+          fixed md:static inset-y-0 left-0 z-40 top-16 md:top-0
           w-64 bg-white border-r border-gray-200 min-h-screen p-4 shadow-lg
           transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
