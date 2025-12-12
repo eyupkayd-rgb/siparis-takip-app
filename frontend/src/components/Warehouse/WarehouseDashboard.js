@@ -261,9 +261,24 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
         </div>
         
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          {/* Hammadde İşlemleri butonu - sadece Stok veya Hareketler açık iken göster */}
+          {(showStockTab || showStockMovements) && (
+            <button
+              onClick={() => {
+                setShowStockTab(false);
+                setShowStockMovements(false);
+              }}
+              className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base hover:from-orange-700 hover:to-red-700"
+            >
+              <Package size={16} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Hammadde İşlemleri</span>
+              <span className="sm:hidden">Hammadde</span>
+            </button>
+          )}
+          
           <button
             onClick={() => {
-              setShowStockTab(!showStockTab);
+              setShowStockTab(true);
               setShowStockMovements(false);
             }}
             className={`px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base ${
@@ -279,7 +294,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
           
           <button
             onClick={() => {
-              setShowStockMovements(!showStockMovements);
+              setShowStockMovements(true);
               setShowStockTab(false);
             }}
             className={`px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base ${
