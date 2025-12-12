@@ -269,7 +269,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
             className={`px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base ${
               showStockTab && !showStockMovements
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                : 'bg-white text-gray-700 border-2 border-gray-200'
+                : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-gray-50'
             }`}
           >
             <Database size={16} className="md:w-[18px] md:h-[18px]" />
@@ -285,7 +285,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
             className={`px-2 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-base ${
               showStockMovements
                 ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white'
-                : 'bg-white text-gray-700 border-2 border-gray-200'
+                : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-gray-50'
             }`}
           >
             <BarChart3 size={16} className="md:w-[18px] md:h-[18px]" />
