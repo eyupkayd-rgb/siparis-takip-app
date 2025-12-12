@@ -174,21 +174,22 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Sipariş Yönetimi
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm md:text-base text-gray-600 mt-1">
             Yeni sipariş oluşturun veya mevcutları düzenleyin
           </p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto">
           <button
             onClick={() => setShowCustomerModal(true)}
-            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2"
+            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-3 md:px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 text-sm md:text-base"
           >
             <Building2 size={18} />
-            Müşteri Kartları
+            <span className="hidden sm:inline">Müşteri Kartları</span>
+            <span className="sm:hidden">Müşteriler</span>
           </button>
           
           <button
@@ -204,17 +205,19 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
                 notes: ''
               });
             }}
-            className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl"
+            className="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl text-sm md:text-base px-3 md:px-4"
           >
             {showForm ? (
               <>
                 <X size={18} />
-                Listeye Dön
+                <span className="hidden sm:inline">Listeye Dön</span>
+                <span className="sm:hidden">Geri</span>
               </>
             ) : (
               <>
                 <Plus size={18} />
-                Yeni Sipariş Gir
+                <span className="hidden sm:inline">Yeni Sipariş Gir</span>
+                <span className="sm:hidden">Yeni</span>
               </>
             )}
           </button>
