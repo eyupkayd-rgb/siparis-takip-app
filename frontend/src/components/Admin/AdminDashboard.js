@@ -161,19 +161,19 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in">
       {/* Header */}
-      <div className="flex justify-between items-end border-b-2 border-gray-200 pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-gray-200 pb-4">
         <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
             Kullanıcı Yönetimi
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm md:text-base text-gray-600 mt-1">
             Kullanıcı onayları ve istasyon atamaları
           </p>
         </div>
         <button
           onClick={handleMigrateUsers}
           disabled={isMigrating}
-          className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold transition-all flex items-center gap-2"
+          className="px-3 md:px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold transition-all flex items-center gap-2 text-xs md:text-sm"
         >
           {isMigrating ? (
             <>
@@ -183,7 +183,8 @@ export default function AdminDashboard() {
           ) : (
             <>
               <Database size={16} />
-              Eski Kullanıcıları Güncelle
+              <span className="hidden sm:inline">Eski Kullanıcıları Güncelle</span>
+              <span className="sm:hidden">Güncelle</span>
             </>
           )}
         </button>
