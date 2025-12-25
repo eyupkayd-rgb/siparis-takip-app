@@ -12,6 +12,8 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Otomatik sipariş numarası oluştur
   const generateNextOrderNo = () => {
