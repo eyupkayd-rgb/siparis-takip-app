@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Scissors, X, Loader2 } from 'lucide-react';
+import { Scissors, X, Loader2, Plus } from 'lucide-react';
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { generateBarcode, logStockMovement } from '../../utils/stockHelpers';
