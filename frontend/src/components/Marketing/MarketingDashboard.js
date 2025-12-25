@@ -152,6 +152,49 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
     }
   };
 
+  // Toplu silme fonksiyonu (sadece süper admin)
+  const handleBulkDelete = async () => {
+    if (selectedOrders.length === 0) {
+      alert("Lütfen silmek için en az bir sipariş seçin.");
+      return;
+    }
+
+    if (window.confirm(`DİKKAT: ${selectedOrders.length} adet siparişi kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz!`)) {
+      setIsDeleting(true);
+      try {
+        const deletePromises = selectedOrders.map(orderId =>
+          deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId))
+        );
+        await Promise.all(deletePromises);
+        setSelectedOrders([]);
+        alert(`✅ ${selectedOrders.length} sipariş başarıyla silindi!`);
+      } catch (error) {
+        alert("❌ Toplu silme işlemi başarısız oldu.");
+        console.error(error);
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
+  // Tümünü seç/kaldır
+  const handleSelectAll = () => {
+    if (selectedOrders.length === filteredOrders.length) {
+      setSelectedOrders([]);
+    } else {
+      setSelectedOrders(filteredOrders.map(o => o.id));
+    }
+  };
+
+  // Tekli seçim
+  const handleSelectOrder = (orderId) => {
+    if (selectedOrders.includes(orderId)) {
+      setSelectedOrders(selectedOrders.filter(id => id !== orderId));
+    } else {
+      setSelectedOrders([...selectedOrders, orderId]);
+    }
+  };
+
   const rawMaterials = [
     "PP OPAK SARI PERGAMİN", "PP OPAK BEYAZ PERGAMİN", "PP OPAK PET",
     "KUŞE SARI PERGAMİN", "KUŞE BEYAZ PERGAMİN", "KUŞE PET", "KUŞE MAT",
