@@ -712,6 +712,16 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders
         <table className="w-full text-left text-sm">
           <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-b-2 border-gray-200">
             <tr>
+              {isSuperAdmin && (
+                <th className="p-4 w-12">
+                  <input
+                    type="checkbox"
+                    checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
+                    onChange={onSelectAll}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                </th>
+              )}
               <th className="p-4 font-bold w-32">Sipariş No</th>
               <th className="p-4 font-bold">Müşteri</th>
               <th className="p-4 font-bold">Ürün</th>
