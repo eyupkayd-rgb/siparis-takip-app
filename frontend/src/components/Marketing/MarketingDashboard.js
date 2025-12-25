@@ -739,6 +739,17 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders
                 key={order.id}
                 className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 group"
               >
+                {isSuperAdmin && (
+                  <td className="p-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedOrders.includes(order.id)}
+                      onChange={() => onSelectOrder(order.id)}
+                      className="w-4 h-4 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                )}
                 <td className="p-4">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
