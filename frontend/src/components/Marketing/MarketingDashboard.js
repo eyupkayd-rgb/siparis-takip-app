@@ -614,7 +614,7 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
 // 📋 ORDER LIST TABLE COMPONENT
 // ============================================================================
 
-function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin }) {
+function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders, onSelectOrder, onSelectAll, onBulkDelete, isDeleting }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   
