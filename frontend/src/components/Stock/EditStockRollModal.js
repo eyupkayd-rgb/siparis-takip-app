@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, X, Loader2 } from 'lucide-react';
+import { Edit3, X, Loader2, CheckCircle } from 'lucide-react';
 import { updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 
