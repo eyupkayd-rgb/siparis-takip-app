@@ -341,8 +341,9 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
                   placeholder="Örn: SP-0588"
                   className="input-field bg-gray-50"
                   value={formData.orderNo}
-                  readOnly={!editingId}
-                  onChange={e => editingId && setFormData({...formData, orderNo: e.target.value})}
+                  readOnly={!isSuperAdmin}
+                  onChange={e => setFormData({...formData, orderNo: e.target.value})}
+                  title={isSuperAdmin ? "Sipariş numarasını düzenleyebilirsiniz" : "Sipariş numarası otomatik oluşturuldu"}
                 />
               </div>
               
