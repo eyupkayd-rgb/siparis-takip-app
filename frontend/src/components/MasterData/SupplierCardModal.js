@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, X, Plus, CreditCard, User, Phone, Mail, Edit3, Trash2, Loader2, Truck, CheckCircle } from 'lucide-react';
+import { Database, X, Plus, CreditCard, User, Phone, Mail, Edit3, Trash2, Loader2, Truck, CheckCircle, MapPin } from 'lucide-react';
 import { collection, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 
