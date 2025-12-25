@@ -661,9 +661,49 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders
           </select>
         </div>
         
-        <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
-          <span className="font-bold">{filteredOrders.length}</span>
-          <span>sipariş gösteriliyor</span>
+        <div className="mt-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="font-bold">{filteredOrders.length}</span>
+            <span>sipariş gösteriliyor</span>
+            {isSuperAdmin && selectedOrders.length > 0 && (
+              <span className="ml-4 text-blue-600 font-bold">
+                ({selectedOrders.length} seçili)
+              </span>
+            )}
+          </div>
+          
+          {isSuperAdmin && (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onSelectAll}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
+              >
+                {selectedOrders.length === filteredOrders.length ? '❌ Seçimi Kaldır' : '✅ Tümünü Seç'}
+              </button>
+              
+              {selectedOrders.length > 0 && (
+                <button
+                  type="button"
+                  onClick={onBulkDelete}
+                  disabled={isDeleting}
+                  className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-1"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Siliniyor...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      Seçilenleri Sil ({selectedOrders.length})
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
       
