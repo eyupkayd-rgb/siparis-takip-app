@@ -676,10 +676,10 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={onSelectAll}
+                onClick={handleSelectAll}
                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
               >
-                {selectedOrders.length === filteredOrders.length ? '❌ Seçimi Kaldır' : '✅ Tümünü Seç'}
+                {selectedOrders.length === filteredOrders.length && filteredOrders.length > 0 ? '❌ Seçimi Kaldır' : '✅ Tümünü Seç'}
               </button>
               
               {selectedOrders.length > 0 && (
