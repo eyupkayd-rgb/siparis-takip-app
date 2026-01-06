@@ -605,7 +605,7 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
 // 📋 ORDER LIST TABLE COMPONENT
 // ============================================================================
 
-function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders, onSelectOrder, onSelectAll, onBulkDelete, isDeleting }) {
+function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders, onSelectOrder, onBulkDelete, isDeleting, setSelectedOrders }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   
@@ -619,6 +619,15 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders
     
     return matchesSearch && matchesStatus;
   });
+
+  // Tümünü seç/kaldır - filteredOrders burada tanımlı olduğu için burada çalışır
+  const handleSelectAll = () => {
+    if (selectedOrders.length === filteredOrders.length && filteredOrders.length > 0) {
+      setSelectedOrders([]);
+    } else {
+      setSelectedOrders(filteredOrders.map(o => o.id));
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 overflow-hidden">
