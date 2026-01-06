@@ -592,9 +592,9 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
           isSuperAdmin={isSuperAdmin}
           selectedOrders={selectedOrders}
           onSelectOrder={handleSelectOrder}
-          onSelectAll={handleSelectAll}
           onBulkDelete={handleBulkDelete}
           isDeleting={isDeleting}
+          setSelectedOrders={setSelectedOrders}
         />
       )}
     </div>
