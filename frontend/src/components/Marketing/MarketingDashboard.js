@@ -177,15 +177,6 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
     }
   };
 
-  // Tümünü seç/kaldır
-  const handleSelectAll = () => {
-    if (selectedOrders.length === filteredOrders.length) {
-      setSelectedOrders([]);
-    } else {
-      setSelectedOrders(filteredOrders.map(o => o.id));
-    }
-  };
-
   // Tekli seçim
   const handleSelectOrder = (orderId) => {
     if (selectedOrders.includes(orderId)) {
