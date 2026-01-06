@@ -717,7 +717,7 @@ function OrderListTable({ orders, onEdit, onDelete, isSuperAdmin, selectedOrders
                   <input
                     type="checkbox"
                     checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
-                    onChange={onSelectAll}
+                    onChange={handleSelectAll}
                     className="w-4 h-4 cursor-pointer"
                   />
                 </th>
