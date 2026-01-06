@@ -106,6 +106,98 @@ export default function PlanningDashboard({ orders, isSuperAdmin }) {
     setAiAdvice("");
   };
 
+  // Excel Export Fonksiyonu
+  const handleExportToExcel = (order) => {
+    try {
+      // Workbook oluştur
+      const wb = XLSX.utils.book_new();
+      
+      // Şablon verilerini hazırla
+      const data = [
+        ['İŞ EMRİ FORMU', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['Sipariş Bilgileri', '', '', '', ''],
+        ['Sipariş No:', order.orderNo || '', 'Müşteri:', order.customer || ''],
+        ['Ürün:', order.product || '', 'Kategori:', order.category || ''],
+        ['Miktar:', order.quantity || '', 'Birim:', order.quantityUnit || 'Adet'],
+        ['Termin:', order.customerDeadline || '', 'Tip:', order.type || ''],
+        ['', '', '', '', ''],
+        ['Grafik Bilgileri', '', '', '', ''],
+        ['Makine:', order.graphicsData?.machine || '-', 'Renk:', order.graphicsData?.color || '-'],
+        ['Baskı Tipi:', order.graphicsData?.printType || '-', 'Zet:', order.graphicsData?.zet || '-'],
+        ['Metraj:', order.graphicsData?.meterage || '-', 'Laminasyon:', order.graphicsData?.lamination || '-'],
+        ['Kağıt En:', order.graphicsData?.paperWidth || '-', 'Adım:', order.graphicsData?.step || '-'],
+        ['', '', '', '', ''],
+        ['Sarım Yönü:', '', '', '', ''],
+        [order.graphicsData?.wrapDirection?.title || 'POS1 - Dışa Sarım / Yazı Başı Önde', '', '', '', ''],
+        [order.graphicsData?.wrapDirection?.description || 'Varsayılan sarım yönü', '', '', '', ''],
+        ['', '', '', '', ''],
+        ['Planlama Bilgileri', '', '', '', ''],
+        ['Başlangıç:', order.planningData?.startDate || '-', 'Saat:', order.planningData?.startHour || '-'],
+        ['Süre (saat):', order.planningData?.duration || '-', '', ''],
+        ['', '', '', '', ''],
+        ['Üretim Akışı', '', '', '', ''],
+      ];
+
+      // Üretim akışını ekle
+      if (order.planningData?.productionFlow && order.planningData.productionFlow.length > 0) {
+        order.planningData.productionFlow.forEach((station, idx) => {
+          data.push([`${idx + 1}. İstasyon:`, station.stationName || station.stationId, '', '', '']);
+        });
+      } else {
+        data.push(['Henüz planlama yapılmamış', '', '', '', '']);
+      }
+
+      data.push(['', '', '', '', '']);
+      data.push(['Notlar:', '', '', '', '']);
+      data.push([order.graphicsData?.notes || order.notes || '-', '', '', '', '']);
+
+      // Worksheet oluştur
+      const ws = XLSX.utils.aoa_to_sheet(data);
+
+      // Sütun genişliklerini ayarla
+      ws['!cols'] = [
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 15 }
+      ];
+
+      // Satır yüksekliklerini ayarla
+      ws['!rows'] = [
+        { hpt: 30 }, // Başlık
+        { hpt: 15 },
+        { hpt: 25 }, // Bölüm başlıkları
+      ];
+
+      // Hücre stillerini ayarla (bold başlıklar)
+      const headerCells = ['A1', 'A3', 'A9', 'A15', 'A19', 'A23'];
+      headerCells.forEach(cell => {
+        if (ws[cell]) {
+          ws[cell].s = {
+            font: { bold: true, sz: 14 },
+            fill: { fgColor: { rgb: "E0E0E0" } }
+          };
+        }
+      });
+
+      // Worksheet'i workbook'a ekle
+      XLSX.utils.book_append_sheet(wb, ws, 'İş Emri');
+
+      // Dosya adı oluştur
+      const fileName = `Is_Emri_${order.orderNo || 'Draft'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      // Excel dosyasını indir
+      XLSX.writeFile(wb, fileName);
+
+      alert(`✅ İş emri Excel dosyası indirildi: ${fileName}`);
+    } catch (error) {
+      console.error('Excel export error:', error);
+      alert('❌ Excel dosyası oluşturulurken hata oluştu.');
+    }
+  };
+
   const handleAiEstimate = async () => {
     if (!selectedOrder) return;
     setIsAiLoading(true);
