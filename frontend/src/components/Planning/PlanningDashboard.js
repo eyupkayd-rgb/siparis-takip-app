@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Plus, CheckCircle, X, Loader2, Search, Trash2, ChevronLeft, ChevronRight, Component, Grid, Layers, List, Sparkles } from 'lucide-react';
+import { Calendar, Clock, Plus, CheckCircle, X, Loader2, Search, Trash2, ChevronLeft, ChevronRight, Component, Grid, Layers, List, Sparkles, FileSpreadsheet, Download } from 'lucide-react';
 import { updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import StatusBadge from '../shared/StatusBadge';
+import * as XLSX from 'xlsx';
 
 export default function PlanningDashboard({ orders, isSuperAdmin }) {
   const [pData, setPData] = useState({ startDate: '', startHour: '08:00', duration: 2 });
