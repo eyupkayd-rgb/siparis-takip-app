@@ -153,6 +153,17 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
 
   return (
     <div className="space-y-6 animate-in fade-in">
+      {/* Wrap Direction Modal */}
+      {showWrapModal && (
+        <WrapDirectionModal
+          currentDirection={gData.wrapDirection?.id || 'POS1'}
+          onClose={() => setShowWrapModal(false)}
+          onSelect={(direction) => {
+            setGData({ ...gData, wrapDirection: direction });
+          }}
+        />
+      )}
+
       {/* Search Bar */}
       <div className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-100">
         <div className="relative">
