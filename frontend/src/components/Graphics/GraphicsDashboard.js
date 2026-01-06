@@ -13,11 +13,13 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWrapModal, setShowWrapModal] = useState(false);
   const [gData, setGData] = useState({
     machine: '', color: '', printType: '', zet: '', meterage: '', 
     lamination: '', plateStatus: '', dieStatus: '', paperWidth: '', 
     step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
     layeringStatus: '', // Tabakalama durumu (Ambalaj için)
+    wrapDirection: null, // Sarım yönü (POS1-8)
     notes: '' // Grafik notları
   });
   const [plateData, setPlateData] = useState([]);
