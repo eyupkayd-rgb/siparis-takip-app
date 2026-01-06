@@ -938,6 +938,23 @@ export default function PlanningDashboard({ orders, isSuperAdmin }) {
                 </button>
               </form>
 
+              {/* Excel Yazdırma Butonu - Sadece planlanmış iş emirleri için */}
+              {selectedOrder && (selectedOrder.status === 'planned' || selectedOrder.status === 'production_started' || selectedOrder.status === 'shipping_ready' || selectedOrder.status === 'completed') && (
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() => handleExportToExcel(selectedOrder)}
+                    className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-4 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-3"
+                  >
+                    <FileSpreadsheet size={24} />
+                    İş Emri Formu Yazdır (Excel)
+                  </button>
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Yönetici onaylı Excel formatında iş emri çıktısı alın
+                  </p>
+                </div>
+              )}
+
               {/* AI Advice */}
               {aiAdvice && (
                 <div className="mt-4 p-4 bg-purple-50 border-2 border-purple-200 rounded-xl text-sm text-purple-800 flex items-start gap-2 animate-in fade-in">
