@@ -48,6 +48,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
           lamination: '', plateStatus: '', dieStatus: '', paperWidth: '',
           step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
           layeringStatus: '',
+          wrapDirection: null,
           notes: ''
         });
       }
