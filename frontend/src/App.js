@@ -103,6 +103,28 @@ export default function OrderApp() {
   const [stockRolls, setStockRolls] = useState([]);
   const [stockMovements, setStockMovements] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Network status listener
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log('✅ Internet bağlantısı kuruldu');
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.warn('⚠️ Internet bağlantısı kesildi');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // ============================================================================
   // 🔄 AUTOMATIC REDIRECT TO PRODUCTION URL
