@@ -106,95 +106,252 @@ export default function PlanningDashboard({ orders, isSuperAdmin }) {
     setAiAdvice("");
   };
 
-  // Excel Export Fonksiyonu
-  const handleExportToExcel = (order) => {
+  // Excel Export Fonksiyonu - Agora Etiket Üretim Formu
+  const handleExportToExcel = async (order) => {
     try {
-      // Workbook oluştur
+      // Workbook ve worksheet oluştur
       const wb = XLSX.utils.book_new();
-      
-      // Şablon verilerini hazırla
-      const data = [
-        ['İŞ EMRİ FORMU', '', '', '', ''],
-        ['', '', '', '', ''],
-        ['Sipariş Bilgileri', '', '', '', ''],
-        ['Sipariş No:', order.orderNo || '', 'Müşteri:', order.customer || ''],
-        ['Ürün:', order.product || '', 'Kategori:', order.category || ''],
-        ['Miktar:', order.quantity || '', 'Birim:', order.quantityUnit || 'Adet'],
-        ['Termin:', order.customerDeadline || '', 'Tip:', order.type || ''],
-        ['', '', '', '', ''],
-        ['Grafik Bilgileri', '', '', '', ''],
-        ['Makine:', order.graphicsData?.machine || '-', 'Renk:', order.graphicsData?.color || '-'],
-        ['Baskı Tipi:', order.graphicsData?.printType || '-', 'Zet:', order.graphicsData?.zet || '-'],
-        ['Metraj:', order.graphicsData?.meterage || '-', 'Laminasyon:', order.graphicsData?.lamination || '-'],
-        ['Kağıt En:', order.graphicsData?.paperWidth || '-', 'Adım:', order.graphicsData?.step || '-'],
-        ['', '', '', '', ''],
-        ['Sarım Yönü:', '', '', '', ''],
-        [order.graphicsData?.wrapDirection?.title || 'POS1 - Dışa Sarım / Yazı Başı Önde', '', '', '', ''],
-        [order.graphicsData?.wrapDirection?.description || 'Varsayılan sarım yönü', '', '', '', ''],
-        ['', '', '', '', ''],
-        ['Planlama Bilgileri', '', '', '', ''],
-        ['Başlangıç:', order.planningData?.startDate || '-', 'Saat:', order.planningData?.startHour || '-'],
-        ['Süre (saat):', order.planningData?.duration || '-', '', ''],
-        ['', '', '', '', ''],
-        ['Üretim Akışı', '', '', '', ''],
-      ];
+      const ws = {};
 
-      // Üretim akışını ekle
-      if (order.planningData?.productionFlow && order.planningData.productionFlow.length > 0) {
-        order.planningData.productionFlow.forEach((station, idx) => {
-          data.push([`${idx + 1}. İstasyon:`, station.stationName || station.stationId, '', '', '']);
-        });
-      } else {
-        data.push(['Henüz planlama yapılmamış', '', '', '', '']);
-      }
-
-      data.push(['', '', '', '', '']);
-      data.push(['Notlar:', '', '', '', '']);
-      data.push([order.graphicsData?.notes || order.notes || '-', '', '', '', '']);
-
-      // Worksheet oluştur
-      const ws = XLSX.utils.aoa_to_sheet(data);
-
-      // Sütun genişliklerini ayarla
+      // Sütun genişliklerini ayarla (A'dan K'ya)
       ws['!cols'] = [
-        { wch: 20 },
-        { wch: 20 },
-        { wch: 15 },
-        { wch: 20 },
-        { wch: 15 }
+        { wch: 3 },   // A
+        { wch: 18 },  // B - TEKRAR İŞ
+        { wch: 15 },  // C
+        { wch: 20 },  // D
+        { wch: 3 },   // E
+        { wch: 15 },  // F
+        { wch: 3 },   // G
+        { wch: 20 },  // H
+        { wch: 3 },   // I
+        { wch: 15 },  // J
+        { wch: 15 }   // K
       ];
 
       // Satır yüksekliklerini ayarla
-      ws['!rows'] = [
-        { hpt: 30 }, // Başlık
-        { hpt: 15 },
-        { hpt: 25 }, // Bölüm başlıkları
+      ws['!rows'] = [];
+      for (let i = 0; i < 50; i++) {
+        ws['!rows'][i] = { hpt: i === 0 ? 40 : i === 3 ? 30 : 20 };
+      }
+
+      // Merge edilen hücreleri tanımla
+      ws['!merges'] = [
+        // Logo ve başlık bölgesi
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },  // A1:E1 - Logo alanı
+        { s: { r: 0, c: 5 }, e: { r: 0, c: 10 } }, // F1:K1 - İş Emri No ve Tarih
+        
+        // Üretim Formu başlığı
+        { s: { r: 3, c: 1 }, e: { r: 3, c: 10 } },  // B4:K4
+        
+        // Sol taraftaki Tekrar İş bölümü
+        { s: { r: 4, c: 1 }, e: { r: 25, c: 1 } },  // B5:B26 - TEKRAR İŞ
+        
+        // Firma Adı satırı
+        { s: { r: 5, c: 3 }, e: { r: 5, c: 10 } },  // D6:K6
+        
+        // Ürün Adı satırı
+        { s: { r: 6, c: 3 }, e: { r: 6, c: 10 } },  // D7:K7
+        
+        // Ölçü ve Biçak Kodu
+        { s: { r: 7, c: 3 }, e: { r: 7, c: 6 } },   // D8:G8 - Ölçü
+        { s: { r: 7, c: 9 }, e: { r: 7, c: 10 } },  // J8:K8 - Biçak Kodu
+        
+        // Kağıt Cinsi ve Zet
+        { s: { r: 8, c: 3 }, e: { r: 8, c: 6 } },   // D9:G9 - Kağıt Cinsi
+        { s: { r: 8, c: 9 }, e: { r: 8, c: 10 } },  // J9:K9 - Zet
+        
+        // Miktar ve Adımlama
+        { s: { r: 9, c: 3 }, e: { r: 9, c: 6 } },   // D10:G10 - Miktar
+        { s: { r: 9, c: 9 }, e: { r: 9, c: 10 } },  // J10:K10 - Adımlama
+        
+        // Lak ve Kombine
+        { s: { r: 10, c: 3 }, e: { r: 10, c: 6 } }, // D11:G11 - Lak
+        { s: { r: 10, c: 9 }, e: { r: 10, c: 10 } }, // J11:K11 - Kombine
+        
+        // Sarım Yönü ve Beklenen Termin
+        { s: { r: 11, c: 3 }, e: { r: 11, c: 6 } }, // D12:G12 - Sarım Yönü
+        { s: { r: 11, c: 9 }, e: { r: 11, c: 10 } }, // J12:K12 - Termin
+        
+        // Baskı Makinesi
+        { s: { r: 12, c: 3 }, e: { r: 12, c: 10 } }, // D13:K13
+        
+        // Renkler
+        { s: { r: 13, c: 3 }, e: { r: 13, c: 10 } }, // D14:K14
+        
+        // Kuka Çapı
+        { s: { r: 14, c: 3 }, e: { r: 14, c: 10 } }, // D15:K15
+        
+        // Açıklama
+        { s: { r: 15, c: 2 }, e: { r: 15, c: 10 } }, // C16:K16
+        { s: { r: 16, c: 2 }, e: { r: 19, c: 10 } }, // C17:K20 - Açıklama metni
+        
+        // Kalite Kontrol satırı
+        { s: { r: 20, c: 2 }, e: { r: 20, c: 4 } },  // C21:E21
+        { s: { r: 20, c: 5 }, e: { r: 20, c: 6 } },  // F21:G21
+        { s: { r: 20, c: 7 }, e: { r: 20, c: 8 } },  // H21:I21
+        { s: { r: 20, c: 9 }, e: { r: 20, c: 10 } }, // J21:K21
+        
+        // Görsel alanı
+        { s: { r: 22, c: 2 }, e: { r: 35, c: 10 } }  // C23:K36 - Görsel
       ];
 
-      // Hücre stillerini ayarla (bold başlıklar)
-      const headerCells = ['A1', 'A3', 'A9', 'A15', 'A19', 'A23'];
-      headerCells.forEach(cell => {
-        if (ws[cell]) {
-          ws[cell].s = {
-            font: { bold: true, sz: 14 },
-            fill: { fgColor: { rgb: "E0E0E0" } }
-          };
+      // Başlık ve içerik stilleri
+      const headerStyle = {
+        font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
         }
+      };
+
+      const cellStyle = {
+        alignment: { horizontal: "left", vertical: "center", wrapText: true },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      const titleStyle = {
+        font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "C65DAB" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "medium", color: { rgb: "000000" } },
+          bottom: { style: "medium", color: { rgb: "000000" } },
+          left: { style: "medium", color: { rgb: "000000" } },
+          right: { style: "medium", color: { rgb: "000000" } }
+        }
+      };
+
+      // Hücre verilerini ekle
+      const setCellValue = (cell, value, style) => {
+        ws[cell] = { v: value, t: 's', s: style };
+      };
+
+      // Row 1 - Logo ve İş Emri Bilgileri
+      setCellValue('A1', 'Agora Etiket', { 
+        ...headerStyle, 
+        font: { bold: true, sz: 18, color: { rgb: "4472C4" } },
+        fill: { fgColor: { rgb: "FFFFFF" } }
+      });
+      setCellValue('F1', `İŞ EMRİNİN NO : ${order.orderNo || ''}`, {
+        ...cellStyle,
+        alignment: { horizontal: "left", vertical: "center" }
+      });
+      setCellValue('I1', 'TARİH', headerStyle);
+      setCellValue('J1', new Date().toLocaleDateString('tr-TR'), cellStyle);
+
+      // Row 4 - Üretim Formu Başlığı
+      setCellValue('B4', 'ÜRETİM FORMU', titleStyle);
+
+      // Row 5 - Bölüm başlıkları
+      setCellValue('B5', 'TEKRAR İŞ :', {
+        ...headerStyle,
+        alignment: { horizontal: "center", vertical: "top" },
+        fill: { fgColor: { rgb: "E7E6E6" } },
+        font: { bold: true, sz: 10 }
+      });
+      setCellValue('C5', 'TEKRAR İŞ :', headerStyle);
+      setCellValue('H5', 'REVİZE İŞ :', headerStyle);
+
+      // Row 6 - Firma Adı
+      setCellValue('C6', 'FİRMA ADI', headerStyle);
+      setCellValue('D6', order.customer || '', cellStyle);
+
+      // Row 7 - Ürün Adı
+      setCellValue('C7', 'ÜRÜN ADI', headerStyle);
+      setCellValue('D7', order.product || '', cellStyle);
+
+      // Row 8 - Ölçü ve Biçak Kodu
+      setCellValue('C8', 'ÖLÇÜ', headerStyle);
+      setCellValue('D8', order.graphicsData?.lfSize || order.graphicsData?.clSize || '-', cellStyle);
+      setCellValue('H8', 'BIÇAK KODU', headerStyle);
+      setCellValue('J8', order.graphicsData?.dieStatus || '-', cellStyle);
+
+      // Row 9 - Kağıt Cinsi ve Zet
+      setCellValue('C9', 'KAĞIT CİNSİ', headerStyle);
+      setCellValue('D9', order.rawMaterial || order.graphicsData?.paperWidth || '-', cellStyle);
+      setCellValue('H9', 'ZET', headerStyle);
+      setCellValue('J9', order.graphicsData?.zet || '-', cellStyle);
+
+      // Row 10 - Miktar ve Adımlama
+      setCellValue('C10', 'MİKTAR', headerStyle);
+      setCellValue('D10', `${order.quantity || ''} ${order.quantityUnit || ''}`, cellStyle);
+      setCellValue('H10', 'ADIMLAMA', headerStyle);
+      setCellValue('J10', order.graphicsData?.step || '-', cellStyle);
+
+      // Row 11 - Lak ve Kombine
+      setCellValue('C11', 'LAK', headerStyle);
+      setCellValue('D11', order.graphicsData?.lamination || '-', cellStyle);
+      setCellValue('H11', 'KOMBİNE', headerStyle);
+      setCellValue('J11', order.graphicsData?.combinedInfo || '-', cellStyle);
+
+      // Row 12 - Sarım Yönü ve Termin
+      setCellValue('C12', 'SARIM YÖNÜ', headerStyle);
+      setCellValue('D12', order.graphicsData?.wrapDirection?.title || 'POS1 - Dışa Sarım / Yazı Başı Önde', cellStyle);
+      setCellValue('H12', 'BEKLENEN TERMİN TARİHİ', headerStyle);
+      setCellValue('J12', order.customerDeadline || '-', cellStyle);
+
+      // Row 13 - Baskı Makinesi
+      setCellValue('C13', 'BASKI MAKİNESİ', headerStyle);
+      setCellValue('D13', order.graphicsData?.machine || '-', cellStyle);
+
+      // Row 14 - Renkler
+      setCellValue('C14', 'RENKLER', headerStyle);
+      setCellValue('D14', order.graphicsData?.color || '-', cellStyle);
+
+      // Row 15 - Kuka Çapı
+      setCellValue('C15', 'KUKA ÇAPI', headerStyle);
+      setCellValue('D15', '-', cellStyle);
+
+      // Row 16 - Açıklama başlığı
+      setCellValue('C16', 'AÇIKLAMA', headerStyle);
+      
+      // Row 17-20 - Açıklama içeriği
+      const notes = [
+        order.graphicsData?.notes || '',
+        order.notes || '',
+        order.planningData?.notes || ''
+      ].filter(n => n).join('\n');
+      
+      setCellValue('C17', notes || '-', {
+        ...cellStyle,
+        alignment: { horizontal: "left", vertical: "top", wrapText: true }
+      });
+
+      // Row 21 - Kalite Kontrol satırı
+      setCellValue('C21', 'KALİTE KONTROL', headerStyle);
+      setCellValue('F21', 'AÇILIMI', headerStyle);
+      setCellValue('H21', 'SARIM METRAJ :', headerStyle);
+      setCellValue('J21', 'SARIM_ADET :', headerStyle);
+
+      // Row 23 - Görsel alan başlığı
+      setCellValue('C23', '📷 ÜRÜN GÖRSELİ (Grafik departmanı tarafından yüklenen)', {
+        ...headerStyle,
+        fill: { fgColor: { rgb: "D9D9D9" } },
+        font: { bold: true, sz: 11, color: { rgb: "000000" } }
       });
 
       // Worksheet'i workbook'a ekle
-      XLSX.utils.book_append_sheet(wb, ws, 'İş Emri');
+      XLSX.utils.book_append_sheet(wb, ws, 'Üretim Formu');
 
       // Dosya adı oluştur
-      const fileName = `Is_Emri_${order.orderNo || 'Draft'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `Uretim_Formu_${order.orderNo || 'Draft'}_${new Date().toISOString().split('T')[0]}.xlsx`;
 
       // Excel dosyasını indir
       XLSX.writeFile(wb, fileName);
 
-      alert(`✅ İş emri Excel dosyası indirildi: ${fileName}`);
+      alert(`✅ Üretim formu Excel dosyası indirildi: ${fileName}\n\nNot: Ürün görseli için grafik departmanı tarafından yüklenen görselleri manuel olarak ekleyebilirsiniz.`);
     } catch (error) {
       console.error('Excel export error:', error);
-      alert('❌ Excel dosyası oluşturulurken hata oluştu.');
+      alert('❌ Excel dosyası oluşturulurken hata oluştu: ' + error.message);
     }
   };
 
