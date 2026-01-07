@@ -89,7 +89,9 @@ export default function WrapDirectionModal({ onClose, currentDirection, onSelect
 
   const handleConfirm = () => {
     const direction = WRAP_DIRECTIONS.find(d => d.id === selected);
-    onSelect(direction);
+    // Icon'u çıkar (Firestore serialization için)
+    const { icon, ...serializableDirection } = direction;
+    onSelect(serializableDirection);
     onClose();
   };
 
