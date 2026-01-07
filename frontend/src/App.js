@@ -301,6 +301,14 @@ export default function OrderApp() {
         </div>
       </nav>
 
+      {/* Offline Banner */}
+      {!isOnline && (
+        <div className="bg-yellow-500 text-yellow-900 px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2">
+          <AlertTriangle size={16} />
+          ⚠️ Internet bağlantısı yok. Bazı özellikler çalışmayabilir.
+        </div>
+      )}
+
       <div className="flex relative">
         {/* Mobile Overlay */}
         {isSidebarOpen && (
