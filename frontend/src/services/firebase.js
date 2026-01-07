@@ -45,15 +45,24 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Enable offline persistence for better offline support
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    // Multiple tabs open, persistence can only be enabled in one tab at a time.
-    console.warn('Offline persistence failed: Multiple tabs open');
-  } else if (err.code === 'unimplemented') {
-    // The current browser doesn't support persistence
-    console.warn('Offline persistence not supported by browser');
-  }
-});
+// Enable offline persistence - optional, won't block if fails
+if (typeof window !== 'undefined') {
+  enableIndexedDbPersistence(db, {
+    synchronizeTabs: true // Multiple tab desteği
+  })
+    .then(() => {
+      console.log('✅ Offline persistence enabled');
+    })
+    .catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('⚠️ Offline persistence: Multiple tabs open');
+      } else if (err.code === 'unimplemented') {
+        console.warn('⚠️ Offline persistence not supported by this browser');
+      } else {
+        console.warn('⚠️ Offline persistence failed:', err.message);
+      }
+      // Hata olsa bile uygulama çalışmaya devam eder (online mode)
+    });
+}
 
 export { appId };
