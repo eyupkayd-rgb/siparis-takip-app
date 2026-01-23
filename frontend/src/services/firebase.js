@@ -45,24 +45,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Enable offline persistence - optional, won't block if fails
-if (typeof window !== 'undefined') {
-  enableIndexedDbPersistence(db, {
-    synchronizeTabs: true // Multiple tab desteği
-  })
-    .then(() => {
-      console.log('✅ Offline persistence enabled');
-    })
-    .catch((err) => {
-      if (err.code === 'failed-precondition') {
-        console.warn('⚠️ Offline persistence: Multiple tabs open');
-      } else if (err.code === 'unimplemented') {
-        console.warn('⚠️ Offline persistence not supported by this browser');
-      } else {
-        console.warn('⚠️ Offline persistence failed:', err.message);
-      }
-      // Hata olsa bile uygulama çalışmaya devam eder (online mode)
-    });
-}
+// Offline persistence kaldırıldı (mobil tarayıcılarda ReadableStream hatası veriyordu)
+// Network status indicator ile kullanıcı bilgilendiriliyor
 
 export { appId };
