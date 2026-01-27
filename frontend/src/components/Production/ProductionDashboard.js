@@ -119,10 +119,25 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
 
   const handleSelectOrder = (order) => {
     setSelectedOrder(order);
+    
+    // Kademeli metre aktarımı: Önceki istasyonun çıkış metresi = Mevcut istasyonun giriş metresi
+    let initialInputMeterage = '';
+    
+    const productionData = order.productionData || [];
+    
+    if (productionData.length === 0) {
+      // İlk istasyon: Depodan çıkan metraj veya grafik metrajı
+      initialInputMeterage = order.warehouseData?.issuedMeterage || order.graphicsData?.meterage || '';
+    } else {
+      // Sonraki istasyonlar: Bir önceki istasyonun çıkış metrajını al
+      const lastStationData = productionData[productionData.length - 1];
+      initialInputMeterage = lastStationData?.outputMeterage || '';
+    }
+    
     setStationData({
       startTime: '',
       endTime: '',
-      inputMeterage: order.warehouseData?.issuedMeterage || order.graphicsData?.meterage || '',
+      inputMeterage: initialInputMeterage,
       outputMeterage: '',
       outputQuantity: '',
       notes: '',
