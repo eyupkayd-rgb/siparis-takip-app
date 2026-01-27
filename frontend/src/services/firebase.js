@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, memoryLocalCache } from "firebase/firestore";
 
 // ============================================================================
 // 🔐 CONFIGURATION & ADMIN SETTINGS
@@ -43,9 +43,11 @@ try {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
 
-// Offline persistence kaldırıldı (mobil tarayıcılarda ReadableStream hatası veriyordu)
-// Network status indicator ile kullanıcı bilgilendiriliyor
+// Memory-only cache kullanarak ReadableStream hatasını önle
+// Bu, IndexedDB'ye erişim sorunlarını bypass eder
+export const db = initializeFirestore(app, {
+  localCache: memoryLocalCache()
+});
 
 export { appId };
