@@ -298,10 +298,30 @@ export default function PlanningDashboard({ orders, isSuperAdmin }) {
       // Dosya adı oluştur
       const fileName = `Uretim_Formu_${order.orderNo || 'Draft'}_${new Date().toISOString().split('T')[0]}.xlsx`;
 
-      // Excel dosyasını indir
-      XLSX.writeFile(wb, fileName);
+      // Mobil uyumlu indirme yöntemi - Blob kullanarak
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      // Indirme linki oluştur
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      
+      // iOS Safari için özel işlem
+      if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        // iOS'ta yeni sekmede aç
+        window.open(url, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      } else {
+        // Diğer cihazlarda normal indirme
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      }
 
-      alert(`✅ Modern üretim formu Excel dosyası indirildi!\n\n📁 ${fileName}\n\n💡 PC'de açarak daha iyi görebilirsiniz.`);
+      alert(`✅ İş emri formu Excel dosyası oluşturuldu!\n\n📁 ${fileName}\n\n💡 Dosya indirme klasörünüze kaydedildi.`);
     } catch (error) {
       console.error('Excel export error:', error);
       alert('❌ Excel dosyası oluşturulurken hata oluştu: ' + error.message);
