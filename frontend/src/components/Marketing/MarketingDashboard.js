@@ -3,6 +3,7 @@ import { Plus, Sparkles, MessageSquare, Loader2, Edit3, Trash2, Search, Grid, Li
 import { collection, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { callGemini } from '../../services/gemini';
+import { generateProductionJobs } from '../../utils/productionHelpers';
 import StatusBadge from '../shared/StatusBadge';
 import AttachmentManager from '../shared/AttachmentManager';
 import CustomerCardModal from '../MasterData/CustomerCardModal';
