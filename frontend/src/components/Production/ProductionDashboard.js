@@ -293,7 +293,8 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
         outputMeterage: '',
         outputQuantity: '',
         notes: '',
-        isStarted: false
+        isStarted: false,
+        operatorName: ''
       });
     } catch (error) {
       console.error("Station save error:", error);
