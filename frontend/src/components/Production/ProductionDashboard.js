@@ -479,14 +479,25 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
 
                     <div>
                       <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">
-                        Önceki Notlar
+                        Önceki İşlemler
                       </h4>
                       <div className="text-xs space-y-1">
                         {selectedOrder.productionData && selectedOrder.productionData.length > 0 ? (
                           selectedOrder.productionData.map((pd, idx) => (
                             <div key={idx} className="bg-yellow-50 p-2 rounded border border-yellow-200">
-                              <div className="font-bold">{pd.stationName}:</div>
-                              <div className="text-gray-700">{pd.notes || 'Not yok'}</div>
+                              <div className="font-bold text-yellow-800">{pd.stationName}</div>
+                              {pd.operatorName && (
+                                <div className="text-blue-700 flex items-center gap-1">
+                                  <User size={10} />
+                                  {pd.operatorName}
+                                </div>
+                              )}
+                              <div className="text-gray-600 text-[10px]">
+                                Giriş: {pd.inputMeterage}m → Çıkış: {pd.outputMeterage}m
+                              </div>
+                              {pd.notes && (
+                                <div className="text-gray-700 mt-1 italic">"{pd.notes}"</div>
+                              )}
                             </div>
                           ))
                         ) : (
