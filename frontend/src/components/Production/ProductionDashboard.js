@@ -255,6 +255,7 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
       const newStationData = {
         station: selectedStation,
         stationName: stationInfo.name,
+        operatorName: stationData.operatorName, // Operatör ismi
         startTime: stationData.startTime,
         endTime: stationData.endTime,
         inputMeterage: stationData.inputMeterage,
