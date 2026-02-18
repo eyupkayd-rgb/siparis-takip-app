@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Printer, Play, StopCircle, CheckCircle, X, Loader2, AlertCircle, BarChart3, ClipboardCheck, PackageCheck, Search } from 'lucide-react';
+import { Printer, Play, StopCircle, CheckCircle, X, Loader2, AlertCircle, BarChart3, ClipboardCheck, PackageCheck, Search, User } from 'lucide-react';
 import { updateDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { logStockMovement } from '../../utils/stockHelpers';
@@ -17,8 +17,23 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
     outputMeterage: '',
     outputQuantity: '', // Adet veya KG (son istasyon için)
     notes: '',
-    isStarted: false // İş başlatıldı mı
+    isStarted: false, // İş başlatıldı mı
+    operatorName: '' // Operatör ismi
   });
+
+  // Operatör listesi
+  const operators = [
+    'Ahmet Yılmaz',
+    'Mehmet Demir',
+    'Ali Kaya',
+    'Mustafa Çelik',
+    'Hasan Şahin',
+    'Hüseyin Yıldız',
+    'İbrahim Öztürk',
+    'Osman Aydın',
+    'Fatih Arslan',
+    'Emre Doğan'
+  ];
 
   // Station definitions
   const stations = {
