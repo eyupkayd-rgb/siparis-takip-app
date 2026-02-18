@@ -533,6 +533,25 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
 
                 {/* Station Form */}
                 <form onSubmit={handleSaveStation} className="space-y-6">
+                  {/* Operatör Seçimi */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border-2 border-blue-200">
+                    <label className="label flex items-center gap-2 text-blue-800">
+                      <User size={18} />
+                      Operatör Seçimi *
+                    </label>
+                    <select
+                      required
+                      className="input-field mt-2 text-lg font-semibold"
+                      value={stationData.operatorName}
+                      onChange={e => setStationData({ ...stationData, operatorName: e.target.value })}
+                    >
+                      <option value="">-- Operatör Seçin --</option>
+                      {operators.map(op => (
+                        <option key={op} value={op}>{op}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     <div>
