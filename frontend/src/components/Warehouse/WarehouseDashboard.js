@@ -593,7 +593,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                     };
                     
                     return (
-                      <tr key={movement.id} className="border-b border-gray-100 hover:bg-indigo-50 group">
+                      <tr key={`movement-${movement.id}`} className="border-b border-gray-100 hover:bg-indigo-50 group">
                         <td className="p-3">
                           <div className="text-xs text-gray-600">
                             {movementDate.toLocaleDateString('tr-TR')}
@@ -623,16 +623,24 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                             </span>
                           )}
                         </td>
-                        {isSuperAdmin && (
+                        {isSuperAdmin && !isDeletingMovements && (
                           <td className="p-3 text-center">
                             <button
-                              onClick={async () => {
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                const movementId = movement.id;
                                 if (window.confirm(`Bu stok hareketini silmek istediğinize emin misiniz?\n\nTip: ${movement.type}\nBarkod: ${movement.rollBarcode}\nMiktar: ${movement.quantity} ${movement.unit}`)) {
+                                  setIsDeletingMovements(true);
                                   try {
-                                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_movements', movement.id));
+                                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_movements', movementId));
                                   } catch (error) {
                                     console.error('Silme hatası:', error);
                                     alert('❌ Silme hatası: ' + error.message);
+                                  } finally {
+                                    // Kısa bir gecikme ekle
+                                    setTimeout(() => {
+                                      setIsDeletingMovements(false);
+                                    }, 500);
                                   }
                                 }
                               }}
