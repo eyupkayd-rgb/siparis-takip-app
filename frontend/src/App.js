@@ -489,6 +489,9 @@ export default function OrderApp() {
           {currentView === 'archive' && (
             <ArchiveDashboard orders={orders} isSuperAdmin={isSuperAdmin} />
           )}
+          {currentView === 'reports' && (
+            <ReportsDashboard orders={orders} stockMovements={stockMovements} stockRolls={stockRolls} />
+          )}
           {currentView === 'admin' && <AdminDashboard />}
         </main>
       </div>
