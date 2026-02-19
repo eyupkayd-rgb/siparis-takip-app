@@ -20,6 +20,9 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 6. ⏳ Sarım yönü görsel seçimi (placeholder ikonlar mevcut)
 7. ✅ Excel iş emri export (mobil uyumlu Blob yöntemi)
 8. ✅ Kademeli metre aktarımı (istasyonlar arası)
+9. ✅ Operatör seçimi dropdown'u (üretim istasyonları için)
+10. ✅ Stok hareketleri silme (Super Admin - tek tek ve toplu)
+11. ✅ Raporlama & İstatistikler sayfası
 
 ## Mevcut Mimari
 ```
@@ -29,26 +32,38 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 │   ├── components/
 │   │   ├── Marketing/MarketingDashboard.js
 │   │   ├── Graphics/GraphicsDashboard.js, WrapDirectionModal.js
-│   │   ├── Warehouse/WarehouseDashboard.js
+│   │   ├── Warehouse/WarehouseDashboard.js (stok silme özellikleri)
 │   │   ├── Planning/PlanningDashboard.js (Excel export)
-│   │   ├── Production/ProductionDashboard.js (kademeli metre)
+│   │   ├── Production/ProductionDashboard.js (operatör seçimi)
+│   │   ├── Reports/ReportsDashboard.js (YENİ - raporlama)
 │   │   ├── Archive/ArchiveDashboard.js
 │   │   └── Admin/AdminDashboard.js
 │   └── services/firebase.js
 ```
 
-## Tamamlanan İşler (27 Ocak 2026)
+## Tamamlanan İşler (Bu Oturum)
+
+### 27 Ocak 2026
 - ✅ P0: Üretim akışında kademeli metre aktarımı düzeltildi
-  - `handleSelectOrder` fonksiyonu güncellendi
-  - Önceki istasyonun `outputMeterage` → Sonraki istasyonun `inputMeterage`
-- ✅ P1: Mobil Excel export sorunu düzeltildi
-  - Blob tabanlı indirme yöntemi eklendi
-  - iOS Safari için özel işlem
+- ✅ P1: Mobil Excel export sorunu düzeltildi (Blob yöntemi)
+
+### 18 Şubat 2026
+- ✅ Operatör seçimi dropdown'u eklendi (ProductionDashboard)
+  - 10 örnek operatör listesi
+  - Her istasyonda operatör seçimi zorunlu
+  - Önceki işlemlerde operatör bilgisi görüntüleniyor
+- ✅ Stok hareketleri silme özellikleri (WarehouseDashboard)
+  - Super Admin için "Tümünü Temizle" butonu
+  - Her satırda tek tek silme butonu
+  - Loading state ve güvenlik onayları
+- ✅ Raporlama & İstatistikler sayfası (ReportsDashboard)
+  - Genel Bakış: Özet kartlar, haftalık trend, durum dağılımı, günlük trend
+  - Üretim: İstasyon bazlı performans, operatör performansı
+  - Siparişler: Kategori dağılımı, en çok sipariş veren müşteriler
+  - Stok: Stok hareketleri özeti, mevcut stok durumu
+  - Tarih filtresi: Hafta/Ay/3 Ay/Yıl
 
 ## Öncelikli Backlog
-
-### P0 - Kritik
-- (Tamamlandı)
 
 ### P1 - Yüksek
 - Super Admin: Toplu silme ve sipariş no düzenleme test edilmeli
@@ -66,3 +81,4 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 - Firebase (Auth, Firestore)
 - Google Gemini (AI tahmin)
 - SheetJS/xlsx (Excel export)
+- Recharts (grafikler ve raporlama)
