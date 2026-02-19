@@ -35,6 +35,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
   const [showStockMovements, setShowStockMovements] = useState(false);
   const [editingRoll, setEditingRoll] = useState(null);
   const [showEditRollModal, setShowEditRollModal] = useState(false);
+  const [isDeletingMovements, setIsDeletingMovements] = useState(false);
   const [wData, setWData] = useState({
     materialStatus: '',
     slittingDate: '',
