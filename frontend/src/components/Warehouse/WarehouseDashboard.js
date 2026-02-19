@@ -448,6 +448,17 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
         </div>
       ) : showStockMovements ? (
         <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100">
+          {/* Silme işlemi devam ediyorsa overlay göster */}
+          {isDeletingMovements && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50 rounded-2xl">
+              <div className="text-center">
+                <Loader2 size={48} className="animate-spin text-red-600 mx-auto mb-4" />
+                <p className="text-lg font-bold text-gray-800">Siliniyor...</p>
+                <p className="text-sm text-gray-600">Lütfen bekleyin</p>
+              </div>
+            </div>
+          )}
+          
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
               <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -461,19 +472,24 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                 Toplam: <span className="font-bold text-lg">{stockMovements?.length || 0}</span> hareket
               </div>
               {/* Super Admin: Tümünü Temizle Butonu */}
-              {isSuperAdmin && stockMovements && stockMovements.length > 0 && (
+              {isSuperAdmin && stockMovements && stockMovements.length > 0 && !isDeletingMovements && (
                 <button
                   onClick={async () => {
                     if (window.confirm(`⚠️ DİKKAT!\n\nTüm stok hareketleri (${stockMovements.length} kayıt) kalıcı olarak silinecek!\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?`)) {
                       if (window.confirm('🔴 SON UYARI!\n\nBu işlem TÜM stok hareket kayıtlarını silecek. Emin misiniz?')) {
+                        setIsDeletingMovements(true);
                         try {
-                          for (const movement of stockMovements) {
-                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_movements', movement.id));
+                          // Silme işlemini batch halinde yap
+                          const movementIds = stockMovements.map(m => m.id);
+                          for (const id of movementIds) {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_movements', id));
                           }
                           alert('✅ Tüm stok hareketleri başarıyla silindi!');
                         } catch (error) {
                           console.error('Silme hatası:', error);
                           alert('❌ Silme işlemi sırasında hata oluştu: ' + error.message);
+                        } finally {
+                          setIsDeletingMovements(false);
                         }
                       }
                     }
