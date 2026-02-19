@@ -447,7 +447,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
           )}
         </div>
       ) : showStockMovements ? (
-        <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100">
+        <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100 relative">
           {/* Silme işlemi devam ediyorsa overlay göster */}
           {isDeletingMovements && (
             <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50 rounded-2xl">
