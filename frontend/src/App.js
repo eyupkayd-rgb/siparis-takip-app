@@ -51,6 +51,7 @@ import GraphicsDashboard from './components/Graphics/GraphicsDashboard';
 import WarehouseDashboard from './components/Warehouse/WarehouseDashboard';
 import PlanningDashboard from './components/Planning/PlanningDashboard';
 import ProductionDashboard from './components/Production/ProductionDashboard';
+import ReportsDashboard from './components/Reports/ReportsDashboard';
 
 // Legacy compatibility
 const ADMIN_EMAILS = SUPER_ADMIN_EMAILS;
