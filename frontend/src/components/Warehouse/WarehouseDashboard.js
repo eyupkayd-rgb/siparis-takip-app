@@ -563,6 +563,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                     <th className="p-3 text-left font-bold">Hammadde</th>
                     <th className="p-3 text-center font-bold">Miktar</th>
                     <th className="p-3 text-left font-bold">Açıklama</th>
+                    {isSuperAdmin && <th className="p-3 text-center font-bold">İşlem</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -575,7 +576,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                     };
                     
                     return (
-                      <tr key={movement.id} className="border-b border-gray-100 hover:bg-indigo-50">
+                      <tr key={movement.id} className="border-b border-gray-100 hover:bg-indigo-50 group">
                         <td className="p-3">
                           <div className="text-xs text-gray-600">
                             {movementDate.toLocaleDateString('tr-TR')}
@@ -605,6 +606,26 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                             </span>
                           )}
                         </td>
+                        {isSuperAdmin && (
+                          <td className="p-3 text-center">
+                            <button
+                              onClick={async () => {
+                                if (window.confirm(`Bu stok hareketini silmek istediğinize emin misiniz?\n\nTip: ${movement.type}\nBarkod: ${movement.rollBarcode}\nMiktar: ${movement.quantity} ${movement.unit}`)) {
+                                  try {
+                                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_movements', movement.id));
+                                  } catch (error) {
+                                    console.error('Silme hatası:', error);
+                                    alert('❌ Silme hatası: ' + error.message);
+                                  }
+                                }
+                              }}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                              title="Bu hareketi sil"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}
