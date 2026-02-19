@@ -417,6 +417,21 @@ export default function OrderApp() {
               <>
                 <button
                   onClick={() => {
+                    setCurrentView('reports');
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-xl font-bold transition flex items-center gap-2 ${
+                    currentView === 'reports'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  <BarChart3 size={20} />
+                  Raporlar
+                </button>
+
+                <button
+                  onClick={() => {
                     setCurrentView('archive');
                     setIsSidebarOpen(false);
                   }}
