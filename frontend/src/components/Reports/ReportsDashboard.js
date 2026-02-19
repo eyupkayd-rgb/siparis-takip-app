@@ -553,7 +553,7 @@ export default function ReportsDashboard({ orders, stockMovements, stockRolls })
               {topCustomers.length > 0 ? (
                 <div className="space-y-3 max-h-[280px] overflow-y-auto">
                   {topCustomers.map((customer, index) => (
-                    <div key={index} className="flex items-center gap-3">
+                    <div key={`customer-${index}-${customer.name}`} className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
                         index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-600' : 'bg-gray-300'
                       }`}>
