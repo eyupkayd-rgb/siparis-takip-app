@@ -395,25 +395,32 @@ export default function ReportsDashboard({ orders, stockMovements, stockRolls })
                 <PieChartIcon size={20} className="text-purple-600" />
                 Sipariş Durumu Dağılımı
               </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={ordersByStatus}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {ordersByStatus.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              {ordersByStatus.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={ordersByStatus}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      nameKey="name"
+                    >
+                      {ordersByStatus.map((entry, index) => (
+                        <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name) => [`${value} sipariş`, name]} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-center py-12 text-gray-400">
+                  <PieChartIcon size={48} className="mx-auto mb-3 opacity-30" />
+                  <p>Veri bulunamadı</p>
+                </div>
+              )}
             </div>
           </div>
 
