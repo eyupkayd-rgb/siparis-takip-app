@@ -447,7 +447,7 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
         </div>
       ) : showStockMovements ? (
         <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
               <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <BarChart3 size={28} className="text-indigo-600" />
@@ -455,8 +455,34 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
               </h3>
               <p className="text-sm text-gray-600 mt-1">Tüm giriş, çıkış ve rezervasyon işlemleri</p>
             </div>
-            <div className="text-sm text-gray-600">
-              Toplam: <span className="font-bold text-lg">{stockMovements?.length || 0}</span> hareket
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-600">
+                Toplam: <span className="font-bold text-lg">{stockMovements?.length || 0}</span> hareket
+              </div>
+              {/* Super Admin: Tümünü Temizle Butonu */}
+              {isSuperAdmin && stockMovements && stockMovements.length > 0 && (
+                <button
+                  onClick={async () => {
+                    if (window.confirm(`⚠️ DİKKAT!\n\nTüm stok hareketleri (${stockMovements.length} kayıt) kalıcı olarak silinecek!\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?`)) {
+                      if (window.confirm('🔴 SON UYARI!\n\nBu işlem TÜM stok hareket kayıtlarını silecek. Emin misiniz?')) {
+                        try {
+                          for (const movement of stockMovements) {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stock_movements', movement.id));
+                          }
+                          alert('✅ Tüm stok hareketleri başarıyla silindi!');
+                        } catch (error) {
+                          console.error('Silme hatası:', error);
+                          alert('❌ Silme işlemi sırasında hata oluştu: ' + error.message);
+                        }
+                      }
+                    }
+                  }}
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg transition-all"
+                >
+                  <Trash2 size={16} />
+                  <span className="hidden sm:inline">Tümünü Temizle</span>
+                </button>
+              )}
             </div>
           </div>
 
