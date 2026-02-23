@@ -44,15 +44,25 @@ export const generateProductionJobs = (complexData) => {
 
 export const calculatePlateMeterage = (plate) => {
   if (!plate.zStep || !plate.items.length) return 0;
-  let maxMeterage = 0;
+  
+  // Tüm işlerin toplam adetini hesapla
+  let totalQuantity = 0;
+  // Tüm işlerin toplam kaçlı (kombine) sayısını hesapla
+  let totalLanes = 0;
   
   plate.items.forEach(item => {
-    const jobQty = parseInt(item.job.quantity);
-    const lanes = parseInt(item.lanes);
-    if (lanes > 0) {
-      const requiredMeters = (jobQty / lanes) * (parseFloat(plate.zStep) / 1000);
-      if (requiredMeters > maxMeterage) maxMeterage = requiredMeters;
-    }
+    const jobQty = parseInt(item.job.quantity) || 0;
+    const lanes = parseInt(item.lanes) || 1;
+    totalQuantity += jobQty;
+    totalLanes += lanes;
   });
-  return Math.ceil(maxMeterage);
+  
+  // Formül: Z-Step (mm) × Toplam Adet / Kombine Toplamı / 1000 (mm -> m)
+  if (totalLanes > 0 && totalQuantity > 0) {
+    const zStep = parseFloat(plate.zStep) || 0;
+    const metersRequired = (zStep * totalQuantity) / totalLanes / 1000;
+    return Math.ceil(metersRequired);
+  }
+  
+  return 0;
 };
