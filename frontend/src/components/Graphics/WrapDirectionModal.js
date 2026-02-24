@@ -166,9 +166,9 @@ export default function WrapDirectionModal({ onClose, currentDirection, onSelect
                     )}
 
                     {/* Icon Container */}
-                    <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                       <div className={`
-                        w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden
+                        w-40 h-40 rounded-xl flex items-center justify-center overflow-hidden
                         bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300
                       `}>
                         {/* Eğer imageUrl varsa görseli göster, yoksa placeholder */}
@@ -190,11 +190,6 @@ export default function WrapDirectionModal({ onClose, currentDirection, onSelect
                             </div>
                           </div>
                         )}
-                      </div>
-
-                      {/* Pozisyon Numarası */}
-                      <div className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                        {direction.id}
                       </div>
 
                       {/* Başlık */}
