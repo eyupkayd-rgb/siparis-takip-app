@@ -10,7 +10,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan dışa doğru, ABC düz okunur',
     icon: ArrowUp,
     color: 'blue',
-    rotation: 0
+    rotation: 0,
+    imageUrl: null // Görsel henüz yok
   },
   {
     id: 'POS2',
@@ -19,7 +20,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan dışa doğru, ABC ters (CBA)',
     icon: ArrowDown,
     color: 'blue',
-    rotation: 180
+    rotation: 180,
+    imageUrl: 'https://customer-assets.emergentagent.com/job_labelflow-12/artifacts/u4ql49wf_yaz%C4%B1%20sonu.png'
   },
   {
     id: 'POS3',
@@ -28,7 +30,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan dışa doğru, 90° sağa',
     icon: ArrowRight,
     color: 'blue',
-    rotation: 90
+    rotation: 90,
+    imageUrl: null
   },
   {
     id: 'POS4',
@@ -37,7 +40,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan dışa doğru, 90° sola',
     icon: ArrowLeft,
     color: 'blue',
-    rotation: -90
+    rotation: -90,
+    imageUrl: null
   },
   {
     id: 'POS5',
@@ -46,7 +50,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan içe doğru, ABC düz okunur',
     icon: ArrowUp,
     color: 'purple',
-    rotation: 0
+    rotation: 0,
+    imageUrl: null
   },
   {
     id: 'POS6',
@@ -55,7 +60,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan içe doğru, ABC ters (CBA)',
     icon: ArrowDown,
     color: 'purple',
-    rotation: 180
+    rotation: 180,
+    imageUrl: null
   },
   {
     id: 'POS7',
@@ -64,7 +70,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan içe doğru, 90° sağa',
     icon: ArrowRight,
     color: 'purple',
-    rotation: 90
+    rotation: 90,
+    imageUrl: null
   },
   {
     id: 'POS8',
@@ -73,7 +80,8 @@ const WRAP_DIRECTIONS = [
     description: 'Rulodan içe doğru, 90° sola',
     icon: ArrowLeft,
     color: 'purple',
-    rotation: -90
+    rotation: -90,
+    imageUrl: null
   }
 ];
 
