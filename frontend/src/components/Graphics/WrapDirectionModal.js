@@ -169,17 +169,14 @@ export default function WrapDirectionModal({ onClose, currentDirection, onSelect
                     <div className="flex flex-col items-center gap-3">
                       <div className={`
                         w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden
-                        ${direction.imageUrl 
-                          ? 'bg-white border-2 border-blue-300' 
-                          : 'bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300'
-                        }
+                        bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300
                       `}>
                         {/* Eğer imageUrl varsa görseli göster, yoksa placeholder */}
                         {direction.imageUrl ? (
                           <img 
                             src={direction.imageUrl} 
                             alt={direction.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain p-1"
                           />
                         ) : (
                           <div className="relative">
