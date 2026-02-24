@@ -11,7 +11,7 @@ const WRAP_DIRECTIONS = [
     icon: ArrowUp,
     color: 'blue',
     rotation: 0,
-    imageUrl: null // Görsel henüz yok
+    imageUrl: 'https://customer-assets.emergentagent.com/job_labelflow-12/artifacts/8u33bkju_Gemini_Generated_Image_t18w3yt18w3yt18w.png'
   },
   {
     id: 'POS2',
