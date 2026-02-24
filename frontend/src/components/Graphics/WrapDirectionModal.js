@@ -168,20 +168,28 @@ export default function WrapDirectionModal({ onClose, currentDirection, onSelect
                     {/* Icon Container */}
                     <div className="flex flex-col items-center gap-3">
                       <div className={`
-                        w-32 h-32 rounded-xl flex items-center justify-center
+                        w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden
                         bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300
                       `}>
-                        {/* Rulo görseli */}
-                        <div className="relative">
-                          <RotateCw size={40} className="text-blue-600" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Icon 
-                              size={24} 
-                              className="text-blue-800"
-                              style={{ transform: `rotate(${direction.rotation}deg)` }}
-                            />
+                        {/* Eğer imageUrl varsa görseli göster, yoksa placeholder */}
+                        {direction.imageUrl ? (
+                          <img 
+                            src={direction.imageUrl} 
+                            alt={direction.title}
+                            className="w-full h-full object-contain p-1"
+                          />
+                        ) : (
+                          <div className="relative">
+                            <RotateCw size={40} className="text-blue-600" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Icon 
+                                size={24} 
+                                className="text-blue-800"
+                                style={{ transform: `rotate(${direction.rotation}deg)` }}
+                              />
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       {/* Pozisyon Numarası */}
