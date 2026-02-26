@@ -73,9 +73,26 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
     try {
       const ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
       
-      const finalQuantity = formData.isComplex 
-        ? formData.variants.map(v => `${v.quantity} ${v.unit || 'Adet'}`).join(' + ') + ' (Toplam)' 
-        : `${formData.qAmount} ${formData.qUnit}`;
+      // Varyantlı siparişlerde her birimi ayrı ayrı grupla
+      let finalQuantity;
+      let quantityByUnit = null;
+      
+      if (formData.isComplex) {
+        // Birimlere göre grupla: { Adet: 150, KG: 50, Metre: 200 }
+        const grouped = {};
+        formData.variants.forEach(v => {
+          const unit = v.unit || 'Adet';
+          const qty = parseFloat(v.quantity) || 0;
+          grouped[unit] = (grouped[unit] || 0) + qty;
+        });
+        quantityByUnit = grouped;
+        
+        // Okunabilir toplam string oluştur
+        const parts = Object.entries(grouped).map(([unit, qty]) => `${qty} ${unit}`);
+        finalQuantity = parts.join(' + ');
+      } else {
+        finalQuantity = `${formData.qAmount} ${formData.qUnit}`;
+      }
       
       const generatedJobs = formData.isComplex ? generateProductionJobs(formData) : [];
 
