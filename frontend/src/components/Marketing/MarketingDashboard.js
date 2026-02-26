@@ -456,38 +456,67 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
                 </div>
                 
                 {formData.variants.map((variant, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-2 items-start bg-white p-3 rounded-lg border border-purple-200">
-                    <span className="text-sm font-bold text-purple-600 pt-2 col-span-1">
-                      {index + 1}.
-                    </span>
-                    <textarea
-                      required
-                      placeholder="Varyant Adı (Örn: Elma, Portakal)"
-                      className="input-field resize-none overflow-hidden col-span-9"
-                      style={{ minHeight: '42px' }}
-                      rows="1"
-                      value={variant.name}
-                      onChange={e => {
-                        handleVariantChange(index, 'name', e.target.value);
-                        autoResizeTextarea(e);
-                      }}
-                      onInput={autoResizeTextarea}
-                    />
-                    <input
-                      required
-                      type="number"
-                      placeholder="Adet"
-                      className="input-field col-span-1"
-                      value={variant.quantity}
-                      onChange={e => handleVariantChange(index, 'quantity', e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeVariant(index)}
-                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors col-span-1"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                  <div key={index} className="bg-white p-4 rounded-lg border-2 border-purple-200 hover:border-purple-300 transition-all">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg font-bold text-purple-600 bg-purple-100 w-8 h-8 rounded-full flex items-center justify-center">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm font-medium text-gray-600">Varyant</span>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        className="ml-auto text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                      {/* Varyant Adı */}
+                      <div className="md:col-span-5">
+                        <label className="text-xs font-bold text-gray-600 mb-1 block">Varyant Adı</label>
+                        <textarea
+                          required
+                          placeholder="Örn: Elma, Portakal, Kırmızı"
+                          className="input-field resize-none overflow-hidden w-full"
+                          style={{ minHeight: '42px' }}
+                          rows="1"
+                          value={variant.name}
+                          onChange={e => {
+                            handleVariantChange(index, 'name', e.target.value);
+                            autoResizeTextarea(e);
+                          }}
+                          onInput={autoResizeTextarea}
+                        />
+                      </div>
+                      
+                      {/* Miktar */}
+                      <div className="md:col-span-4">
+                        <label className="text-xs font-bold text-gray-600 mb-1 block">Miktar</label>
+                        <input
+                          required
+                          type="number"
+                          placeholder="Miktar giriniz"
+                          className="input-field w-full text-lg font-bold"
+                          value={variant.quantity}
+                          onChange={e => handleVariantChange(index, 'quantity', e.target.value)}
+                        />
+                      </div>
+                      
+                      {/* Birim Seçimi */}
+                      <div className="md:col-span-3">
+                        <label className="text-xs font-bold text-gray-600 mb-1 block">Birim</label>
+                        <select
+                          className="input-field w-full font-bold"
+                          value={variant.unit || 'Adet'}
+                          onChange={e => handleVariantChange(index, 'unit', e.target.value)}
+                        >
+                          <option value="Adet">Adet</option>
+                          <option value="KG">KG</option>
+                          <option value="Metre">Metre</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 ))}
                 
