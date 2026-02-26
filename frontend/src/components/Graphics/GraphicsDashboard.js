@@ -623,9 +623,9 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                           <Calculator size={18} />
                           Metraj Hesaplama (Adet Bazlı)
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div>
-                            <label className="label text-green-800">Yanyana Kaçlı</label>
+                            <label className="label text-green-800">Kombine (Yanyana Kaçlı)</label>
                             <input
                               required
                               type="number"
@@ -636,9 +636,20 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                             />
                           </div>
                           <div>
+                            <label className="label text-green-800">Akışa Göre Kaçlı</label>
+                            <input
+                              required
+                              type="number"
+                              className="input-field border-green-300"
+                              placeholder="Örn: 1"
+                              value={gData.akisaGoreKacli}
+                              onChange={e => setGData({ ...gData, akisaGoreKacli: e.target.value })}
+                            />
+                          </div>
+                          <div>
                             <label className="label text-green-800 flex items-center gap-1">
                               <Calculator size={14} />
-                              Adımlama (mm) - Otomatik
+                              Adımlama (mm)
                             </label>
                             <input
                               required
@@ -652,7 +663,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                           <div>
                             <label className="label text-green-800 flex items-center gap-1">
                               <Calculator size={14} />
-                              Metraj (Otomatik)
+                              Metraj
                             </label>
                             <input
                               readOnly
