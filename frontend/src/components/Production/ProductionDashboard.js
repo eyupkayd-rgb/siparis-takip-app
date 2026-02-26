@@ -351,6 +351,8 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
           <option value="">-- İstasyon Seçin --</option>
           <optgroup label="Etiket İstasyonları">
             <option value="bobst_m1">Bobst M1 Operatörü</option>
+            <option value="serigrafi">Serigrafi</option>
+            <option value="flat_kesim">Flat Kesim</option>
             <option value="etiket_qc">Kalite Kontrol (Etiket)</option>
           </optgroup>
           <optgroup label="Ambalaj İstasyonları">
