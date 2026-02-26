@@ -636,7 +636,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                             />
                           </div>
                           <div>
-                            <label className="label text-green-800">Akışa Göre Kaçlı</label>
+                            <label className="label text-green-800">Akış/Tekrar (Alt Alta)</label>
                             <input
                               required
                               type="number"
