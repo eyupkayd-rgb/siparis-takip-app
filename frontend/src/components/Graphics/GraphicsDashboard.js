@@ -522,7 +522,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                   </select>
                 </div>
 
-                {/* ZET - HER DURUMDA GÖRÜNÜR (ÖNEMLİ DEĞİŞİKLİK!) */}
+                {/* ZET - HER DURUMDA GÖRÜNÜR */}
                 <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
                   <label className="label text-yellow-800 font-bold flex items-center gap-2">
                     <Ruler size={16} />
@@ -536,14 +536,6 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                     value={gData.zet}
                     onChange={e => setGData({ ...gData, zet: e.target.value })}
                   />
-                  <p className="text-[10px] text-yellow-700 mt-1 italic">
-                    Formül: ZET × 3.175 = Adımlama (mm)
-                  </p>
-                  {gData.zet && (
-                    <p className="text-xs text-green-700 mt-1 font-bold bg-green-100 px-2 py-1 rounded">
-                      {gData.zet} × 3.175 = {(parseFloat(gData.zet) * 3.175).toFixed(1)} mm
-                    </p>
-                  )}
                 </div>
 
                 {/* Paper Width - Important for Warehouse */}
