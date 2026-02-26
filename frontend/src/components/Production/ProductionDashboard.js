@@ -83,7 +83,9 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
     const category = order.category;
 
     if (category === 'Etiket') {
-      if (lastStation.station === 'bobst_m1') return 'etiket_qc';
+      if (lastStation.station === 'bobst_m1') return 'serigrafi';
+      if (lastStation.station === 'serigrafi') return 'flat_kesim';
+      if (lastStation.station === 'flat_kesim') return 'etiket_qc';
       return null; // Tamamlanmış
     } else {
       // Ambalaj akışı
