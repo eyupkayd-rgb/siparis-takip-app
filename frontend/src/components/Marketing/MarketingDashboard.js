@@ -116,7 +116,8 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
         rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
         customerDeadline: '', attachments: [],
         isComplex: false, isSet: false, commonBack: false, variants: [],
-        notes: ''
+        notes: '',
+        isPrinted: true
       });
     } catch (error) {
       console.error("Order save error:", error);
