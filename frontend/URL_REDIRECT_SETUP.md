@@ -52,7 +52,7 @@ sudo supervisorctl restart frontend
 ## 📝 Kullanım Senaryoları
 
 ### Senaryo 1: Preview URL'den Production'a
-**Eski Link:** `https://labelflow-12.preview.emergentagent.com`
+**Eski Link:** `https://production-hub-105.preview.emergentagent.com`
 **Yönlendirilir:** `https://stockmate.com`
 
 ### Senaryo 2: Eski Version'dan Yeni Version'a
