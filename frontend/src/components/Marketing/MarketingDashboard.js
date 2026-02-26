@@ -330,6 +330,53 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
                   <span className="font-bold text-gray-700">📦 Ambalaj Siparişi</span>
                 </label>
               </div>
+
+              {/* Baskılı/Baskısız Seçeneği - Sadece Ambalaj için */}
+              {formData.category === 'Ambalaj' && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border-2 border-orange-200">
+                  <label className="label text-orange-800 mb-3 flex items-center gap-2">
+                    🎨 Baskı Durumu
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    <label className={`flex items-center gap-2 cursor-pointer px-4 py-3 rounded-lg border-2 transition-all ${
+                      formData.isPrinted 
+                        ? 'bg-green-100 border-green-500 shadow-md' 
+                        : 'bg-white border-gray-200 hover:border-green-300'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="isPrinted"
+                        checked={formData.isPrinted === true}
+                        onChange={() => setFormData({...formData, isPrinted: true})}
+                        className="w-5 h-5 text-green-600"
+                      />
+                      <span className="font-bold text-gray-700">🖨️ Baskılı</span>
+                      <span className="text-xs text-gray-500">(Grafik → Depo → Üretim)</span>
+                    </label>
+                    
+                    <label className={`flex items-center gap-2 cursor-pointer px-4 py-3 rounded-lg border-2 transition-all ${
+                      !formData.isPrinted 
+                        ? 'bg-blue-100 border-blue-500 shadow-md' 
+                        : 'bg-white border-gray-200 hover:border-blue-300'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="isPrinted"
+                        checked={formData.isPrinted === false}
+                        onChange={() => setFormData({...formData, isPrinted: false})}
+                        className="w-5 h-5 text-blue-600"
+                      />
+                      <span className="font-bold text-gray-700">📦 Baskısız</span>
+                      <span className="text-xs text-gray-500">(Direkt Depo → Üretim)</span>
+                    </label>
+                  </div>
+                  {!formData.isPrinted && (
+                    <p className="text-sm text-blue-700 mt-3 bg-blue-50 p-2 rounded-lg">
+                      ℹ️ Baskısız ambalaj siparişi grafik bölümünü atlayarak direkt depoya düşecektir.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Basic Fields */}
