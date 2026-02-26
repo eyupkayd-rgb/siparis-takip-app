@@ -580,13 +580,10 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                         required
                         type="number"
                         className="input-field bg-green-50 font-bold text-green-700"
-                        placeholder="ZET'ten hesaplanır"
+                        placeholder="Hesaplanıyor..."
                         value={gData.step}
                         readOnly
                       />
-                      <p className="text-[10px] text-green-600 mt-1">
-                        ZET × 3.175 = {gData.step || '...'} mm
-                      </p>
                     </div>
                     <div>
                       <label className="label flex items-center gap-1">
@@ -599,9 +596,6 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                         value={gData.meterage}
                         readOnly
                       />
-                      <p className="text-[10px] text-gray-500 mt-1">
-                        Formül: (Adet × Adımlama) / Kombine / 1000
-                      </p>
                     </div>
                   </>
                 )}
