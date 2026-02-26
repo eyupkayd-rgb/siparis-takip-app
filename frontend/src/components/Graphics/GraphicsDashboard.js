@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Palette, Loader2, CheckCircle, X, Sparkles, MessageSquare, Download, AlertCircle, Calculator, Component, Cylinder, Paperclip, Plus, Ruler, Search, Settings, Trash2 } from 'lucide-react';
-import { updateDoc, doc } from "firebase/firestore";
+import { updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { callGemini } from '../../services/gemini';
 import { generateProductionJobs, calculatePlateMeterage } from '../../utils/productionHelpers';
