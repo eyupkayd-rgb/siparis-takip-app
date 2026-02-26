@@ -528,16 +528,20 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                   </label>
                   <input
                     required
+                    type="number"
                     className="input-field border-yellow-300 bg-white"
-                    placeholder="Örn: 8 Zet"
+                    placeholder="Örn: 112"
                     value={gData.zet}
                     onChange={e => setGData({ ...gData, zet: e.target.value })}
                   />
                   <p className="text-[10px] text-yellow-700 mt-1 italic">
-                    {selectedOrder.isComplex 
-                      ? '* Varyant siparişlerde her varyant için ortak zet' 
-                      : '* Normal sipariş için zet bilgisi'}
+                    Formül: ZET × 3.175 = Adımlama (mm)
                   </p>
+                  {gData.zet && (
+                    <p className="text-xs text-green-700 mt-1 font-bold bg-green-100 px-2 py-1 rounded">
+                      {gData.zet} × 3.175 = {(parseFloat(gData.zet) * 3.175).toFixed(1)} mm
+                    </p>
+                  )}
                 </div>
 
                 {/* Paper Width - Important for Warehouse */}
