@@ -57,7 +57,7 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
   const addVariant = () => {
     setFormData({ 
       ...formData, 
-      variants: [...formData.variants, { name: '', quantity: '' }] 
+      variants: [...formData.variants, { name: '', quantity: '', unit: 'Adet' }] 
     });
   };
 
