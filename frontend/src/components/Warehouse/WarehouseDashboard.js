@@ -874,12 +874,36 @@ export default function WarehouseDashboard({ orders, isSuperAdmin, supplierCards
                     </div>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
-                    <div className="text-xs text-gray-500 mb-1">Net Metraj</div>
-                    <div className="font-bold text-indigo-700 text-lg">
-                      {selectedOrder.graphicsData?.meterage}
+                    <div className="text-xs text-gray-500 mb-1">
+                      {selectedOrder.quantity?.includes('KG') || selectedOrder.qUnit === 'KG' 
+                        ? 'Sipariş Miktarı (KG)' 
+                        : 'Net Metraj'}
+                    </div>
+                    <div className={`font-bold text-lg ${
+                      selectedOrder.quantity?.includes('KG') || selectedOrder.qUnit === 'KG'
+                        ? 'text-orange-600'
+                        : 'text-indigo-700'
+                    }`}>
+                      {selectedOrder.quantity?.includes('KG') || selectedOrder.qUnit === 'KG'
+                        ? selectedOrder.quantity
+                        : selectedOrder.graphicsData?.meterage}
                     </div>
                   </div>
                 </div>
+                
+                {/* KG Bazlı Sipariş Uyarısı */}
+                {(selectedOrder.quantity?.includes('KG') || selectedOrder.qUnit === 'KG') && (
+                  <div className="mt-4 bg-orange-50 p-4 rounded-xl border-2 border-orange-200">
+                    <div className="flex items-center gap-2 text-orange-800 font-bold mb-2">
+                      <AlertCircle size={18} />
+                      KG Bazlı Ambalaj Siparişi
+                    </div>
+                    <p className="text-sm text-orange-700">
+                      Bu sipariş KG bazlı olduğu için metraj hesaplaması yapılmamıştır. 
+                      Bobin rezervasyonu ve sarfiyat işlemleri KG üzerinden takip edilecektir.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Attachments */}
