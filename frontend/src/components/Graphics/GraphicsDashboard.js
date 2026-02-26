@@ -92,28 +92,27 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
     setPlateData(newPlates);
   };
 
-  // ZET ve Yanyana Kaçlı'dan otomatik adımlama hesaplama
-  // Formül: (ZET × 3.175) / Yanyana Kaçlı = Adımlama (mm)
+  // ZET ve Akışa Göre Kaçlı'dan otomatik adımlama hesaplama
+  // Formül: (ZET × 3.175) / Akışa Göre Kaçlı = Adımlama (mm)
   const ZET_MULTIPLIER = 3.175; // Sabit değer
   
   useEffect(() => {
-    if (gData.zet && gData.combinedInfo) {
+    if (gData.zet && gData.akisaGoreKacli) {
       const zetValue = parseFloat(gData.zet) || 0;
-      const yanyanaKacli = parseFloat(gData.combinedInfo) || 1;
-      if (zetValue > 0 && yanyanaKacli > 0) {
-        const calculatedStep = ((zetValue * ZET_MULTIPLIER) / yanyanaKacli).toFixed(1);
+      const akisaGoreKacli = parseFloat(gData.akisaGoreKacli) || 1;
+      if (zetValue > 0 && akisaGoreKacli > 0) {
+        const calculatedStep = ((zetValue * ZET_MULTIPLIER) / akisaGoreKacli).toFixed(1);
         setGData(prev => ({
           ...prev,
           step: calculatedStep
         }));
       }
     }
-  }, [gData.zet, gData.combinedInfo]);
+  }, [gData.zet, gData.akisaGoreKacli]);
 
-  // Auto-calculate meterage for non-complex orders (Etiket and Ambalaj Adet bazlı)
+  // Metraj hesaplama: Adımlama × Adet / 1000 = Metraj (mt)
   useEffect(() => {
-    if (selectedOrder && !selectedOrder.isComplex && gData.step && gData.combinedInfo) {
-      // Hem Etiket hem de Ambalaj Adet bazlı siparişler için hesapla
+    if (selectedOrder && !selectedOrder.isComplex && gData.step) {
       const isAmbalajAdet = selectedOrder.category === 'Ambalaj' && 
         (selectedOrder.qUnit === 'Adet' || selectedOrder.quantity?.includes('Adet'));
       const isEtiket = selectedOrder.category !== 'Ambalaj';
@@ -121,16 +120,16 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
       if (isEtiket || isAmbalajAdet) {
         const qty = parseInt(selectedOrder.quantity) || 0;
         const step = parseFloat(gData.step) || 0;
-        const combined = parseFloat(gData.combinedInfo) || 1;
-        if (combined > 0 && step > 0 && qty > 0) {
+        if (step > 0 && qty > 0) {
+          const meterage = (step * qty / 1000).toFixed(2);
           setGData(prev => ({
             ...prev,
-            meterage: ((qty * step) / combined / 1000).toFixed(2) + ' mt'
+            meterage: meterage + ' mt'
           }));
         }
       }
     }
-  }, [gData.step, gData.combinedInfo, selectedOrder?.quantity, selectedOrder?.isComplex, selectedOrder?.category, selectedOrder?.qUnit]);
+  }, [gData.step, selectedOrder?.quantity, selectedOrder?.isComplex, selectedOrder?.category, selectedOrder?.qUnit]);
 
   const handleSave = async (e) => {
     e.preventDefault();
