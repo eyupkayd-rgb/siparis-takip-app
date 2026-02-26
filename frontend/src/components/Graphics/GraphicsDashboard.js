@@ -578,15 +578,21 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                 {!isAmbalaj && !selectedOrder.isComplex && (
                   <>
                     <div>
-                      <label className="label">Adımlama (mm)</label>
+                      <label className="label flex items-center gap-1">
+                        <Calculator size={14} />
+                        Adımlama (mm) - Otomatik
+                      </label>
                       <input
                         required
                         type="number"
-                        className="input-field"
-                        placeholder="Örn: 150"
+                        className="input-field bg-green-50 font-bold text-green-700"
+                        placeholder="ZET'ten hesaplanır"
                         value={gData.step}
-                        onChange={e => setGData({ ...gData, step: e.target.value })}
+                        readOnly
                       />
+                      <p className="text-[10px] text-green-600 mt-1">
+                        ZET × 3.175 = {gData.step || '...'} mm
+                      </p>
                     </div>
                     <div>
                       <label className="label flex items-center gap-1">
@@ -597,10 +603,10 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                         required
                         className="input-field bg-gray-100 font-bold text-indigo-700"
                         value={gData.meterage}
-                        onChange={e => setGData({ ...gData, meterage: e.target.value })}
+                        readOnly
                       />
                       <p className="text-[10px] text-gray-500 mt-1">
-                        Formül: (Adet × Adımlama) / Kombine
+                        Formül: (Adet × Adımlama) / Kombine / 1000
                       </p>
                     </div>
                   </>
