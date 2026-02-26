@@ -39,7 +39,9 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
   const stations = {
     // Etiket için
     'bobst_m1': { name: 'Bobst M1 Operatörü', category: 'Etiket', order: 1 },
-    'etiket_qc': { name: 'Kalite Kontrol (Etiket)', category: 'Etiket', order: 2, isFinal: true },
+    'serigrafi': { name: 'Serigrafi', category: 'Etiket', order: 2 },
+    'flat_kesim': { name: 'Flat Kesim', category: 'Etiket', order: 3 },
+    'etiket_qc': { name: 'Kalite Kontrol (Etiket)', category: 'Etiket', order: 4, isFinal: true },
     
     // Ambalaj için
     'bobst_m1_ambalaj': { name: 'Bobst M1 Operatörü', category: 'Ambalaj', order: 1 },
