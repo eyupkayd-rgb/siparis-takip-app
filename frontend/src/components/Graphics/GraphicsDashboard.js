@@ -6,21 +6,20 @@ import { callGemini } from '../../services/gemini';
 import { generateProductionJobs, calculatePlateMeterage } from '../../utils/productionHelpers';
 import StatusBadge from '../shared/StatusBadge';
 import AttachmentManager from '../shared/AttachmentManager';
-import WrapDirectionModal from './WrapDirectionModal';
+import WrapDirectionImageUpload from './WrapDirectionImageUpload';
 
 export default function GraphicsDashboard({ orders, isSuperAdmin }) {
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showWrapModal, setShowWrapModal] = useState(false);
   const [gData, setGData] = useState({
     machine: '', color: '', printType: '', zet: '', meterage: '', 
     lamination: '', plateStatus: '', dieStatus: '', paperWidth: '', 
     step: '', combinedInfo: '', akisaGoreKacli: '', lfSize: '', clSize: '', perforation: '',
-    layeringStatus: '', // Tabakalama durumu (Ambalaj için)
-    wrapDirection: null, // Sarım yönü (POS1-8)
-    notes: '' // Grafik notları
+    layeringStatus: '',
+    wrapDirectionImage: null, // Sarım yönü görseli (base64)
+    notes: ''
   });
   const [plateData, setPlateData] = useState([]);
 
@@ -48,7 +47,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
           lamination: '', plateStatus: '', dieStatus: '', paperWidth: '',
           step: '', combinedInfo: '', akisaGoreKacli: '', lfSize: '', clSize: '', perforation: '',
           layeringStatus: '',
-          wrapDirection: null,
+          wrapDirectionImage: null,
           notes: ''
         });
       }
