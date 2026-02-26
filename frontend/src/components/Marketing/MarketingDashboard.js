@@ -38,7 +38,8 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
     rawMaterial: '', qAmount: '', qUnit: 'Adet', sheetStatus: '', 
     customerDeadline: '', attachments: [],
     isComplex: false, isSet: false, commonBack: false, variants: [],
-    notes: '' // Not alanı eklendi
+    notes: '', // Not alanı eklendi
+    isPrinted: true // Baskılı/Baskısız (Ambalaj için) - varsayılan baskılı
   });
 
   const handleVariantChange = (index, field, value) => {
