@@ -46,7 +46,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
         setGData({
           machine: '', color: '', printType: '', zet: '', meterage: '',
           lamination: '', plateStatus: '', dieStatus: '', paperWidth: '',
-          step: '', combinedInfo: '', lfSize: '', clSize: '', perforation: '',
+          step: '', combinedInfo: '', akisaGoreKacli: '', lfSize: '', clSize: '', perforation: '',
           layeringStatus: '',
           wrapDirection: null,
           notes: ''
