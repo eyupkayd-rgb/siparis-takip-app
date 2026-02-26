@@ -460,7 +460,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                             {item.job.name} ({item.job.quantity})
                           </span>
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-500">Kaçlı:</span>
+                            <span className="text-gray-500">Kombine:</span>
                             <input
                               type="number"
                               className="w-14 border-2 border-gray-300 rounded px-2 py-1 font-bold"
