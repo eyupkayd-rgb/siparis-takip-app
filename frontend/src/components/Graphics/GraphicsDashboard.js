@@ -110,9 +110,9 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
     }
   }, [gData.zet, gData.akisaGoreKacli]);
 
-  // Metraj hesaplama: Adımlama × Adet / 1000 = Metraj (mt)
+  // Metraj hesaplama: Adımlama × Adet / Kombine (Yanyana Kaçlı) / 1000 = Metraj (mt)
   useEffect(() => {
-    if (selectedOrder && !selectedOrder.isComplex && gData.step) {
+    if (selectedOrder && !selectedOrder.isComplex && gData.step && gData.combinedInfo) {
       const isAmbalajAdet = selectedOrder.category === 'Ambalaj' && 
         (selectedOrder.qUnit === 'Adet' || selectedOrder.quantity?.includes('Adet'));
       const isEtiket = selectedOrder.category !== 'Ambalaj';
@@ -120,8 +120,9 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
       if (isEtiket || isAmbalajAdet) {
         const qty = parseInt(selectedOrder.quantity) || 0;
         const step = parseFloat(gData.step) || 0;
-        if (step > 0 && qty > 0) {
-          const meterage = (step * qty / 1000).toFixed(2);
+        const kombine = parseFloat(gData.combinedInfo) || 1;
+        if (step > 0 && qty > 0 && kombine > 0) {
+          const meterage = (step * qty / kombine / 1000).toFixed(2);
           setGData(prev => ({
             ...prev,
             meterage: meterage + ' mt'
@@ -129,7 +130,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
         }
       }
     }
-  }, [gData.step, selectedOrder?.quantity, selectedOrder?.isComplex, selectedOrder?.category, selectedOrder?.qUnit]);
+  }, [gData.step, gData.combinedInfo, selectedOrder?.quantity, selectedOrder?.isComplex, selectedOrder?.category, selectedOrder?.qUnit]);
 
   const handleSave = async (e) => {
     e.preventDefault();
