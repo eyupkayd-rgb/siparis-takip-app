@@ -582,6 +582,74 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                 {/* Ambalaj Specific Fields */}
                 {isAmbalaj && (
                   <>
+                    {/* Adet bazlı sipariş ise Kombine ve Adımlama göster */}
+                    {selectedOrder.qUnit === 'Adet' || selectedOrder.quantity?.includes('Adet') ? (
+                      <div className="col-span-2 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border-2 border-green-200 mb-4">
+                        <h4 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+                          <Calculator size={18} />
+                          Metraj Hesaplama (Adet Bazlı)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="label text-green-800">Kombine (Kaçlı)</label>
+                            <input
+                              required
+                              type="number"
+                              className="input-field border-green-300"
+                              placeholder="Örn: 4"
+                              value={gData.combinedInfo}
+                              onChange={e => setGData({ ...gData, combinedInfo: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="label text-green-800">Adımlama (mm)</label>
+                            <input
+                              required
+                              type="number"
+                              className="input-field border-green-300"
+                              placeholder="Örn: 150"
+                              value={gData.step}
+                              onChange={e => setGData({ ...gData, step: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="label text-green-800 flex items-center gap-1">
+                              <Calculator size={14} />
+                              Metraj (Otomatik)
+                            </label>
+                            <input
+                              readOnly
+                              className="input-field bg-green-100 font-bold text-green-700 border-green-300"
+                              value={gData.meterage}
+                            />
+                            <p className="text-[10px] text-green-600 mt-1">
+                              Formül: (Adet × Adımlama) / Kombine / 1000
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* KG bazlı sipariş ise bilgi mesajı göster */
+                      <div className="col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border-2 border-blue-200 mb-4">
+                        <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
+                          <AlertCircle size={18} />
+                          KG Bazlı Sipariş
+                        </h4>
+                        <p className="text-sm text-blue-700">
+                          Bu sipariş KG bazlı olduğu için metraj hesaplaması yapılmayacak. 
+                          KG bilgisi Depo bölümünde girilecektir.
+                        </p>
+                        <div className="mt-3">
+                          <label className="label text-blue-800">Sipariş Miktarı</label>
+                          <input
+                            readOnly
+                            className="input-field bg-blue-100 font-bold text-blue-700 border-blue-300"
+                            value={selectedOrder.quantity || ''}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="bg-purple-50 p-3 rounded-lg border-2 border-purple-200">
                       <label className="label text-purple-800 font-bold">LF Ölçüsü</label>
                       <input
