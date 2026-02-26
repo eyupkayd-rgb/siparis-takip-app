@@ -553,18 +553,32 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
 
                 {/* Combine Info (Normal Orders) */}
                 {!selectedOrder.isComplex && (
-                  <div>
-                    <label className="label">Yanyana Kaçlı</label>
-                    <input
-                      required
-                      type="number"
-                      min="1"
-                      className="input-field"
-                      placeholder="Örn: 2"
-                      value={gData.combinedInfo}
-                      onChange={e => setGData({ ...gData, combinedInfo: e.target.value })}
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <label className="label">Kombine (Yanyana Kaçlı)</label>
+                      <input
+                        required
+                        type="number"
+                        min="1"
+                        className="input-field"
+                        placeholder="Örn: 2"
+                        value={gData.combinedInfo}
+                        onChange={e => setGData({ ...gData, combinedInfo: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Akışa Göre Kaçlı</label>
+                      <input
+                        required
+                        type="number"
+                        min="1"
+                        className="input-field"
+                        placeholder="Örn: 1"
+                        value={gData.akisaGoreKacli}
+                        onChange={e => setGData({ ...gData, akisaGoreKacli: e.target.value })}
+                      />
+                    </div>
+                  </>
                 )}
 
                 {/* Step & Meterage for Non-Ambalaj & Non-Complex */}
