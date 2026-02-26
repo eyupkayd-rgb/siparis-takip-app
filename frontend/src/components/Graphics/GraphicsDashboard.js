@@ -65,6 +65,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
       id: Date.now(), 
       name: `Klişe ${plateData.length + 1}`, 
       zStep: '', 
+      akisTekrar: '1',
       items: [] 
     }]);
   };
