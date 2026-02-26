@@ -752,61 +752,11 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                   </>
                 )}
 
-                {/* Sarım Yönü Seçimi - Tüm kategoriler için */}
-                <div className="col-span-2">
-                  <label className="label">Etiket/Ambalaj Sarım Yönü *</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowWrapModal(true)}
-                    className={`
-                      w-full p-4 rounded-xl border-2 text-left transition-all
-                      ${gData.wrapDirection 
-                        ? 'border-blue-500 bg-blue-50 hover:bg-blue-100' 
-                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`
-                          p-3 rounded-lg
-                          ${gData.wrapDirection?.category === 'outward' 
-                            ? 'bg-blue-600' 
-                            : gData.wrapDirection?.category === 'inward'
-                            ? 'bg-purple-600'
-                            : 'bg-gray-400'
-                          }
-                        `}>
-                          <RotateCw size={24} className="text-white" />
-                        </div>
-                        <div>
-                          {gData.wrapDirection ? (
-                            <>
-                              <div className="font-bold text-gray-900">
-                                {gData.wrapDirection.title}
-                              </div>
-                              <div className="text-sm text-gray-600">
-                                {gData.wrapDirection.description}
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="font-bold text-gray-700">
-                                Sarım Yönü Seçin
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                Varsayılan: POS1 - Dışa Sarım / Yazı Başı Önde
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-blue-600 font-bold text-sm">
-                        Değiştir →
-                      </div>
-                    </div>
-                  </button>
-                </div>
+                {/* Sarım Yönü Görsel Yükleme */}
+                <WrapDirectionImageUpload
+                  currentImage={gData.wrapDirectionImage}
+                  onImageChange={(img) => setGData({ ...gData, wrapDirectionImage: img })}
+                />
 
                 {/* Lamination & Die (Non-Ambalaj) */}
                 {!isAmbalaj && (
