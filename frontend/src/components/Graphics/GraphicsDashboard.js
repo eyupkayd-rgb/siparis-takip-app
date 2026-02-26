@@ -555,7 +555,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                 {/* Combine Info (Normal Orders) */}
                 {!selectedOrder.isComplex && (
                   <div>
-                    <label className="label">Kombine (Kaçlı?)</label>
+                    <label className="label">Yanyana Kaçlı</label>
                     <input
                       required
                       type="number"
