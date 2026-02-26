@@ -92,21 +92,23 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
     setPlateData(newPlates);
   };
 
-  // ZET'ten otomatik adımlama hesaplama: ZET × 3.175 = Adımlama (mm)
+  // ZET ve Yanyana Kaçlı'dan otomatik adımlama hesaplama
+  // Formül: (ZET × 3.175) / Yanyana Kaçlı = Adımlama (mm)
   const ZET_MULTIPLIER = 3.175; // Sabit değer
   
   useEffect(() => {
-    if (gData.zet) {
+    if (gData.zet && gData.combinedInfo) {
       const zetValue = parseFloat(gData.zet) || 0;
-      if (zetValue > 0) {
-        const calculatedStep = (zetValue * ZET_MULTIPLIER).toFixed(1);
+      const yanyanaKacli = parseFloat(gData.combinedInfo) || 1;
+      if (zetValue > 0 && yanyanaKacli > 0) {
+        const calculatedStep = ((zetValue * ZET_MULTIPLIER) / yanyanaKacli).toFixed(1);
         setGData(prev => ({
           ...prev,
           step: calculatedStep
         }));
       }
     }
-  }, [gData.zet]);
+  }, [gData.zet, gData.combinedInfo]);
 
   // Auto-calculate meterage for non-complex orders (Etiket and Ambalaj Adet bazlı)
   useEffect(() => {
