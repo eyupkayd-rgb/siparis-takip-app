@@ -612,7 +612,7 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="label text-green-800">Kombine (Kaçlı)</label>
+                            <label className="label text-green-800">Yanyana Kaçlı</label>
                             <input
                               required
                               type="number"
@@ -631,13 +631,10 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                               required
                               type="number"
                               className="input-field bg-green-100 font-bold text-green-700 border-green-300"
-                              placeholder="ZET'ten hesaplanır"
+                              placeholder="Hesaplanıyor..."
                               value={gData.step}
                               readOnly
                             />
-                            <p className="text-[10px] text-green-600 mt-1">
-                              ZET × 3.175 = {gData.step || '...'} mm
-                            </p>
                           </div>
                           <div>
                             <label className="label text-green-800 flex items-center gap-1">
@@ -649,9 +646,6 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                               className="input-field bg-green-100 font-bold text-green-700 border-green-300"
                               value={gData.meterage}
                             />
-                            <p className="text-[10px] text-green-600 mt-1">
-                              Formül: (Adet × Adımlama) / Kombine / 1000
-                            </p>
                           </div>
                         </div>
                       </div>
