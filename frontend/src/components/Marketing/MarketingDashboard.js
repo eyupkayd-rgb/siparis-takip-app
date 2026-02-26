@@ -145,7 +145,8 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
       isSet: order.isSet || false,
       commonBack: order.commonBack || false,
       variants: order.variants || [],
-      notes: order.notes || ''
+      notes: order.notes || '',
+      isPrinted: order.isPrinted !== false // varsayılan true
     });
     setShowForm(true);
   };
