@@ -389,8 +389,8 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                     key={plate.id}
                     className="bg-slate-50 border-2 border-slate-300 rounded-xl p-4 hover:border-slate-400 transition-all"
                   >
-                    <div className="flex gap-4 mb-3 items-end">
-                      <div className="flex-1">
+                    <div className="flex flex-wrap gap-4 mb-3 items-end">
+                      <div className="flex-1 min-w-[120px]">
                         <label className="text-[11px] font-bold text-slate-600 mb-1 block uppercase">
                           Klişe Adı
                         </label>
@@ -400,19 +400,44 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                           onChange={(e) => updatePlate(pIdx, 'name', e.target.value)}
                         />
                       </div>
-                      <div className="w-28">
-                        <label className="text-[11px] font-bold text-slate-600 mb-1 block uppercase">
-                          Z-Step (mm)
+                      <div className="w-24">
+                        <label className="text-[11px] font-bold text-yellow-700 mb-1 block uppercase">
+                          ZET
                         </label>
                         <input
                           type="number"
-                          className="input-field h-10 text-sm"
+                          className="input-field h-10 text-sm bg-yellow-50 border-yellow-300"
                           value={plate.zStep}
                           onChange={(e) => updatePlate(pIdx, 'zStep', e.target.value)}
-                          placeholder="340"
+                          placeholder="112"
                         />
                       </div>
-                      <div className="w-36 text-right">
+                      <div className="w-28">
+                        <label className="text-[11px] font-bold text-blue-700 mb-1 block uppercase">
+                          Akış/Tekrar
+                        </label>
+                        <input
+                          type="number"
+                          className="input-field h-10 text-sm bg-blue-50 border-blue-300"
+                          value={plate.akisTekrar || '1'}
+                          onChange={(e) => updatePlate(pIdx, 'akisTekrar', e.target.value)}
+                          placeholder="1"
+                        />
+                      </div>
+                      <div className="w-28">
+                        <label className="text-[11px] font-bold text-green-700 mb-1 block uppercase">
+                          Adımlama (mm)
+                        </label>
+                        <input
+                          type="text"
+                          readOnly
+                          className="input-field h-10 text-sm bg-green-50 border-green-300 font-bold text-green-700"
+                          value={plate.zStep && plate.akisTekrar ? 
+                            ((parseFloat(plate.zStep) * 3.175) / (parseFloat(plate.akisTekrar) || 1)).toFixed(1) : 
+                            '---'}
+                        />
+                      </div>
+                      <div className="w-32 text-right">
                         <span className="text-[11px] font-bold text-slate-500 block uppercase mb-1">
                           Tahmini Bobin
                         </span>
