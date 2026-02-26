@@ -635,15 +635,21 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
                             />
                           </div>
                           <div>
-                            <label className="label text-green-800">Adımlama (mm)</label>
+                            <label className="label text-green-800 flex items-center gap-1">
+                              <Calculator size={14} />
+                              Adımlama (mm) - Otomatik
+                            </label>
                             <input
                               required
                               type="number"
-                              className="input-field border-green-300"
-                              placeholder="Örn: 150"
+                              className="input-field bg-green-100 font-bold text-green-700 border-green-300"
+                              placeholder="ZET'ten hesaplanır"
                               value={gData.step}
-                              onChange={e => setGData({ ...gData, step: e.target.value })}
+                              readOnly
                             />
+                            <p className="text-[10px] text-green-600 mt-1">
+                              ZET × 3.175 = {gData.step || '...'} mm
+                            </p>
                           </div>
                           <div>
                             <label className="label text-green-800 flex items-center gap-1">
