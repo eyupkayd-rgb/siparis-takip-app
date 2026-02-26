@@ -143,12 +143,8 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
         finalMeterage = totalPlateMeterage + ' mt (Toplam)';
       }
 
-      // wrapDirection objesinden icon field'ini çıkar (Firestore serialization için)
+      // wrapDirectionImage alanını koru
       const cleanedGraphicsData = { ...gData, meterage: finalMeterage };
-      if (cleanedGraphicsData.wrapDirection) {
-        const { icon, ...serializableWrapDirection } = cleanedGraphicsData.wrapDirection;
-        cleanedGraphicsData.wrapDirection = serializableWrapDirection;
-      }
 
       const updatePayload = {
         graphicsData: cleanedGraphicsData,
