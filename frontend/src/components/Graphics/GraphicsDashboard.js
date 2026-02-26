@@ -92,6 +92,22 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
     setPlateData(newPlates);
   };
 
+  // ZET'ten otomatik adımlama hesaplama: ZET × 3.175 = Adımlama (mm)
+  const ZET_MULTIPLIER = 3.175; // Sabit değer
+  
+  useEffect(() => {
+    if (gData.zet) {
+      const zetValue = parseFloat(gData.zet) || 0;
+      if (zetValue > 0) {
+        const calculatedStep = (zetValue * ZET_MULTIPLIER).toFixed(1);
+        setGData(prev => ({
+          ...prev,
+          step: calculatedStep
+        }));
+      }
+    }
+  }, [gData.zet]);
+
   // Auto-calculate meterage for non-complex orders (Etiket and Ambalaj Adet bazlı)
   useEffect(() => {
     if (selectedOrder && !selectedOrder.isComplex && gData.step && gData.combinedInfo) {
