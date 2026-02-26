@@ -45,9 +45,11 @@ export const generateProductionJobs = (complexData) => {
 export const calculatePlateMeterage = (plate) => {
   if (!plate.zStep || !plate.items.length) return 0;
   
+  const ZET_MULTIPLIER = 3.175;
+  
   // Tüm işlerin toplam adetini hesapla
   let totalQuantity = 0;
-  // Tüm işlerin toplam kaçlı (kombine) sayısını hesapla
+  // Tüm işlerin toplam kaçlı (kombine/yanyana) sayısını hesapla
   let totalLanes = 0;
   
   plate.items.forEach(item => {
@@ -57,10 +59,18 @@ export const calculatePlateMeterage = (plate) => {
     totalLanes += lanes;
   });
   
-  // Formül: Z-Step (mm) × Toplam Adet / Kombine Toplamı / 1000 (mm -> m)
-  if (totalLanes > 0 && totalQuantity > 0) {
-    const zStep = parseFloat(plate.zStep) || 0;
-    const metersRequired = (zStep * totalQuantity) / totalLanes / 1000;
+  // Akış/Tekrar (Alt Alta) değeri - varsayılan 1
+  const akisTekrar = parseFloat(plate.akisTekrar) || 1;
+  
+  // ZET değeri (Z-Step olarak girilmiş olabilir)
+  const zet = parseFloat(plate.zStep) || 0;
+  
+  if (totalLanes > 0 && totalQuantity > 0 && zet > 0) {
+    // Adımlama = (ZET × 3.175) / Akış/Tekrar
+    const adimLama = (zet * ZET_MULTIPLIER) / akisTekrar;
+    
+    // Metraj = Adımlama × Toplam Adet / Kombine (Yanyana Kaçlı) / 1000
+    const metersRequired = (adimLama * totalQuantity) / totalLanes / 1000;
     return Math.ceil(metersRequired);
   }
   
