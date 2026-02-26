@@ -98,7 +98,8 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
 
       const payload = { 
         ...formData, 
-        quantity: finalQuantity, 
+        quantity: finalQuantity,
+        quantityByUnit: quantityByUnit,
         generatedJobs: generatedJobs,
         revisionAlert: editingId ? "Pazarlama tarafından güncellendi" : null 
       };
