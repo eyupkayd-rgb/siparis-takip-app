@@ -74,7 +74,7 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
       const ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
       
       const finalQuantity = formData.isComplex 
-        ? formData.variants.reduce((sum, v) => sum + parseInt(v.quantity || 0), 0) + ' Adet (Toplam)' 
+        ? formData.variants.map(v => `${v.quantity} ${v.unit || 'Adet'}`).join(' + ') + ' (Toplam)' 
         : `${formData.qAmount} ${formData.qUnit}`;
       
       const generatedJobs = formData.isComplex ? generateProductionJobs(formData) : [];
