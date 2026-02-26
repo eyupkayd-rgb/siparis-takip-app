@@ -92,10 +92,15 @@ export default function MarketingDashboard({ orders, isSuperAdmin, customerCards
           payload
         );
       } else {
+        // Baskısız ambalaj ise direkt depoya, değilse grafik bölümüne
+        const initialStatus = (formData.category === 'Ambalaj' && !formData.isPrinted) 
+          ? 'warehouse_raw_pending' 
+          : 'graphics_pending';
+        
         await addDoc(ordersCollection, { 
           ...payload, 
-          status: 'graphics_pending', 
-          graphicsData: null, 
+          status: initialStatus, 
+          graphicsData: (formData.category === 'Ambalaj' && !formData.isPrinted) ? { skipped: true, reason: 'Baskısız Ambalaj' } : null, 
           warehouseData: null, 
           planningData: null, 
           productionData: null, 
