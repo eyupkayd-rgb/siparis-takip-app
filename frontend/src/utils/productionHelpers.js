@@ -7,10 +7,12 @@ export const generateProductionJobs = (complexData) => {
   let jobs = [];
   
   complexData.variants.forEach((variant, idx) => {
+    const unit = variant.unit || 'Adet';
     jobs.push({
       id: `job_${Date.now()}_${idx}_f`,
       name: `${variant.name} - ÖN`,
       quantity: variant.quantity,
+      unit: unit,
       type: 'Front',
       variantName: variant.name,
       status: 'pending_mounting'
@@ -21,6 +23,7 @@ export const generateProductionJobs = (complexData) => {
         id: `job_${Date.now()}_${idx}_b`,
         name: `${variant.name} - ARKA`,
         quantity: variant.quantity,
+        unit: unit,
         type: 'Back',
         variantName: variant.name,
         status: 'pending_mounting'
@@ -29,11 +32,19 @@ export const generateProductionJobs = (complexData) => {
   });
 
   if (complexData.isSet && complexData.commonBack) {
-    const totalQty = complexData.variants.reduce((sum, v) => sum + parseInt(v.quantity || 0), 0);
+    // Ortak arka için sadece aynı birimli miktarları topla
+    const grouped = {};
+    complexData.variants.forEach(v => {
+      const unit = v.unit || 'Adet';
+      grouped[unit] = (grouped[unit] || 0) + parseInt(v.quantity || 0);
+    });
+    const parts = Object.entries(grouped).map(([unit, qty]) => `${qty} ${unit}`);
+    
     jobs.push({
       id: `job_${Date.now()}_common_b`,
       name: `ORTAK ARKA ETİKET`,
-      quantity: totalQty,
+      quantity: parts.join(' + '),
+      unit: 'Karışık',
       type: 'Back_Common',
       variantName: 'All',
       status: 'pending_mounting'
