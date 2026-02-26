@@ -92,20 +92,27 @@ export default function GraphicsDashboard({ orders, isSuperAdmin }) {
     setPlateData(newPlates);
   };
 
-  // Auto-calculate meterage for non-complex orders
+  // Auto-calculate meterage for non-complex orders (Etiket and Ambalaj Adet bazlı)
   useEffect(() => {
     if (selectedOrder && !selectedOrder.isComplex && gData.step && gData.combinedInfo) {
-      const qty = parseInt(selectedOrder.quantity) || 0;
-      const step = parseFloat(gData.step) || 0;
-      const combined = parseFloat(gData.combinedInfo) || 1;
-      if (combined > 0 && step > 0 && qty > 0) {
-        setGData(prev => ({
-          ...prev,
-          meterage: ((qty * step) / combined / 1000).toFixed(2) + ' mt'
-        }));
+      // Hem Etiket hem de Ambalaj Adet bazlı siparişler için hesapla
+      const isAmbalajAdet = selectedOrder.category === 'Ambalaj' && 
+        (selectedOrder.qUnit === 'Adet' || selectedOrder.quantity?.includes('Adet'));
+      const isEtiket = selectedOrder.category !== 'Ambalaj';
+      
+      if (isEtiket || isAmbalajAdet) {
+        const qty = parseInt(selectedOrder.quantity) || 0;
+        const step = parseFloat(gData.step) || 0;
+        const combined = parseFloat(gData.combinedInfo) || 1;
+        if (combined > 0 && step > 0 && qty > 0) {
+          setGData(prev => ({
+            ...prev,
+            meterage: ((qty * step) / combined / 1000).toFixed(2) + ' mt'
+          }));
+        }
       }
     }
-  }, [gData.step, gData.combinedInfo, selectedOrder?.quantity, selectedOrder?.isComplex]);
+  }, [gData.step, gData.combinedInfo, selectedOrder?.quantity, selectedOrder?.isComplex, selectedOrder?.category, selectedOrder?.qUnit]);
 
   const handleSave = async (e) => {
     e.preventDefault();
