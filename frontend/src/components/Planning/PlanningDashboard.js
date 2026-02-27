@@ -151,7 +151,7 @@ export default function PlanningDashboard({ orders, isSuperAdmin }) {
         ['', '✨ LAK', '', '', order.graphicsData?.lamination || '-', '', '', '🔗 KOMBİNE', '', order.graphicsData?.combinedInfo || '-'],
         
         // Row 13 - Sarım ve Termin
-        ['', '🔄 SARIM YÖNÜ', '', '', order.graphicsData?.wrapDirection?.title || 'POS1 - Dışa Sarım / Yazı Başı Önde', '', '', '📅 TERMİN', '', order.customerDeadline || '-'],
+        ['', '🔄 SARIM YÖNÜ', '', '', order.graphicsData?.wrapDirectionImage ? '(Görsel Eklenmiş - Aşağıda)' : 'Görsel eklenmedi', '', '', '📅 TERMİN', '', order.customerDeadline || '-'],
         
         // Row 14 - Boş
         ['', '', '', '', '', '', '', '', '', ''],
