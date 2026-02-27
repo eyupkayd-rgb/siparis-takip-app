@@ -562,9 +562,14 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
                     >
                       <option value="">-- Operatör Seçin --</option>
                       {operators.map(op => (
-                        <option key={op} value={op}>{op}</option>
+                        <option key={op.id} value={op.name}>{op.name}</option>
                       ))}
                     </select>
+                    {operators.length === 0 && (
+                      <p className="text-xs text-orange-600 mt-1">
+                        Henüz operatör eklenmedi. Yönetim panelinden operatör ekleyin.
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
