@@ -107,225 +107,255 @@ export default function PlanningDashboard({ orders, isSuperAdmin }) {
     setAiAdvice("");
   };
 
-  // Excel Export Fonksiyonu - Modern Agora Etiket Üretim Formu
+  // Excel Export Fonksiyonu - ExcelJS ile görsel gömme destekli
   const handleExportToExcel = async (order) => {
     try {
-      // Workbook oluştur
-      const wb = XLSX.utils.book_new();
-      
-      // Veri array'ini hazırla (array of arrays)
-      const data = [
-        // Row 1 - Logo ve başlık
-        ['🏢 Agora Etiket', '', '', '', '', '', `📋 İŞ EMRİ NO: ${order.orderNo || ''}`, '', '', `📅 ${new Date().toLocaleDateString('tr-TR')}`],
-        
-        // Row 2 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 3 - Ana Başlık
-        ['', '✨ ÜRETİM FORMU', '', '', '', '', '', '', '', ''],
-        
-        // Row 4 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 5 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 6 - Firma Adı
-        ['', '🏢 FİRMA ADI', '', '', order.customer || '', '', '', '', '', ''],
-        
-        // Row 7 - Ürün Adı
-        ['', '📦 ÜRÜN ADI', '', '', order.product || '', '', '', '', '', ''],
-        
-        // Row 8 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 9 - Ölçü ve Biçak
-        ['', '📏 ÖLÇÜ', '', '', order.graphicsData?.lfSize || order.graphicsData?.clSize || '-', '', '', '🔪 BIÇAK KODU', '', order.graphicsData?.dieStatus || '-'],
-        
-        // Row 10 - Kağıt ve Zet
-        ['', '📄 KAĞIT CİNSİ', '', '', order.rawMaterial || order.graphicsData?.paperWidth || '-', '', '', '🔢 ZET', '', order.graphicsData?.zet || '-'],
-        
-        // Row 11 - Miktar ve Adımlama
-        ['', '📊 MİKTAR', '', '', `${order.quantity || ''} ${order.quantityUnit || ''}`, '', '', '📐 ADIMLAMA', '', order.graphicsData?.step || '-'],
-        
-        // Row 12 - Lak ve Kombine
-        ['', '✨ LAK', '', '', order.graphicsData?.lamination || '-', '', '', '🔗 KOMBİNE', '', order.graphicsData?.combinedInfo || '-'],
-        
-        // Row 13 - Sarım ve Termin
-        ['', '🔄 SARIM YÖNÜ', '', '', order.graphicsData?.wrapDirectionImage ? '(Görsel Eklenmiş - Aşağıda)' : 'Görsel eklenmedi', '', '', '📅 TERMİN', '', order.customerDeadline || '-'],
-        
-        // Row 14 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 15 - Baskı Makinesi
-        ['', '🖨️ BASKI MAKİNESİ', '', '', order.graphicsData?.machine || '-', '', '', '', '', ''],
-        
-        // Row 16 - Renkler
-        ['', '🎨 RENKLER', '', '', order.graphicsData?.color || '-', '', '', '', '', ''],
-        
-        // Row 17 - Kuka
-        ['', '⭕ KUKA ÇAPI', '', '', '-', '', '', '', '', ''],
-        
-        // Row 18 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 19 - Açıklama başlık
-        ['', '📝 AÇIKLAMA', '', '', '', '', '', '', '', ''],
-        
-        // Row 20-22 - Açıklama metin
-        ['', (order.graphicsData?.notes || order.notes || 'Açıklama bulunmamaktadır.'), '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 23 - Boş
-        ['', '', '', '', '', '', '', '', '', ''],
-        
-        // Row 24 - Görsel başlık
-        ['', '🖼️ ÜRÜN GÖRSELİ', '', '', '', '', '', '', '', ''],
-        
-        // Row 25-36 - Görsel alan
-        ['', '📸 Grafik departmanı tarafından yüklenen ürün görseli buraya eklenecektir.', '', '', '', '', '', '', '', ''],
-        ['', 'Excel\'de Insert → Pictures menüsünden görsel ekleyebilirsiniz.', '', '', '', '', '', '', '', '']
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Agora Etiket';
+      const ws = wb.addWorksheet('Üretim Formu', {
+        pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true }
+      });
+
+      // Sütun genişlikleri
+      ws.columns = [
+        { width: 3 },   // A
+        { width: 20 },  // B
+        { width: 5 },   // C
+        { width: 20 },  // D
+        { width: 5 },   // E
+        { width: 20 },  // F
+        { width: 5 },   // G
+        { width: 20 },  // H
       ];
 
-      // Worksheet oluştur
-      const ws = XLSX.utils.aoa_to_sheet(data);
+      // Stiller
+      const titleFont = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF1A1A2E' } };
+      const headerFont = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+      const labelFont = { name: 'Arial', size: 10, bold: true, color: { argb: 'FF2D3436' } };
+      const valueFont = { name: 'Arial', size: 10, color: { argb: 'FF2D3436' } };
+      const sectionFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2C3E50' } };
+      const lightFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9FA' } };
+      const accentFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEAF2F8' } };
+      const thinBorder = {
+        top: { style: 'thin', color: { argb: 'FFCED4DA' } },
+        left: { style: 'thin', color: { argb: 'FFCED4DA' } },
+        bottom: { style: 'thin', color: { argb: 'FFCED4DA' } },
+        right: { style: 'thin', color: { argb: 'FFCED4DA' } }
+      };
 
-      // Sütun genişliklerini ayarla
-      ws['!cols'] = [
-        { wch: 2 },   // A
-        { wch: 18 },  // B
-        { wch: 3 },   // C
-        { wch: 15 },  // D
-        { wch: 3 },   // E
-        { wch: 18 },  // F
-        { wch: 3 },   // G
-        { wch: 15 },  // H
-        { wch: 3 },   // I
-        { wch: 15 },  // J
-        { wch: 2 }    // K
-      ];
+      const gd = order.graphicsData || {};
+      const pd = order.planningData || {};
+      const wd = order.warehouseData || {};
+      let row = 1;
 
-      // Satır yüksekliklerini ayarla
-      ws['!rows'] = [
-        { hpt: 50 },  // Row 1
-        { hpt: 20 },  // Row 2
-        { hpt: 40 },  // Row 3 - Ana başlık
-        { hpt: 20 },  // Row 4
-        { hpt: 20 },  // Row 5
-        { hpt: 30 },  // Row 6 - Firma
-        { hpt: 30 },  // Row 7 - Ürün
-        { hpt: 20 },  // Row 8
-        { hpt: 30 },  // Row 9
-        { hpt: 30 },  // Row 10
-        { hpt: 30 },  // Row 11
-        { hpt: 30 },  // Row 12
-        { hpt: 30 },  // Row 13
-        { hpt: 20 },  // Row 14
-        { hpt: 30 },  // Row 15
-        { hpt: 30 },  // Row 16
-        { hpt: 30 },  // Row 17
-        { hpt: 20 },  // Row 18
-        { hpt: 30 },  // Row 19 - Açıklama başlık
-        { hpt: 60 },  // Row 20 - Açıklama metin
-        { hpt: 20 },  // Row 21
-        { hpt: 20 },  // Row 22
-        { hpt: 20 },  // Row 23
-        { hpt: 30 },  // Row 24 - Görsel başlık
-        { hpt: 100 }, // Row 25 - Görsel alan
-        { hpt: 40 }   // Row 26
-      ];
+      // ===== BAŞLIK =====
+      ws.mergeCells(`B${row}:D${row}`);
+      ws.getCell(`B${row}`).value = 'AGORA ETİKET';
+      ws.getCell(`B${row}`).font = titleFont;
+      ws.getCell(`B${row}`).alignment = { vertical: 'middle' };
+      ws.mergeCells(`F${row}:H${row}`);
+      ws.getCell(`F${row}`).value = `İŞ EMRİ: ${order.orderNo || '-'}`;
+      ws.getCell(`F${row}`).font = { ...titleFont, size: 13 };
+      ws.getCell(`F${row}`).alignment = { horizontal: 'right', vertical: 'middle' };
+      ws.getRow(row).height = 40;
+      row++;
 
-      // Merge edilen hücreleri tanımla
-      ws['!merges'] = [
-        // Row 1 - Logo ve tarih
-        { s: { r: 0, c: 1 }, e: { r: 0, c: 4 } },   // B1:E1 - Logo
-        { s: { r: 0, c: 6 }, e: { r: 0, c: 8 } },   // G1:I1 - İş Emri No
-        
-        // Row 3 - Ana başlık
-        { s: { r: 2, c: 1 }, e: { r: 2, c: 9 } },   // B3:J3
-        
-        // Row 6 - Firma
-        { s: { r: 5, c: 1 }, e: { r: 5, c: 3 } },   // B6:D6 - Label
-        { s: { r: 5, c: 4 }, e: { r: 5, c: 9 } },   // E6:J6 - Value
-        
-        // Row 7 - Ürün
-        { s: { r: 6, c: 1 }, e: { r: 6, c: 3 } },   // B7:D7 - Label
-        { s: { r: 6, c: 4 }, e: { r: 6, c: 9 } },   // E7:J7 - Value
-        
-        // İki kolonlu alanlar (row 9-13)
-        { s: { r: 8, c: 1 }, e: { r: 8, c: 3 } },   // B9:D9 - ÖLÇÜ label
-        { s: { r: 8, c: 4 }, e: { r: 8, c: 5 } },   // E9:F9 - ÖLÇÜ value
-        { s: { r: 8, c: 7 }, e: { r: 8, c: 8 } },   // H9:I9 - BIÇAK label
-        
-        { s: { r: 9, c: 1 }, e: { r: 9, c: 3 } },
-        { s: { r: 9, c: 4 }, e: { r: 9, c: 5 } },
-        { s: { r: 9, c: 7 }, e: { r: 9, c: 8 } },
-        
-        { s: { r: 10, c: 1 }, e: { r: 10, c: 3 } },
-        { s: { r: 10, c: 4 }, e: { r: 10, c: 5 } },
-        { s: { r: 10, c: 7 }, e: { r: 10, c: 8 } },
-        
-        { s: { r: 11, c: 1 }, e: { r: 11, c: 3 } },
-        { s: { r: 11, c: 4 }, e: { r: 11, c: 5 } },
-        { s: { r: 11, c: 7 }, e: { r: 11, c: 8 } },
-        
-        { s: { r: 12, c: 1 }, e: { r: 12, c: 3 } },
-        { s: { r: 12, c: 4 }, e: { r: 12, c: 5 } },
-        { s: { r: 12, c: 7 }, e: { r: 12, c: 8 } },
-        
-        // Tam genişlik alanlar
-        { s: { r: 14, c: 1 }, e: { r: 14, c: 3 } },
-        { s: { r: 14, c: 4 }, e: { r: 14, c: 9 } },
-        
-        { s: { r: 15, c: 1 }, e: { r: 15, c: 3 } },
-        { s: { r: 15, c: 4 }, e: { r: 15, c: 9 } },
-        
-        { s: { r: 16, c: 1 }, e: { r: 16, c: 3 } },
-        { s: { r: 16, c: 4 }, e: { r: 16, c: 9 } },
-        
-        // Açıklama
-        { s: { r: 18, c: 1 }, e: { r: 18, c: 9 } },  // Başlık
-        { s: { r: 19, c: 1 }, e: { r: 21, c: 9 } },  // Metin
-        
-        // Görsel
-        { s: { r: 23, c: 1 }, e: { r: 23, c: 9 } },  // Başlık
-        { s: { r: 24, c: 1 }, e: { r: 25, c: 9 } }   // Alan
-      ];
+      // Tarih satırı
+      ws.mergeCells(`F${row}:H${row}`);
+      ws.getCell(`F${row}`).value = `Tarih: ${new Date().toLocaleDateString('tr-TR')}`;
+      ws.getCell(`F${row}`).font = { name: 'Arial', size: 9, color: { argb: 'FF7F8C8D' } };
+      ws.getCell(`F${row}`).alignment = { horizontal: 'right' };
+      row++;
 
-      // Worksheet'i workbook'a ekle
-      XLSX.utils.book_append_sheet(wb, ws, 'Üretim Formu');
+      // Boş satır
+      row++;
 
-      // Dosya adı oluştur
-      const fileName = `Uretim_Formu_${order.orderNo || 'Draft'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      // ===== MÜŞTERİ BİLGİLERİ =====
+      const addSectionHeader = (title) => {
+        ws.mergeCells(`B${row}:H${row}`);
+        ws.getCell(`B${row}`).value = title;
+        ws.getCell(`B${row}`).font = headerFont;
+        ws.getCell(`B${row}`).fill = sectionFill;
+        ws.getCell(`B${row}`).alignment = { vertical: 'middle' };
+        ws.getCell(`B${row}`).border = thinBorder;
+        ['C','D','E','F','G','H'].forEach(c => { ws.getCell(`${c}${row}`).border = thinBorder; });
+        ws.getRow(row).height = 28;
+        row++;
+      };
 
-      // Mobil uyumlu indirme yöntemi - Blob kullanarak
-      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      
-      // Indirme linki oluştur
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      
-      // iOS Safari için özel işlem
+      const addRow2Col = (label1, value1, label2, value2, fill) => {
+        ws.getCell(`B${row}`).value = label1;
+        ws.getCell(`B${row}`).font = labelFont;
+        ws.mergeCells(`C${row}:D${row}`);
+        ws.getCell(`C${row}`).value = value1;
+        ws.getCell(`C${row}`).font = valueFont;
+        ws.getCell(`F${row}`).value = label2;
+        ws.getCell(`F${row}`).font = labelFont;
+        ws.mergeCells(`G${row}:H${row}`);
+        ws.getCell(`G${row}`).value = value2;
+        ws.getCell(`G${row}`).font = valueFont;
+        ['B','C','D','E','F','G','H'].forEach(c => {
+          ws.getCell(`${c}${row}`).border = thinBorder;
+          ws.getCell(`${c}${row}`).alignment = { vertical: 'middle', wrapText: true };
+          if (fill) ws.getCell(`${c}${row}`).fill = fill;
+        });
+        ws.getRow(row).height = 26;
+        row++;
+      };
+
+      const addFullRow = (label, value, fill) => {
+        ws.getCell(`B${row}`).value = label;
+        ws.getCell(`B${row}`).font = labelFont;
+        ws.mergeCells(`C${row}:H${row}`);
+        ws.getCell(`C${row}`).value = value;
+        ws.getCell(`C${row}`).font = valueFont;
+        ['B','C','D','E','F','G','H'].forEach(c => {
+          ws.getCell(`${c}${row}`).border = thinBorder;
+          ws.getCell(`${c}${row}`).alignment = { vertical: 'middle', wrapText: true };
+          if (fill) ws.getCell(`${c}${row}`).fill = fill;
+        });
+        ws.getRow(row).height = 26;
+        row++;
+      };
+
+      addSectionHeader('SİPARİŞ BİLGİLERİ');
+      addRow2Col('Firma Adı', order.customer || '-', 'Kategori', order.category || '-', lightFill);
+      addRow2Col('Ürün Adı', order.product || '-', 'Sipariş No', order.orderNo || '-', accentFill);
+      addRow2Col('Miktar', order.quantity || '-', 'Termin', order.customerDeadline || '-', lightFill);
+
+      // Varyantlar varsa
+      if (order.isComplex && order.variants?.length > 0) {
+        addFullRow('Varyantlar', order.variants.map(v => `${v.name}: ${v.quantity} ${v.unit || 'Adet'}`).join(' | '), accentFill);
+      }
+
+      row++; // Boş satır
+
+      // ===== TEKNİK DETAYLAR =====
+      addSectionHeader('TEKNİK DETAYLAR (GRAFİK)');
+      addRow2Col('Baskı Makinesi', gd.machine || '-', 'Baskı Türü', gd.printType || '-', lightFill);
+      addRow2Col('Renkler', gd.color || '-', 'Laminasyon', gd.lamination || '-', accentFill);
+      addRow2Col('LF Ölçü', gd.lfSize || '-', 'CL Ölçü', gd.clSize || '-', lightFill);
+      addRow2Col('ZET', gd.zet || '-', 'Adımlama', gd.step || '-', accentFill);
+      addRow2Col('Kombine', gd.combinedInfo || '-', 'Akış/Tekrar', gd.akisaGoreKacli || '-', lightFill);
+      addRow2Col('Metraj', gd.meterage || '-', 'Perfore', gd.perforation || '-', accentFill);
+      addRow2Col('Kalıp Durumu', gd.dieStatus || '-', 'Klişe Durumu', gd.plateStatus || '-', lightFill);
+      addRow2Col('Kağıt Eni', gd.paperWidth || '-', 'Tabakalama', gd.layeringStatus || '-', accentFill);
+
+      if (gd.notes) {
+        addFullRow('Grafik Notları', gd.notes, lightFill);
+      }
+
+      row++; // Boş satır
+
+      // ===== DEPO BİLGİLERİ =====
+      if (wd.assignedRollId || wd.issuedMeterage) {
+        addSectionHeader('DEPO / MALZEME');
+        addRow2Col('Atanan Bobin', wd.assignedRollId || '-', 'Verilen Metraj', wd.issuedMeterage ? `${wd.issuedMeterage} mt` : '-', lightFill);
+        if (wd.notes) {
+          addFullRow('Depo Notları', wd.notes, accentFill);
+        }
+        row++;
+      }
+
+      // ===== PLANLAMA BİLGİLERİ =====
+      if (pd.startDate) {
+        addSectionHeader('PLANLAMA BİLGİLERİ');
+        addRow2Col('Üretim Tarihi', pd.startDate || '-', 'Başlangıç Saati', pd.startHour || '-', lightFill);
+        addFullRow('Tahmini Süre', pd.duration ? `${pd.duration} saat` : '-', accentFill);
+
+        if (pd.productionFlow?.length > 0) {
+          const stationNames = pd.productionFlow.map(sid => {
+            const st = availableStations[sid];
+            return st ? st.name : sid;
+          }).join(' → ');
+          addFullRow('Üretim Akışı', stationNames, lightFill);
+        }
+        row++;
+      }
+
+      // ===== SARIM YÖNÜ GÖRSELİ =====
+      addSectionHeader('SARIM YÖNÜ');
+
+      if (gd.wrapDirectionImage) {
+        try {
+          // base64 görselini Excel'e göm
+          const base64Data = gd.wrapDirectionImage.split(',')[1] || gd.wrapDirectionImage;
+          const ext = gd.wrapDirectionImage.includes('image/png') ? 'png' : 'jpeg';
+          
+          const imageId = wb.addImage({
+            base64: base64Data,
+            extension: ext
+          });
+
+          const imgStartRow = row - 1; // 0-indexed
+          ws.addImage(imageId, {
+            tl: { col: 1, row: imgStartRow },
+            br: { col: 5, row: imgStartRow + 8 }
+          });
+
+          // Görsel için satır yüksekliği
+          for (let i = 0; i < 8; i++) {
+            ws.getRow(row).height = 25;
+            row++;
+          }
+        } catch (imgErr) {
+          console.error('Görsel ekleme hatası:', imgErr);
+          addFullRow('Sarım Yönü', 'Görsel yüklenemedi', lightFill);
+        }
+      } else {
+        addFullRow('Sarım Yönü', 'Görsel eklenmedi', lightFill);
+      }
+
+      row++; // Boş satır
+
+      // ===== AÇIKLAMA =====
+      if (gd.notes || order.notes) {
+        addSectionHeader('AÇIKLAMA / NOTLAR');
+        ws.mergeCells(`B${row}:H${row + 2}`);
+        ws.getCell(`B${row}`).value = gd.notes || order.notes || '-';
+        ws.getCell(`B${row}`).font = valueFont;
+        ws.getCell(`B${row}`).alignment = { vertical: 'top', wrapText: true };
+        ws.getCell(`B${row}`).border = thinBorder;
+        ws.getRow(row).height = 60;
+        row += 3;
+      }
+
+      row++;
+
+      // ===== İMZA ALANI =====
+      addSectionHeader('ONAY');
+      ws.getCell(`B${row}`).value = 'Hazırlayan';
+      ws.getCell(`B${row}`).font = labelFont;
+      ws.getCell(`B${row}`).alignment = { horizontal: 'center' };
+      ws.getCell(`B${row}`).border = thinBorder;
+      ws.mergeCells(`C${row}:D${row}`);
+      ws.getCell(`C${row}`).border = thinBorder;
+
+      ws.getCell(`F${row}`).value = 'Onaylayan';
+      ws.getCell(`F${row}`).font = labelFont;
+      ws.getCell(`F${row}`).alignment = { horizontal: 'center' };
+      ws.getCell(`F${row}`).border = thinBorder;
+      ws.mergeCells(`G${row}:H${row}`);
+      ws.getCell(`G${row}`).border = thinBorder;
+      ws.getRow(row).height = 40;
+
+      // Dosya oluştur ve indir
+      const fileName = `Is_Emri_${order.orderNo || 'Taslak'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
       if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-        // iOS'ta yeni sekmede aç
+        const url = window.URL.createObjectURL(blob);
         window.open(url, '_blank');
         setTimeout(() => window.URL.revokeObjectURL(url), 1000);
       } else {
-        // Diğer cihazlarda normal indirme
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+        saveAs(blob, fileName);
       }
 
-      alert(`✅ İş emri formu Excel dosyası oluşturuldu!\n\n📁 ${fileName}\n\n💡 Dosya indirme klasörünüze kaydedildi.`);
+      alert(`İş emri formu oluşturuldu!\n\n${fileName}`);
     } catch (error) {
       console.error('Excel export error:', error);
-      alert('❌ Excel dosyası oluşturulurken hata oluştu: ' + error.message);
+      alert('Excel dosyası oluşturulurken hata: ' + error.message);
     }
   };
 
