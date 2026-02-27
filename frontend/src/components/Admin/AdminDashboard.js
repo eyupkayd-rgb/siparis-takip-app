@@ -102,6 +102,44 @@ export default function AdminDashboard() {
     return () => unsubscribe();
   }, []);
 
+  // Fetch operators
+  useEffect(() => {
+    const operatorsRef = collection(db, 'artifacts', appId, 'public', 'data', 'operators');
+    const unsubscribe = onSnapshot(operatorsRef, (snapshot) => {
+      const opList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      opList.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'tr'));
+      setOperators(opList);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleAddOperator = async () => {
+    const name = newOperatorName.trim();
+    if (!name) return;
+    if (operators.some(op => op.name.toLowerCase() === name.toLowerCase())) {
+      alert('Bu operatör zaten mevcut.');
+      return;
+    }
+    setIsAddingOperator(true);
+    try {
+      const operatorsRef = collection(db, 'artifacts', appId, 'public', 'data', 'operators');
+      await addDoc(operatorsRef, { name, createdAt: new Date().toISOString() });
+      setNewOperatorName('');
+    } catch (error) {
+      alert('Hata: ' + error.message);
+    }
+    setIsAddingOperator(false);
+  };
+
+  const handleDeleteOperator = async (opId, opName) => {
+    if (!window.confirm(`"${opName}" operatörünü silmek istediğinize emin misiniz?`)) return;
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'operators', opId));
+    } catch (error) {
+      alert('Silme hatası: ' + error.message);
+    }
+  };
+
   const handleApprove = async (uid) => {
     try {
       const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
