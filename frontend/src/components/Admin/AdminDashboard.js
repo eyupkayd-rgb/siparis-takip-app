@@ -418,8 +418,70 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Operatör Yönetimi */}
+      <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100" data-testid="operator-management">
+        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <UserPlus size={24} className="text-teal-600" />
+          Operatör Yönetimi
+          <span className="ml-auto text-sm bg-teal-100 text-teal-700 px-3 py-1 rounded-full font-bold">
+            {operators.length} kişi
+          </span>
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Üretim istasyonlarında kullanılacak operatör listesini buradan yönetin.
+        </p>
+
+        {/* Yeni Operatör Ekleme */}
+        <div className="flex gap-2 mb-6">
+          <input
+            type="text"
+            placeholder="Yeni operatör adı soyadı..."
+            className="input-field flex-1"
+            value={newOperatorName}
+            onChange={e => setNewOperatorName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleAddOperator(); }}
+            data-testid="new-operator-input"
+          />
+          <button
+            onClick={handleAddOperator}
+            disabled={isAddingOperator || !newOperatorName.trim()}
+            className="px-5 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg"
+            data-testid="add-operator-btn"
+          >
+            {isAddingOperator ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+            Ekle
+          </button>
+        </div>
+
+        {/* Operatör Listesi */}
+        {operators.length === 0 ? (
+          <div className="text-center py-8 text-gray-400 border-2 border-dashed rounded-xl">
+            <UserPlus size={40} className="mx-auto mb-2 opacity-30" />
+            <p className="text-sm">Henüz operatör eklenmedi.</p>
+            <p className="text-xs mt-1">Yukarıdaki alandan operatör ekleyebilirsiniz.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {operators.map(op => (
+              <div
+                key={op.id}
+                className="flex items-center justify-between bg-gray-50 hover:bg-teal-50 border-2 border-gray-200 hover:border-teal-300 rounded-xl px-4 py-3 transition-all group"
+                data-testid={`operator-item-${op.id}`}
+              >
+                <span className="font-semibold text-gray-800 text-sm">{op.name}</span>
+                <button
+                  onClick={() => handleDeleteOperator(op.id, op.name)}
+                  className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                  title="Operatörü Sil"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-
