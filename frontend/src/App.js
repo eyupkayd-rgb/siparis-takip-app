@@ -128,24 +128,21 @@ export default function OrderApp() {
   }, []);
 
   // ============================================================================
-  // 🔄 AUTOMATIC REDIRECT TO PRODUCTION URL
+  // 🔄 AUTOMATIC REDIRECT TO LATEST URL
+  // REACT_APP_BACKEND_URL her fork'ta platform tarafından otomatik güncellenir
   // ============================================================================
   useEffect(() => {
-    const productionUrl = process.env.REACT_APP_PRODUCTION_URL;
+    const latestUrl = process.env.REACT_APP_BACKEND_URL;
     const currentUrl = window.location.origin;
     
-    // Only redirect if:
-    // 1. Production URL is configured
-    // 2. Current URL is different from production URL
-    // 3. Not running on localhost (for development)
     if (
-      productionUrl && 
-      currentUrl !== productionUrl && 
+      latestUrl && 
+      currentUrl !== latestUrl && 
       !currentUrl.includes('localhost') &&
       !currentUrl.includes('127.0.0.1')
     ) {
-      console.log(`🔄 Redirecting from ${currentUrl} to ${productionUrl}`);
-      window.location.href = productionUrl + window.location.pathname + window.location.search;
+      console.log(`🔄 Redirecting from ${currentUrl} to ${latestUrl}`);
+      window.location.href = latestUrl + window.location.pathname + window.location.search;
     }
   }, []);
 
