@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Loader2, Edit3, Trash2, Check, Ban, AlertCircle, Database } from 'lucide-react';
-import { collection, getDocs, updateDoc, deleteDoc, doc, addDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { Users, Loader2, Edit3, Trash2, Check, Ban, AlertCircle, Database, Plus, UserPlus, X } from 'lucide-react';
+import { collection, getDocs, updateDoc, deleteDoc, doc, addDoc, setDoc, onSnapshot, getDoc } from "firebase/firestore";
 import { db, appId, SUPER_ADMIN_EMAILS } from '../../services/firebase';
 
 export default function AdminDashboard() {
@@ -9,6 +9,11 @@ export default function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
+  
+  // Operatör yönetimi state
+  const [operators, setOperators] = useState([]);
+  const [newOperatorName, setNewOperatorName] = useState('');
+  const [isAddingOperator, setIsAddingOperator] = useState(false);
 
   // Migration: user_roles → users collection
   const handleMigrateUsers = async () => {
