@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Printer, Play, StopCircle, CheckCircle, X, Loader2, AlertCircle, BarChart3, ClipboardCheck, PackageCheck, Search, User } from 'lucide-react';
-import { updateDoc, doc } from "firebase/firestore";
+import { updateDoc, doc, collection, onSnapshot, getDoc } from "firebase/firestore";
 import { db, appId } from '../../services/firebase';
 import { logStockMovement } from '../../utils/stockHelpers';
 import StatusBadge from '../shared/StatusBadge';
@@ -10,30 +10,28 @@ export default function ProductionDashboard({ orders, isSuperAdmin, currentUser 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [operators, setOperators] = useState([]);
   const [stationData, setStationData] = useState({
     startTime: '',
     endTime: '',
     inputMeterage: '',
     outputMeterage: '',
-    outputQuantity: '', // Adet veya KG (son istasyon için)
+    outputQuantity: '',
     notes: '',
-    isStarted: false, // İş başlatıldı mı
-    operatorName: '' // Operatör ismi
+    isStarted: false,
+    operatorName: ''
   });
 
-  // Operatör listesi
-  const operators = [
-    'Ahmet Yılmaz',
-    'Mehmet Demir',
-    'Ali Kaya',
-    'Mustafa Çelik',
-    'Hasan Şahin',
-    'Hüseyin Yıldız',
-    'İbrahim Öztürk',
-    'Osman Aydın',
-    'Fatih Arslan',
-    'Emre Doğan'
-  ];
+  // Operatörleri Firestore'dan çek
+  useEffect(() => {
+    const operatorsRef = collection(db, 'artifacts', appId, 'public', 'data', 'operators');
+    const unsubscribe = onSnapshot(operatorsRef, (snapshot) => {
+      const opList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      opList.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'tr'));
+      setOperators(opList);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Station definitions
   const stations = {
