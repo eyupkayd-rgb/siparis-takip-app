@@ -5,11 +5,11 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 
 ## Kullanıcı Personaları
 1. **Pazarlama**: Sipariş oluşturma ve müşteri yönetimi
-2. **Grafik**: Teknik detaylar ve görsel onay
+2. **Grafik**: Teknik detaylar, görsel onay, sarım yönü görseli yükleme
 3. **Depo**: Malzeme rezervasyonu ve bobin yönetimi
-4. **Planlama**: Üretim planlaması ve Excel iş emri çıktısı
-5. **Üretim**: İstasyon bazlı üretim takibi
-6. **Yönetim**: Genel izleme ve admin işlemleri
+4. **Planlama**: Üretim planlaması ve Excel iş emri çıktısı (görsel gömme destekli)
+5. **Üretim**: İstasyon bazlı üretim takibi (dinamik operatör listesi)
+6. **Yönetim**: Genel izleme, admin işlemleri, operatör yönetimi
 
 ## Temel Gereksinimler
 1. ✅ Responsive mobil UI (hamburger menü, collapsible sidebar)
@@ -17,27 +17,27 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 3. ✅ Sipariş akışı: Pazarlama → Grafik → Depo → Planlama → Üretim → Sevkiyat
 4. ✅ AI destekli süre tahmini (Gemini)
 5. ✅ Super Admin özellikleri (toplu silme, sipariş no düzenleme)
-6. ✅ Sarım yönü görsel yükleme + kırpma (eski modal seçimi kaldırıldı)
-7. ✅ Excel iş emri export (mobil uyumlu Blob yöntemi)
+6. ✅ Sarım yönü görsel yükleme + kırpma (react-easy-crop)
+7. ✅ Excel iş emri export (ExcelJS - görsel gömme destekli, tüm sipariş detayları)
 8. ✅ Kademeli metre aktarımı (istasyonlar arası)
-9. ✅ Dinamik operatör listesi (Admin panelinden yönetim)
+9. ✅ Dinamik operatör listesi (Admin panelinden Firestore tabanlı yönetim)
 10. ✅ Stok hareketleri silme (Super Admin - tek tek ve toplu)
 11. ✅ Raporlama & İstatistikler sayfası
-12. ✅ Karışık birimli varyant miktar hesaplama düzeltildi
+12. ✅ Karışık birimli varyant miktar hesaplama (quantityByUnit)
 13. ✅ Ambalaj varyantlarında birim seçimi (Adet/KG/Metre)
 
 ## Mevcut Mimari
 ```
 /app/frontend/
 ├── src/
-│   ├── App.js (ana layout, sidebar, routing)
+│   ├── App.js (ana layout, sidebar, routing, otomatik URL yönlendirme)
 │   ├── components/
 │   │   ├── Marketing/MarketingDashboard.js
 │   │   ├── Graphics/GraphicsDashboard.js, WrapDirectionImageUpload.js
-│   │   ├── Warehouse/WarehouseDashboard.js (stok silme özellikleri)
-│   │   ├── Planning/PlanningDashboard.js (Excel export)
+│   │   ├── Warehouse/WarehouseDashboard.js
+│   │   ├── Planning/PlanningDashboard.js (ExcelJS ile görsel gömme)
 │   │   ├── Production/ProductionDashboard.js (dinamik operatör)
-│   │   ├── Reports/ReportsDashboard.js (raporlama)
+│   │   ├── Reports/ReportsDashboard.js
 │   │   ├── Admin/AdminDashboard.js (operatör yönetimi)
 │   │   ├── Archive/ArchiveDashboard.js
 │   │   └── Auth/AuthScreen.js
@@ -47,48 +47,39 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 
 ## Tamamlanan İşler
 
-### 26 Şubat 2026 (Bu Oturum)
-- ✅ P0: Karışık birimli varyant miktar hesaplama düzeltildi (quantityByUnit objesi eklendi)
-- ✅ Sarım yönü modalı kaldırıldı → Görsel yükleme + kırpma (react-easy-crop) eklendi
-- ✅ Dinamik operatör yönetimi: Admin paneline Firestore tabanlı CRUD eklendi
-- ✅ Üretim operatör dropdown'u: Hardcoded liste kaldırıldı, Firestore'dan çekiliyor
-- ✅ Excel iş emri export: Sarım yönü alanı yeni görsel formatına güncellendi
-- ✅ generateProductionJobs: Her iş öğesine birim (unit) bilgisi eklendi
+### 27 Şubat 2026
+- ✅ Excel export ExcelJS'e taşındı (SheetJS yerine) — görsel gömme desteği eklendi
+- ✅ Excel'de tüm sipariş detayları: Sipariş bilgileri, Teknik detaylar (Grafik), Depo/Malzeme, Planlama bilgileri, Sarım yönü görseli (gömülü), Açıklama/Notlar, Onay alanı
+- ✅ Otomatik URL yönlendirme: REACT_APP_BACKEND_URL tabanlı (platform otomatik günceller)
+
+### 26 Şubat 2026
+- ✅ P0: Karışık birimli varyant miktar hesaplama düzeltildi (quantityByUnit)
+- ✅ Sarım yönü modalı kaldırıldı → Görsel yükleme + kırpma (react-easy-crop)
+- ✅ Dinamik operatör yönetimi: Admin paneline Firestore tabanlı CRUD
+- ✅ Üretim operatör dropdown'u: Hardcoded liste → Firestore
+- ✅ generateProductionJobs: Her işe birim bilgisi eklendi
 
 ### Önceki Oturumlar
 - ✅ Üretim akışında kademeli metre aktarımı
-- ✅ Mobil Excel export (Blob yöntemi)
-- ✅ Operatör seçimi dropdown'u
-- ✅ Stok hareketleri silme
-- ✅ Raporlama & İstatistikler sayfası
+- ✅ Operatör seçimi dropdown'u, Flat Kesim & Serigrafi istasyonları
+- ✅ Stok hareketleri silme, Raporlama sayfası
 - ✅ ZET/Adımlama/Metraj hesaplama motoru
 - ✅ Baskılı/Baskısız ambalaj iş akışı
-- ✅ Flat Kesim & Serigrafi istasyonları
 
 ## Öncelikli Backlog
 
-### P1 - Yüksek
-- Firebase/React DOM kararlılık sorunları (removeChild/insertBefore) - Kullanıcı doğrulaması bekleniyor
+### P1
+- Firebase/React DOM kararlılık sorunları (kullanıcı doğrulaması bekleniyor)
 
-### P2 - Orta
+### P2
 - Otomatik e-posta raporlama
-- Firebase offline persistence yeniden değerlendirilmesi
-
-## Test Hesabı
-- Email: eyupkayd@gmail.com
-- Şifre: Agr154627-
-
-## 3. Parti Entegrasyonlar
-- Firebase (Auth, Firestore)
-- Google Gemini (AI tahmin)
-- SheetJS/xlsx (Excel export)
-- Recharts (grafikler ve raporlama)
-- react-easy-crop (görsel kırpma)
+- Firebase offline persistence yeniden değerlendirme
 
 ## Firestore Koleksiyonları
-- `orders`: Sipariş verileri
-- `users`: Kullanıcı profilleri
-- `operators`: Dinamik operatör listesi (YENİ)
-- `stock_rolls`: Bobin stok
-- `stock_movements`: Stok hareketleri
-- `customer_cards`: Müşteri kartları
+- `orders`, `users`, `operators` (YENİ), `stock_rolls`, `stock_movements`, `customer_cards`
+
+## 3. Parti Entegrasyonlar
+- Firebase (Auth, Firestore), Google Gemini (AI), ExcelJS (Excel export), Recharts (grafikler), react-easy-crop (görsel kırpma), file-saver (dosya indirme)
+
+## Test Hesabı
+- Email: eyupkayd@gmail.com / Şifre: Agr154627-
