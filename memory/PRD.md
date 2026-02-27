@@ -16,13 +16,15 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 2. ✅ Firebase Authentication & Firestore
 3. ✅ Sipariş akışı: Pazarlama → Grafik → Depo → Planlama → Üretim → Sevkiyat
 4. ✅ AI destekli süre tahmini (Gemini)
-5. ⏳ Super Admin özellikleri (toplu silme, sipariş no düzenleme)
-6. ⏳ Sarım yönü görsel seçimi (placeholder ikonlar mevcut)
+5. ✅ Super Admin özellikleri (toplu silme, sipariş no düzenleme)
+6. ✅ Sarım yönü görsel yükleme + kırpma (eski modal seçimi kaldırıldı)
 7. ✅ Excel iş emri export (mobil uyumlu Blob yöntemi)
 8. ✅ Kademeli metre aktarımı (istasyonlar arası)
-9. ✅ Operatör seçimi dropdown'u (üretim istasyonları için)
+9. ✅ Dinamik operatör listesi (Admin panelinden yönetim)
 10. ✅ Stok hareketleri silme (Super Admin - tek tek ve toplu)
 11. ✅ Raporlama & İstatistikler sayfası
+12. ✅ Karışık birimli varyant miktar hesaplama düzeltildi
+13. ✅ Ambalaj varyantlarında birim seçimi (Adet/KG/Metre)
 
 ## Mevcut Mimari
 ```
@@ -31,47 +33,46 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 │   ├── App.js (ana layout, sidebar, routing)
 │   ├── components/
 │   │   ├── Marketing/MarketingDashboard.js
-│   │   ├── Graphics/GraphicsDashboard.js, WrapDirectionModal.js
+│   │   ├── Graphics/GraphicsDashboard.js, WrapDirectionImageUpload.js
 │   │   ├── Warehouse/WarehouseDashboard.js (stok silme özellikleri)
 │   │   ├── Planning/PlanningDashboard.js (Excel export)
-│   │   ├── Production/ProductionDashboard.js (operatör seçimi)
-│   │   ├── Reports/ReportsDashboard.js (YENİ - raporlama)
+│   │   ├── Production/ProductionDashboard.js (dinamik operatör)
+│   │   ├── Reports/ReportsDashboard.js (raporlama)
+│   │   ├── Admin/AdminDashboard.js (operatör yönetimi)
 │   │   ├── Archive/ArchiveDashboard.js
-│   │   └── Admin/AdminDashboard.js
-│   └── services/firebase.js
+│   │   └── Auth/AuthScreen.js
+│   ├── services/firebase.js
+│   └── utils/productionHelpers.js, stockHelpers.js
 ```
 
-## Tamamlanan İşler (Bu Oturum)
+## Tamamlanan İşler
 
-### 27 Ocak 2026
-- ✅ P0: Üretim akışında kademeli metre aktarımı düzeltildi
-- ✅ P1: Mobil Excel export sorunu düzeltildi (Blob yöntemi)
+### 26 Şubat 2026 (Bu Oturum)
+- ✅ P0: Karışık birimli varyant miktar hesaplama düzeltildi (quantityByUnit objesi eklendi)
+- ✅ Sarım yönü modalı kaldırıldı → Görsel yükleme + kırpma (react-easy-crop) eklendi
+- ✅ Dinamik operatör yönetimi: Admin paneline Firestore tabanlı CRUD eklendi
+- ✅ Üretim operatör dropdown'u: Hardcoded liste kaldırıldı, Firestore'dan çekiliyor
+- ✅ Excel iş emri export: Sarım yönü alanı yeni görsel formatına güncellendi
+- ✅ generateProductionJobs: Her iş öğesine birim (unit) bilgisi eklendi
 
-### 18 Şubat 2026
-- ✅ Operatör seçimi dropdown'u eklendi (ProductionDashboard)
-  - 10 örnek operatör listesi
-  - Her istasyonda operatör seçimi zorunlu
-  - Önceki işlemlerde operatör bilgisi görüntüleniyor
-- ✅ Stok hareketleri silme özellikleri (WarehouseDashboard)
-  - Super Admin için "Tümünü Temizle" butonu
-  - Her satırda tek tek silme butonu
-  - Loading state ve güvenlik onayları
-- ✅ Raporlama & İstatistikler sayfası (ReportsDashboard)
-  - Genel Bakış: Özet kartlar, haftalık trend, durum dağılımı, günlük trend
-  - Üretim: İstasyon bazlı performans, operatör performansı
-  - Siparişler: Kategori dağılımı, en çok sipariş veren müşteriler
-  - Stok: Stok hareketleri özeti, mevcut stok durumu
-  - Tarih filtresi: Hafta/Ay/3 Ay/Yıl
+### Önceki Oturumlar
+- ✅ Üretim akışında kademeli metre aktarımı
+- ✅ Mobil Excel export (Blob yöntemi)
+- ✅ Operatör seçimi dropdown'u
+- ✅ Stok hareketleri silme
+- ✅ Raporlama & İstatistikler sayfası
+- ✅ ZET/Adımlama/Metraj hesaplama motoru
+- ✅ Baskılı/Baskısız ambalaj iş akışı
+- ✅ Flat Kesim & Serigrafi istasyonları
 
 ## Öncelikli Backlog
 
 ### P1 - Yüksek
-- Super Admin: Toplu silme ve sipariş no düzenleme test edilmeli
-- Sarım yönü: Kullanıcıdan 8 adet PNG/SVG görsel bekleniyor
+- Firebase/React DOM kararlılık sorunları (removeChild/insertBefore) - Kullanıcı doğrulaması bekleniyor
 
 ### P2 - Orta
-- Firebase offline persistence yeniden değerlendirilmeli
-- Kod kalitesi geçişi
+- Otomatik e-posta raporlama
+- Firebase offline persistence yeniden değerlendirilmesi
 
 ## Test Hesabı
 - Email: eyupkayd@gmail.com
@@ -82,3 +83,12 @@ Etiket ve ambalaj üretimi yapan bir matbaa firması için kapsamlı bir ERP/sip
 - Google Gemini (AI tahmin)
 - SheetJS/xlsx (Excel export)
 - Recharts (grafikler ve raporlama)
+- react-easy-crop (görsel kırpma)
+
+## Firestore Koleksiyonları
+- `orders`: Sipariş verileri
+- `users`: Kullanıcı profilleri
+- `operators`: Dinamik operatör listesi (YENİ)
+- `stock_rolls`: Bobin stok
+- `stock_movements`: Stok hareketleri
+- `customer_cards`: Müşteri kartları
